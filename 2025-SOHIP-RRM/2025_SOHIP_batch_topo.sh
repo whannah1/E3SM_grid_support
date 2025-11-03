@@ -3,20 +3,21 @@
 #SBATCH --constraint=cpu
 #SBATCH --qos=regular
 #SBATCH --job-name=SOHIP_generate_topo
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/gen_topo_SOHIP_slurm-%x-%j.out
+#SBATCH --output=/global/homes/w/whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/gen_topo_SOHIP_slurm-%x-%j.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
 
-# grid_name=2025-sohip-256x3-ptgnia-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
-# grid_name=2025-sohip-256x3-sw-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
-# grid_name=2025-sohip-256x3-eq-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-ptgnia-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-sw-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-eq-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-se-pac-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-sc-pac-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
+# grid_name=2025-sohip-256x3-sc-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
 
-# grid_name=2025-sohip-256x3-se-pac-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
-# grid_name=2025-sohip-256x3-sc-pac-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
-# grid_name=2025-sohip-256x3-sc-ind-v1;sbatch --job-name=gen_topo_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_topo.sh
 
+# export grid_name=2025-sohip-256x3-se-pac-v1; bash ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
 #-------------------------------------------------------------------------------
 create_grid=false
 cttrmp_topo=false
@@ -25,7 +26,7 @@ cttsgh_topo=true
 #-------------------------------------------------------------------------------
 timestamp=20250904
 
-slurm_log_root=/global/homes/w/whannah/E3SM/logs_slurm
+slurm_log_root=/global/homes/w/whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm
 slurm_log_create_grid=$slurm_log_root/gen_topo_SOHIP_slurm-$SLURM_JOB_NAME-$SLURM_JOB_ID.create_grid.out
 slurm_log_cttrmp_topo=$slurm_log_root/gen_topo_SOHIP_slurm-$SLURM_JOB_NAME-$SLURM_JOB_ID.cttrmp_topo.out
 slurm_log_smooth_topo=$slurm_log_root/gen_topo_SOHIP_slurm-$SLURM_JOB_NAME-$SLURM_JOB_ID.smooth_topo.out
@@ -91,7 +92,7 @@ set -e
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
+# unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
 module load python
 source activate hiccup_env
 eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
@@ -132,7 +133,8 @@ EOF
   srun -n 4 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${e3sm_root}/cmake_homme/input.nl >> $slurm_log_create_grid 2>&1
 
   # use python utility for format conversion
-  ${unified_bin}/python ${e3sm_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
+  # ${unified_bin}/python ${e3sm_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
+  python ${e3sm_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
           --src_file ${homme_tool_root}/ne0np4_tmp1.nc \
           --dst_file ${grid_root}/${grid_name}-np4_scrip.nc >> $slurm_log_create_grid 2>&1
 else
