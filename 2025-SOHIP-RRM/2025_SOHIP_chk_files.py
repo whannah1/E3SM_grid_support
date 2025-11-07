@@ -4,7 +4,13 @@ import os,glob,subprocess as sp
 class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
 #-------------------------------------------------------------------------------
-data_root = '/global/cfs/cdirs/m4842/whannah'
+nersc_data_root = '/global/cfs/cdirs/m4842/whannah'
+lcrc_data_root = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/SOHIP'
+data_root = None
+if os.path.exists(nersc_data_root): data_root = nersc_data_root
+if os.path.exists(lcrc_data_root): data_root = lcrc_data_root
+if data_root is None: raise ValueError('root path not found!')
+#-------------------------------------------------------------------------------
 
 grid_list = []
 grid_list.append('2025-sohip-256x3-ptgnia-v1')
