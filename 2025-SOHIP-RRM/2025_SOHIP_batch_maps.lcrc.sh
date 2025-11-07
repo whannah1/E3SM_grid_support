@@ -3,7 +3,7 @@
 ###SBATCH --constraint=cpu
 ###SBATCH --qos=regular
 ###SBATCH --job-name=SOHIP_gen_maps
-###SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/SOHIP_slurm_%x_%j.out
+###SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/%x-%j.slurm.out
 ###SBATCH --time=6:00:00
 ###SBATCH --nodes=1
 ###SBATCH --mail-user=hannah6@llnl.gov
@@ -12,53 +12,38 @@
 # chrysalis
 #SBATCH --account=e3sm
 #SBATCH --job-name=SOHIP_gen_maps
-#SBATCH --output=/home/ac.whannah/E3SM/logs_slurm/SOHIP_slurm_%x_%j.out
+#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/%x-%j.slurm.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-# grid_name=2025-sohip-256x3-ptgnia-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sw-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-se-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sc-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-eq-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sc-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
+# grid_name=2025-sohip-256x3-ptgnia-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
+# grid_name=2025-sohip-256x3-sw-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
+# grid_name=2025-sohip-256x3-se-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
+# grid_name=2025-sohip-256x3-sc-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
+# grid_name=2025-sohip-256x3-eq-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
+# grid_name=2025-sohip-256x3-sc-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
 #-------------------------------------------------------------------------------
-# source activate hiccup_env
-# export grid_name=2025-sohip-256x3-ptgnia-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-# export grid_name=2025-sohip-256x3-sw-ind-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-# export grid_name=2025-sohip-256x3-se-pac-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-# export grid_name=2025-sohip-256x3-sc-pac-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-# export grid_name=2025-sohip-256x3-eq-ind-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-# export grid_name=2025-sohip-256x3-sc-ind-v1; bash ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh >> /home/ac.whannah/E3SM/logs_slurm/SOHIP_gen_maps_$grid_name.out 2>&1
-#-------------------------------------------------------------------------------
-# create_grid=false
 create_maps_ocn=true
 create_maps_lnd=true
 #-------------------------------------------------------------------------------
-timestamp=20251006
-
 # NERSC
 # home=/global/homes/w/whannah
 # # data_root=/global/cfs/cdirs/e3sm/whannah
 # data_root=/global/cfs/cdirs/m4842/whannah
 # DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
-
+#-------------------------------------------------------------------------------
 # LCRC
 home=/home/ac.whannah
 data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/SOHIP
 DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
+#-------------------------------------------------------------------------------
+timestamp=20251006
 
-
-slurm_log_root=${home}/E3SM/logs_slurm
-# slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_grid.out
-
-# slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_ocn.out
-# slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_lnd.out
-
-slurm_log_create_maps_ocn=$slurm_log_root/gen_maps_$grid_name.create_maps_ocn.out
-slurm_log_create_maps_lnd=$slurm_log_root/gen_maps_$grid_name.create_maps_lnd.out
+slurm_log_root=${home}/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm
+slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_ocn.out
+slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_lnd.out
 
 grid_root=${data_root}/files_grid
 maps_root=${data_root}/files_map
@@ -78,6 +63,9 @@ ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5
 # ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc
 rof_grid_file=${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.25x0.25_nomask_c200309.nc
 
+# alg_list_arg="--alg_lst=esmfaave,esmfbilin,ncoaave,ncoidw,traave,trbilin,trfv2,trintbilin" # default
+alg_list_arg="--alg_lst=traave,trbilin,trfv2,trintbilin"
+
 #---------------------------------------------------------------------------------------------------  
 # print some useful things
 echo --------------------------------------------------------------------------------
@@ -96,7 +84,7 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 #-------------------------------------------------------------------------------
 # Make sure paths exist
 if [ ! -d ${DIN_LOC_ROOT} ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${DIN_LOC_ROOT} ; fi
-# if [ ! -d ${e3sm_root}    ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${e3sm_root} ; fi
+if [ ! -d ${e3sm_root}    ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${e3sm_root} ; fi
 if [ ! -d ${grid_root}    ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${grid_root} ; fi
 if [ ! -d ${maps_root}    ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${maps_root} ; fi
 #-------------------------------------------------------------------------------
@@ -109,43 +97,18 @@ set -e
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-# unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
-unified_bin=/lcrc/soft/climate/e3sm-unified/spack/e3sm_unified_1_11_1_chrysalis_gnu_openmpi/var/spack/environments/e3sm_unified_1_11_1_chrysalis_gnu_openmpi/.spack-env/view/bin
-module load python
-# source activate hiccup_env
+source /lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
 # eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
 ulimit -s unlimited # required for larger grids
 echo --------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------
-# if $create_grid; then
-#   echo
-#   echo -e ${GRN} Creating grid files with TempestRemap ${NC} $slurm_log_create_grid
-#   echo
-#   GenerateCSMesh --alt --res ${NE} --file ${grid_root}/ne${NE}.g >> $slurm_log_create_grid 2>&1
-#   GenerateVolumetricMesh --in ${grid_root}/ne${NE}.g --out ${grid_root}/ne${NE}pg2.g --np 2 --uniform >> $slurm_log_create_grid 2>&1
-#   ConvertMeshToSCRIP --in ${grid_root}/ne${NE}pg2.g --out ${grid_root}/ne${NE}pg2_scrip.nc >> $slurm_log_create_grid 2>&1
-# else
-#   echo
-#   echo -e ${CYN} Skipping grid generation ${NC}
-#   echo
-# fi
-# #---------------------------------------------------------------------------------------------------
-# # Check that grid files were created
-# chk_file1=${grid_root}/ne${NE}pg2_scrip.nc
-# if [ ! -f ${chk_file1} ]; then
-#   echo
-#   echo -e ${RED} Failed to create domain file - Errors ocurred ${NC}
-#   echo
-# fi
 #---------------------------------------------------------------------------------------------------
 if $create_maps_ocn; then
   echo
   echo -e ${GRN} Creating ocn map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  cmd="time ${unified_bin}/ncremap -P mwf -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
-  # cmd="time ncremap -P mwf -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
+  cmd="time ncremap -P mwf ${alg_list_arg} -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
   echo $cmd ; echo
   eval "$cmd"
   #-----------------------------------------------------------------------------
@@ -168,8 +131,7 @@ if $create_maps_lnd; then
   echo -e ${GRN} Creating lnd map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  cmd="time ${unified_bin}/ncremap -P mwf -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
-  # cmd="time ncremap -P mwf -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
+  cmd="time ncremap -P mwf ${alg_list_arg} -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
   echo $cmd ; echo
   eval "$cmd"
   #-----------------------------------------------------------------------------

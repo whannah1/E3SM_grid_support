@@ -1,11 +1,20 @@
 #!/bin/bash
+###SBATCH --account=e3sm
+###SBATCH --constraint=cpu
+###SBATCH --qos=regular
+###SBATCH --job-name=EAMxx-AC_generate_domain
+###SBATCH --output=/global/homes/w/whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/EAMxx-AC_gen_domain_slurm-%x-%j.out
+###SBATCH --time=4:00:00
+###SBATCH --nodes=1
+###SBATCH --mail-type=END,FAIL
+#-------------------------------------------------------------------------------
+# chrysalis
 #SBATCH --account=e3sm
-#SBATCH --constraint=cpu
-#SBATCH --qos=regular
-#SBATCH --job-name=EAMxx-AC-blitz_generate_domain
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/EAMxx-AC-blitz_gen_domain_slurm-%x-%j.out
-#SBATCH --time=4:00:00
+#SBATCH --job-name=EAMxx-AC_gen_domain
+#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/EAMxx-AC_gen_domain_slurm_%x_%j.out
+#SBATCH --time=6:00:00
 #SBATCH --nodes=1
+#SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
 # NE=256 ; sbatch --job-name=gen_domain_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_domain.sh
@@ -13,15 +22,22 @@
 # NE=64  ; sbatch --job-name=gen_domain_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_domain.sh
 # NE=32  ; sbatch --job-name=gen_domain_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_domain.sh
 #-------------------------------------------------------------------------------
+# LCRC paths
+home=/home/ac.whannah
+data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2025-EAMxx-autocal
+DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
+e3sm_root=
+#-------------------------------------------------------------------------------
+# NERSC paths
+# e3sm_root=/pscratch/sd/w/whannah/tmp_e3sm_src
+# data_root=/global/cfs/cdirs/e3sm/whannah
+# DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
+#-------------------------------------------------------------------------------
 timestamp=20251006
 
-e3sm_root=/pscratch/sd/w/whannah/tmp_e3sm_src
-data_root=/global/cfs/cdirs/e3sm/whannah
 grid_root=${data_root}/files_grid
 maps_root=${data_root}/files_map
 domain_root=${data_root}/files_domain
-
-DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
 
 atm_grid_file=${grid_root}/ne${NE}pg2_scrip.nc
 # ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/ICOS10/ocean.ICOS10.scrip.211015.nc
@@ -74,7 +90,7 @@ echo ---------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-ncremap -a traave --src_grd=${ocn_grid_file} --dst_grd=${atm_grid_file} --map_file=${map_file}
+# ncremap -a traave --src_grd=${ocn_grid_file} --dst_grd=${atm_grid_file} --map_file=${map_file}
 
 python ${e3sm_root}/tools/generate_domain_files/generate_domain_files_E3SM.py \
 -m ${map_file} -o RRSwISC6to18E3r5 -l ne${NE}pg2 --date-stamp=${timestamp} --output-root=${domain_root}

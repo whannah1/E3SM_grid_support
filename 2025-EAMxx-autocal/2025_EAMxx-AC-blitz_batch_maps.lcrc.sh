@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------
 # chrysalis
 #SBATCH --account=e3sm
-#SBATCH --job-name=SOHIP_gen_maps
-#SBATCH --output=/home/ac.whannah/E3SM/logs_slurm/SOHIP_slurm_%x_%j.out
+#SBATCH --job-name=EAMxx-AC_gen_maps
+#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/%x-%j.slurm.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
@@ -13,6 +13,7 @@
 # NE=128 ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
 # NE=64  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
 # NE=32  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+#-------------------------------------------------------------------------------
 # export NE=256 ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
 # export NE=128 ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
 # export NE=64  ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
@@ -32,8 +33,8 @@ timestamp=20251006
 
 slurm_log_root=${home}/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm
 slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_grid.out
-slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB.ID_slurm.create_maps_ocn.out
-slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB.ID_slurm.create_maps_lnd.out
+slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_ocn.out
+slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_lnd.out
 
 
 grid_root=${data_root}/files_grid
@@ -51,6 +52,9 @@ lnd_grid_file=${DIN_LOC_ROOT}/share/meshes/rof/SCRIPgrid_0.25x0.25_nomask_c20030
 ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.nomask.scrip.20240327.nc
 # ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc
 rof_grid_file=${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.25x0.25_nomask_c200309.nc
+
+# alg_list_arg="--alg_lst=esmfaave,esmfbilin,ncoaave,ncoidw,traave,trbilin,trfv2,trintbilin" # default
+alg_list_arg="--alg_lst=traave,trbilin,trfv2,trintbilin"
 
 #-------------------------------------------------------------------------------  
 # print some useful things
@@ -116,9 +120,12 @@ if $create_maps_ocn; then
   echo -e ${GRN} Creating ocn map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  time ncremap -P mwf -s $ocn_grid_file -g $atm_grid_file \
-  --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} \
-  --dt_sng=${timestamp}  >> $slurm_log_create_maps_ocn 2>&1
+  # time ncremap -P mwf ${alg_list_arg} -s $ocn_grid_file -g $atm_grid_file \
+  # --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} \
+  # --dt_sng=${timestamp}  >> $slurm_log_create_maps_ocn 2>&1
+  cmd="time ncremap -P mwf ${alg_list_arg} -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
+  echo $cmd ; echo
+  eval "$cmd"
 else
   echo
   echo -e ${CYN} Skipping ocn map generation ${NC}
@@ -130,9 +137,12 @@ if $create_maps_lnd; then
   echo -e ${GRN} Creating lnd map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  time ncremap -P mwf -s $lnd_grid_file -g $atm_grid_file \
-  --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} \
-  --dt_sng=${timestamp}  >> $slurm_log_create_maps_lnd 2>&1
+  # time ncremap -P mwf ${alg_list_arg} -s $lnd_grid_file -g $atm_grid_file \
+  # --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} \
+  # --dt_sng=${timestamp}  >> $slurm_log_create_maps_lnd 2>&1
+  cmd="time ncremap -P mwf ${alg_list_arg} -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
+  echo $cmd ; echo
+  eval "$cmd"
 else
   echo
   echo -e ${CYN} Skipping lnd map generation ${NC}
