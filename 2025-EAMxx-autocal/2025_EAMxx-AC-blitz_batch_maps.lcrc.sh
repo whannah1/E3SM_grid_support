@@ -1,39 +1,43 @@
 #!/bin/bash
+#-------------------------------------------------------------------------------
+# chrysalis
 #SBATCH --account=e3sm
-#SBATCH --constraint=cpu
-#SBATCH --qos=regular
-#SBATCH --job-name=EAMxx-AC-blitz_gen_maps
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/EAMxx-AC-blitz_slurm_%x_%j.out
+#SBATCH --job-name=SOHIP_gen_maps
+#SBATCH --output=/home/ac.whannah/E3SM/logs_slurm/SOHIP_slurm_%x_%j.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
+#SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-# NE=256 ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_maps.sh
-# NE=128 ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_maps.sh
-# NE=64  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_maps.sh
-# NE=32  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_maps.sh
-# export NE=256 ; ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_grid_files.sh
-# export NE=128 ; ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_grid_files.sh
-# export NE=64  ; ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_grid_files.sh
-# export NE=32  ; ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_grid_files.sh
+# NE=256 ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# NE=128 ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# NE=64  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# NE=32  ; sbatch --job-name=gen_maps_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# export NE=256 ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# export NE=128 ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# export NE=64  ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
+# export NE=32  ; ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_maps.lcrc.sh
 #-------------------------------------------------------------------------------
-create_grid=false
-create_maps_ocn=false
+create_grid=true
+create_maps_ocn=true
 create_maps_lnd=true
 #-------------------------------------------------------------------------------
+# LCRC paths
+home=/home/ac.whannah
+data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2025-EAMxx-autocal
+DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
+#-------------------------------------------------------------------------------
+
 timestamp=20251006
 
-slurm_log_root=/global/homes/w/whannah/E3SM/logs_slurm
-slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_grid.out
-slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_ocn.out
-slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_lnd.out
+slurm_log_root=${home}/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm
+slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_grid.out
+slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB.ID_slurm.create_maps_ocn.out
+slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB.ID_slurm.create_maps_lnd.out
 
 
-data_root=/global/cfs/cdirs/e3sm/whannah
 grid_root=${data_root}/files_grid
 maps_root=${data_root}/files_map
-
-DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
 
 atm_grid_name=ne${NE}pg2
 lnd_grid_name=r025
@@ -77,9 +81,10 @@ set -e
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
-module load python
-source activate hiccup_env
+# unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
+# module load python
+# source activate hiccup_env
+source /lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
 # eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
 ulimit -s unlimited # required for larger grids
 echo --------------------------------------------------------------------------------
