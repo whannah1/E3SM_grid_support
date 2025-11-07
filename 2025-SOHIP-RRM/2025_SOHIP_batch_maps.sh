@@ -3,25 +3,27 @@
 #SBATCH --constraint=cpu
 #SBATCH --qos=regular
 #SBATCH --job-name=SOHIP_gen_maps
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/SOHIP_slurm_%x_%j.out
+#SBATCH --output=/global/homes/w/whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/SOHIP_slurm_%x_%j.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-# grid_name=2025-sohip-256x3-ptgnia-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sw-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-se-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sc-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-eq-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
-# grid_name=2025-sohip-256x3-sc-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM/batch_scripts/2025_SOHIP_batch_maps.sh
+# grid_name=2025-sohip-256x3-ptgnia-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
+
+# grid_name=2025-sohip-256x3-sw-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
+
+# grid_name=2025-sohip-256x3-se-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
+# grid_name=2025-sohip-256x3-sc-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
+# grid_name=2025-sohip-256x3-eq-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
+# grid_name=2025-sohip-256x3-sc-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.sh
 #-------------------------------------------------------------------------------
 # create_grid=false
-create_maps_ocn=false
-create_maps_lnd=true
+create_maps_ocn=true
+create_maps_lnd=false
 #-------------------------------------------------------------------------------
 timestamp=20251006
 
-slurm_log_root=/global/homes/w/whannah/E3SM/logs_slurm
+slurm_log_root=/global/homes/w/whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm
 # slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_grid.out
 slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_ocn.out
 slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID_slurm.create_maps_lnd.out
@@ -47,6 +49,10 @@ lnd_grid_file=${DIN_LOC_ROOT}/share/meshes/rof/SCRIPgrid_0.25x0.25_nomask_c20030
 ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.nomask.scrip.20240327.nc
 # ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc
 rof_grid_file=${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.25x0.25_nomask_c200309.nc
+
+
+# alg_list_arg="--alg_lst=esmfaave,esmfbilin,ncoaave,ncoidw,traave,trbilin,trfv2,trintbilin" # default
+alg_list_arg="--alg_lst=esmfbilin,ncoaave,ncoidw,traave,trbilin,trfv2,trintbilin" # just remove esmfaave
 
 #---------------------------------------------------------------------------------------------------  
 # print some useful things
@@ -113,7 +119,7 @@ if $create_maps_ocn; then
   echo -e ${GRN} Creating ocn map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  cmd="time ${unified_bin}/ncremap -P mwf -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
+  cmd="time ${unified_bin}/ncremap -P mwf ${alg_list_arg} -s ${ocn_grid_file} -g ${atm_grid_file} --nm_src=${ocn_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_ocn} 2>&1 "
   echo $cmd ; echo
   eval "$cmd"
   #-----------------------------------------------------------------------------
@@ -136,7 +142,7 @@ if $create_maps_lnd; then
   echo -e ${GRN} Creating lnd map files with TempestRemap ${NC} $slurm_log_create_maps
   echo
   cd ${maps_root}
-  cmd="time ${unified_bin}/ncremap -P mwf -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
+  cmd="time ${unified_bin}/ncremap -P mwf ${alg_list_arg} -s ${lnd_grid_file} -g ${atm_grid_file} --nm_src=${lnd_grid_name} --nm_dst=${atm_grid_name} --dt_sng=${timestamp} >> ${slurm_log_create_maps_lnd} 2>&1 "
   echo $cmd ; echo
   eval "$cmd"
   #-----------------------------------------------------------------------------
