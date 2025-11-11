@@ -26,10 +26,9 @@ sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
 
 # 2025 SOHIP RRM grids
 
-# add_grid(f'{sohip_grid_root}/2025-sohip-128x3_falkland_v1_pg2_scrip.nc','128x3_falkland_v1',clat=-50,clon=-60)
-# add_grid(f'{sohip_grid_root}/2025-sohip-128x3_falkland_v2_pg2_scrip.nc','128x3_falkland_v2',clat=-50,clon=-60)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-falkland-v3-pg2_scrip.nc','256x3_falkland_v3',clat=-50,clon=-60)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-falkland-v4-pg2_scrip.nc','256x3_falkland_v4',clat=-50,clon=-60)
+add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-128x2-pg2_scrip.nc','2025-scream-conus-128x2',clat=40,clon=360-105)
+# add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/ne128pg2_scrip.nc','ne128x2pg2',clat=0,clon=0)
+
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon=-94.45, xlat=None, xlon=None)
@@ -37,8 +36,6 @@ sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sw-ind-pg2_scrip.nc',   'sw-ind',   clat=-50,clon=  45, slat=-49.61, slon= 45.20, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-eq-ind-pg2_scrip.nc',   'eq-ind',   clat=-5, clon=  80, slat=[-6.99,-3.05], slon=[84.74,75.97], xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-ind-pg2_scrip.nc',   'sc-ind',   clat=-50,clon=  80, slat=-52.49, slon=67.04, xlat=None, xlon=None)
-
-add_grid(f'{sohip_grid_root}/2025-sohip-256x3-eq-ind-v1-pg2_scrip.nc','eq-ind-v1',clat=-5, clon=  80, slat=[-6.99,-3.05], slon=[84.74,75.97], xlat=None, xlon=None)
 
 # grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
 # topo_root = '/global/cfs/cdirs/m4310/whannah/files_topo'
@@ -48,8 +45,8 @@ add_grid(f'{sohip_grid_root}/2025-sohip-256x3-eq-ind-v1-pg2_scrip.nc','eq-ind-v1
 # add_grid(f'{grid_root}/ne30pg2_scrip.nc','ne30',topo=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc',clat=30,clon=-75)
 
 
-# fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','png'
-fig_file,fig_type = f'figs_grid_plot/grid.scrip.v1','png'
+fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','png'
+# fig_file,fig_type = f'figs_grid_plot/grid.scrip.v1','png'
 
 num_grid = len(grid_file_list)
 
@@ -58,15 +55,16 @@ num_plot_col = 3
 
 #---------------------------------------------------------------------------------------------------
 # debug section - just print stuff and exit
+print()
 for f,grid_file in enumerate(grid_file_list):
   ds_grid = xr.open_dataset(grid_file)
-  hc.print_stat( ds_grid['grid_area']*1e3, name=f'{grid_name_list[f]:20}', compact=True )
+  hc.print_stat( ds_grid['grid_area']*1e3, name=f'{grid_name_list[f]:30}', compact=True )
   # print('  area sum = '+str(np.sum(ds_grid['grid_area'].values)) )
 
 #---------------------------------------------------------------------------------------------------
 # Set up workstation
 wkres = ngl.Resources()
-npix = 2048; wkres.wkWidth,wkres.wkHeight=npix,npix # 1024 / 2048 / 4096
+npix = 4096; wkres.wkWidth,wkres.wkHeight=npix,npix # 1024 / 2048 / 4096
 wks = ngl.open_wks(fig_type,fig_file,wkres)
 plot = [None]*num_grid
 res = ngl.Resources()
@@ -104,10 +102,6 @@ res.lbLabelBarOn = False
 
 # res.mpCenterLonF          = 180
 # res.mpCenterLonF          = 30
-
-# res.mpProjection          = 'Robinson'
-# res.mpProjection          = "Satellite"
-# res.mpProjection          = "Orthographic"
 
 # res.mpOutlineBoundarySets = 'NoBoundaries'
 res.mpPerimOn             = False
@@ -198,6 +192,9 @@ for f in range(num_grid):
     tres.cnLevels = np.logspace(np.log10(cmin),np.log10(cmax),num=30)
     tres.cnLevelSelectionMode = 'ExplicitLevels'
 
+  # tres.mpProjection          = 'Robinson'
+  # tres.mpProjection          = 'Satellite'
+  tres.mpProjection          = 'Orthographic'
   tres.mpCenterLonF = clon_list[f]
   tres.mpCenterLatF = clat_list[f]
   
@@ -248,7 +245,7 @@ ngl.panel(wks,plot,layout,pres); ngl.end()
 # trim white space
 fig_file = f'{fig_file}.{fig_type}'
 os.system(f'convert -trim +repage {fig_file}   {fig_file}')
-fig_file = fig_file.replace(os.getenv('HOME')+'/E3SM/','')
+fig_file = fig_file.replace(os.getenv('HOME')+'/E3SM_grid_support/','')
 print(f'\n{fig_file}\n')
 
 #-------------------------------------------------------------------------------
