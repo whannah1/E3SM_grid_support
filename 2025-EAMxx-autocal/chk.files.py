@@ -13,12 +13,9 @@ if data_root is None: raise ValueError('root path not found!')
 #-------------------------------------------------------------------------------
 
 grid_list = []
-grid_list.append('2025-sohip-256x3-ptgnia-v1')
-grid_list.append('2025-sohip-256x3-sw-ind-v1')
-grid_list.append('2025-sohip-256x3-se-pac-v1')
-grid_list.append('2025-sohip-256x3-sc-pac-v1')
-grid_list.append('2025-sohip-256x3-eq-ind-v1')
-grid_list.append('2025-sohip-256x3-sc-ind-v1')
+grid_list.append('ne32')
+grid_list.append('ne64')
+grid_list.append('ne128')
 
 file_type_list = []
 # file_type_list.append('grid')
