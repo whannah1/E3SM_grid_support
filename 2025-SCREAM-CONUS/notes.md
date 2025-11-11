@@ -12,6 +12,7 @@ TOPO_ROOT=${DATA_ROOT}/files_topo
 GRID_ROOT=${DATA_ROOT}/files_grid
 MAPS_ROOT=${DATA_ROOT}/files_map
 NE_SRC_TOPO=3000
+SDIST=10; SITER=20
 #-------------------------------------------------------------------------------
 # source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
 # source activate hiccup_env
@@ -21,8 +22,8 @@ NE_SRC_TOPO=3000
 DATESTAMP=20251111
 
 
-BASE_RES=128;  REFINE_LVL=2; SDIST=10; SITER=10; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL} # smaller version for testing
-BASE_RES=1024; REFINE_LVL=2; SDIST=3; SITER=20; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
+BASE_RES=128;  REFINE_LVL=2; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL} # smaller version for testing
+BASE_RES=1024; REFINE_LVL=2; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
 
 
 
@@ -46,8 +47,7 @@ echo -e "\n"\
 
 ```shell
 
-SQuadGen --refine_file ${HOME}/E3SM_grid_support/figs_RRM/RRM-png.2025-conus.v1.png --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist ${SDIST} --smooth_iter ${SITER} --lon_ref 115 --lat_ref 40 --output ${GRID_ROOT}/${GRID_NAME}.g ; GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform ; ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc
-ls -l ${GRID_ROOT}/${GRID_NAME}*
+SQuadGen --refine_file ${HOME}/E3SM_grid_support/figs_RRM/RRM-png.2025-conus.v1.png --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist ${SDIST} --smooth_iter ${SITER} --lon_ref 260 --lat_ref 40 --output ${GRID_ROOT}/${GRID_NAME}.g ; GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform ; ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc; ls -l ${GRID_ROOT}/${GRID_NAME}*
 
 ```
 

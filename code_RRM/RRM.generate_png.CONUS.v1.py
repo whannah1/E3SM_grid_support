@@ -94,14 +94,17 @@ if os.path.isfile(f'{fig_file}.{fig_type}') :
   run_cmd(f'magick convert {fig_file}.{fig_type} -shave 5x5 -bordercolor "black" -border 5x5 {fig_file}.{fig_type}')
   # run_cmd(f'magick convert {fig_file}.{fig_type} -blur 0x20 {fig_file}.{fig_type}')
 
-  # expand white region using mask
-  run_cmd(f'magick {fig_file}.{fig_type} -fuzz 10% -fill white -opaque white -fill black +opaque white {fig_file}.mask1.{fig_type}')
-  # run_cmd(f'magick {fig_file}.mask1.{fig_type} -morphology Dilate Disk:RADIUS -scale 200% {fig_file}.mask2.{fig_type}')
-  # run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -gaussian-blur 0x20 {fig_file}.mask2.{fig_type}')
-  run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -blur 0x10 -fuzz 90% -fill white -opaque white  {fig_file}.mask2.{fig_type}')
-  # run_cmd(f'magick {fig_file}.mask1.{fig_type} -blur 0x20 \\( +clone -fuzz 20% -fill green -opaque white \\) -compose over -composite  {fig_file}.mask2.{fig_type}')
-  # run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -fill green -mask {fig_file}.mask2.{fig_type} -opaque white +mask  {fig_file}.mask1.{fig_type}')
-  run_cmd(f'magick {fig_file}.{fig_type} {fig_file}.mask2.{fig_type} -compose Plus -composite {fig_file}.{fig_type}')
+  # expand refined region to create coastal buffer
+  run_cmd(f'magick convert {fig_file}.{fig_type} -blur 0x10 -fuzz 90% -fill white -opaque white  {fig_file}.{fig_type}')
+
+  # # expand white region using mask
+  # run_cmd(f'magick {fig_file}.{fig_type} -fuzz 10% -fill white -opaque white -fill black +opaque white {fig_file}.mask1.{fig_type}')
+  # # run_cmd(f'magick {fig_file}.mask1.{fig_type} -morphology Dilate Disk:RADIUS -scale 200% {fig_file}.mask2.{fig_type}')
+  # # run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -gaussian-blur 0x20 {fig_file}.mask2.{fig_type}')
+  # run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -blur 0x10 -fuzz 90% -fill white -opaque white  {fig_file}.mask2.{fig_type}')
+  # # run_cmd(f'magick {fig_file}.mask1.{fig_type} -blur 0x20 \\( +clone -fuzz 20% -fill green -opaque white \\) -compose over -composite  {fig_file}.mask2.{fig_type}')
+  # # run_cmd(f'magick convert {fig_file}.mask1.{fig_type} -fill green -mask {fig_file}.mask2.{fig_type} -opaque white +mask  {fig_file}.mask1.{fig_type}')
+  # run_cmd(f'magick {fig_file}.{fig_type} {fig_file}.mask2.{fig_type} -compose Plus -composite {fig_file}.{fig_type}')
 else:
   raise FileNotFoundError(f'\n{fig_file}.{fig_type} does not exist?!\n')
 
