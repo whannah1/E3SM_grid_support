@@ -22,15 +22,23 @@ def add_grid(file,name,topo=None,clat=0,clon=0,slat=None, slon=None, xlat=None, 
   xlat_list.append(xlat); xlon_list.append(xlon)
 #---------------------------------------------------------------------------------------------------
 
-sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
-
 # 2025 SOHIP RRM grids
+# sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
 
-add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-128x2-pg2_scrip.nc','2025-scream-conus-128x2',clat=40,clon=360-105)
+# add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-128x2-pg2_scrip.nc','2025-scream-conus-128x2',clat=40,clon=360-105)
 # add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/ne128pg2_scrip.nc','ne128x2pg2',clat=0,clon=0)
 
 # add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-1024x2-pg2_scrip.nc','2025-scream-conus-1024x2',clat=40,clon=360-105)
-add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-rect-128x2-pg2_scrip.nc','2025-scream-conus-rect-1024x2',clat=40,clon=360-105)
+# add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-rect-128x2-pg2_scrip.nc','2025-scream-conus-rect-1024x2',clat=40,clon=360-105)
+
+grid_root = '/lcrc/group/e3sm/ac.whannah/files_grid'
+add_grid(f'{grid_root}/2025-scream-conus-128x2-pg2_scrip.nc',     'conus-coast-128x2',clat=40,clon=360-105)
+add_grid(f'{grid_root}/2025-scream-conus-128x4-pg2_scrip.nc',     'conus-coast-128x4',clat=40,clon=360-105)
+add_grid(f'{grid_root}/2025-scream-conus-rect-128x2-pg2_scrip.nc','conus-rect-128x2', clat=40,clon=360-105)
+add_grid(f'{grid_root}/2025-scream-conus-rect-128x4-pg2_scrip.nc','conus-rect-128x4', clat=40,clon=360-105)
+add_grid(f'{grid_root}/ne128pg2_scrip.nc',                        'ne128',            clat=40,clon=360-105)
+num_plot_col = 2
+
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon=-94.45, xlat=None, xlon=None)
@@ -54,15 +62,15 @@ fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','pn
 
 num_grid = len(grid_file_list)
 
-num_plot_col = 3
-# num_plot_col = num_grid
+
+if num_plot_col not in locals(): num_plot_col = 1
 
 #---------------------------------------------------------------------------------------------------
 # debug section - just print stuff and exit
 print()
 for f,grid_file in enumerate(grid_file_list):
   ds_grid = xr.open_dataset(grid_file)
-  hc.print_stat( ds_grid['grid_area']*1e3, name=f'{grid_name_list[f]:30}', compact=True )
+  hc.print_stat( ds_grid['grid_area']*1e3, name=f'{grid_name_list[f]:30}', compact=True, indent=' '*2 )
   # print('  area sum = '+str(np.sum(ds_grid['grid_area'].values)) )
 
 #---------------------------------------------------------------------------------------------------
@@ -120,9 +128,8 @@ res.mpGeophysicalLineThicknessF = 6
 
 # res.mpLimitMode     = 'LatLon'
 
-# # Arabian Penninsula
-# res.mpMinLatF,res.mpMaxLatF      =  0, 60
-# res.mpMinLonF,res.mpMaxLonF      =  0, 90
+# res.mpMinLatF,res.mpMaxLatF,res.mpMinLonF,res.mpMaxLonF =  0, 60, 0, 90 # Arabian Penninsula
+res.mpMinLatF,res.mpMaxLatF,res.mpMinLonF,res.mpMaxLonF =  0, 60, -150, -45 # CONUS
 
 mres = ngl.Resources()
 mres.nglDraw,mres.nglFrame         = False,False
@@ -171,11 +178,14 @@ for f in range(num_grid):
 # print(np.log10(cmax))
 # exit()
 #---------------------------------------------------------------------------------------------------
+num_grid_cols = [None]*num_grid
 for f in range(num_grid):
   grid_file = grid_file_list[f]
   topo_file = topo_file_list[f]
   ds_grid = xr.open_dataset(grid_file)
   topo = topo_data_list[f]
+  #-----------------------------------------------------------------------------
+  num_grid_cols[f] = len(ds_grid['grid_area'])
   #-----------------------------------------------------------------------------
   tres = copy.deepcopy(res)
   fac = 1.
@@ -199,9 +209,10 @@ for f in range(num_grid):
 
   # tres.mpProjection          = 'Robinson'
   # tres.mpProjection          = 'Satellite'
-  tres.mpProjection          = 'Orthographic'
-  tres.mpCenterLonF = clon_list[f]
-  tres.mpCenterLatF = clat_list[f]
+
+  # tres.mpProjection          = 'Orthographic'
+  # tres.mpCenterLonF = clon_list[f]
+  # tres.mpCenterLatF = clat_list[f]
   
   # res.tiXAxisString = 'normalized level index'
   # res.tiYAxisString = 'lev [mb]'
@@ -227,7 +238,8 @@ for f in range(num_grid):
     yy = [1,1]*xlat_list[f]
     ngl.overlay(plot[f], ngl.xy(wks, xx, yy, mres) )
   #-----------------------------------------------------------------------------
-  hs.set_subtitles(wks, plot[f], '', grid_name_list[f], '', font_height=0.015)
+  # hs.set_subtitles(wks, plot[f], '', grid_name_list[f], '', font_height=0.015)
+  hs.set_subtitles(wks, plot[f], grid_name_list[f], '', f'# pg2 cells: {num_grid_cols[f]}', font_height=0.015)
   
 #-------------------------------------------------------------------------------
 # Finalize plot
