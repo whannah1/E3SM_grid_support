@@ -26,11 +26,11 @@ sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
 
 # 2025 SOHIP RRM grids
 
-# add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-128x2-pg2_scrip.nc','2025-scream-conus-128x2',clat=40,clon=360-105)
+add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-128x2-pg2_scrip.nc','2025-scream-conus-128x2',clat=40,clon=360-105)
 # add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/ne128pg2_scrip.nc','ne128x2pg2',clat=0,clon=0)
 
-add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-1024x2-pg2_scrip.nc','2025-scream-conus-1024x2',clat=40,clon=360-105)
-
+# add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-1024x2-pg2_scrip.nc','2025-scream-conus-1024x2',clat=40,clon=360-105)
+add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-rect-128x2-pg2_scrip.nc','2025-scream-conus-rect-1024x2',clat=40,clon=360-105)
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon=-94.45, xlat=None, xlon=None)
@@ -46,6 +46,8 @@ add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-1024x2-pg
 # add_grid(f'{grid_root}/ne26pg2_scrip.nc','ne26',topo=f'{topo_root}/USGS-topo_ne26np4_smoothedx6t_20250513.nc',clat=30,clon=-75)
 # add_grid(f'{grid_root}/ne30pg2_scrip.nc','ne30',topo=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc',clat=30,clon=-75)
 
+# add_grid(f'{grid_root}/ne30pg2_scrip.nc','ne30',topo=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc',clat=30,clon=-100)
+#---------------------------------------------------------------------------------------------------
 
 fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','png'
 # fig_file,fig_type = f'figs_grid_plot/grid.scrip.v1','png'
@@ -106,6 +108,7 @@ res.lbLabelBarOn = False
 # res.mpCenterLonF          = 30
 
 # res.mpOutlineBoundarySets = 'NoBoundaries'
+res.mpOutlineBoundarySets = 'GeophysicalAndUSStates'
 res.mpPerimOn             = False
 res.pmTickMarkDisplayMode = "Never"
 
