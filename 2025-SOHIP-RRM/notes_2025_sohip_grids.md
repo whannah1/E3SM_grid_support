@@ -120,6 +120,8 @@ GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2
 ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
 ```
 
+----------------------------------------------------------------------------------------------------
+
 # Grid Generation Scripts
 
 ```shell # Alternatively we can just use a python script to automate the grid generation
@@ -131,6 +133,36 @@ python ~/E3SM/code_grid/2025_SOHIP_generate_RRM_grids.py
 python ~/E3SM/code_grid/plot.grid.scrip.v2.py
 # display ~/E3SM/figs_grid/grid.scrip.v2.png
 ```
+
+----------------------------------------------------------------------------------------------------
+
+# Map Files
+
+```shell
+
+
+OCN_GRID=/lcrc/group/e3sm/data/inputdata/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.nomask.scrip.20240327.nc
+ATM_GRID=/lcrc/group/e3sm/ac.whannah/scratch/chrys/SOHIP/files_grid/2025-sohip-256x3-ptgnia-v1-pg2_scrip.nc
+
+OCN_NAME=RRSwISC6to18E3r5
+ATM_NAME=2025-sohip-256x3-ptgnia-v1-pg2
+
+DATE=20251006
+
+MAP_ROOT=
+
+ncremap --alg_typ=traave           --grd_src="${OCN_GRID}" --grd_dst="${ATM_GRID}" --map_fl="${MAP_ROOT}/map_${OCN_NAME}_to_${ATM_NAME}_traave.${DATE}.nc"
+ncremap --alg_typ=trbilin          --grd_src="${OCN_GRID}" --grd_dst="${ATM_GRID}" --map_fl="${MAP_ROOT}/map_${OCN_NAME}_to_${ATM_NAME}_trbilin.${DATE}.nc"
+ncremap --alg_typ=trfv2            --grd_src="${OCN_GRID}" --grd_dst="${ATM_GRID}" --map_fl="${MAP_ROOT}/map_${OCN_NAME}_to_${ATM_NAME}_trfv2.${DATE}.nc"
+ncremap --alg_typ=trintbilin       --grd_src="${OCN_GRID}" --grd_dst="${ATM_GRID}" --map_fl="${MAP_ROOT}/map_${OCN_NAME}_to_${ATM_NAME}_trintbilin.${DATE}.nc"
+ncremap --a2o --alg_typ=traave     --grd_src="${ATM_GRID}" --grd_dst="${OCN_GRID}" --map_fl="${MAP_ROOT}/map_${ATM_NAME}_to_${OCN_NAME}_traave.${DATE}.nc"
+ncremap --a2o --alg_typ=trbilin    --grd_src="${ATM_GRID}" --grd_dst="${OCN_GRID}" --map_fl="${MAP_ROOT}/map_${ATM_NAME}_to_${OCN_NAME}_trbilin.${DATE}.nc"
+ncremap --a2o --alg_typ=trfv2      --grd_src="${ATM_GRID}" --grd_dst="${OCN_GRID}" --map_fl="${MAP_ROOT}/map_${ATM_NAME}_to_${OCN_NAME}_trfv2.${DATE}.nc"
+ncremap --a2o --alg_typ=trintbilin --grd_src="${ATM_GRID}" --grd_dst="${OCN_GRID}" --map_fl="${MAP_ROOT}/map_${ATM_NAME}_to_${OCN_NAME}_trintbilin.${DATE}.nc"
+
+```
+
+----------------------------------------------------------------------------------------------------
 
 # Domain files
 

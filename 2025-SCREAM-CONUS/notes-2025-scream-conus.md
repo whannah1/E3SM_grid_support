@@ -13,6 +13,21 @@ GRID_ROOT=${DATA_ROOT}/files_grid
 MAPS_ROOT=${DATA_ROOT}/files_map
 NE_SRC_TOPO=3000
 SDIST=10; SITER=20
+```
+
+## LCRC
+```shell
+DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
+E3SM_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src
+DATA_ROOT=/lcrc/group/e3sm/ac.whannah
+TOPO_ROOT=${DATA_ROOT}/files_topo
+GRID_ROOT=${DATA_ROOT}/files_grid
+MAPS_ROOT=${DATA_ROOT}/files_map
+NE_SRC_TOPO=3000
+SDIST=10; SITER=20
+```
+
+```shell
 #-------------------------------------------------------------------------------
 # source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
 # source activate hiccup_env
@@ -22,7 +37,12 @@ SDIST=10; SITER=20
 DATESTAMP=20251111
 
 
-BASE_RES=128;  REFINE_LVL=2; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL} # smaller version for testing
+# smaller version for testing
+BASE_RES=128;  REFINE_LVL=2; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
+BASE_RES=128;  REFINE_LVL=3; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
+BASE_RES=128;  REFINE_LVL=4; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
+
+
 BASE_RES=1024; REFINE_LVL=2; GRID_NAME=2025-scream-conus-${BASE_RES}x${REFINE_LVL}
 
 
