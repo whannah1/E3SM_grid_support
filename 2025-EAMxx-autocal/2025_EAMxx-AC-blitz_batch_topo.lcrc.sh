@@ -108,8 +108,8 @@ if $create_grid; then
   echo
   cd ${e3sm_root}/cmake_homme
 
-  rm -f ${e3sm_root}/cmake_homme/input.nl
-  cat > ${e3sm_root}/cmake_homme/input.nl <<EOF
+  rm -f ${e3sm_root}/cmake_homme/input_ne${NE}.nl
+  cat > ${e3sm_root}/cmake_homme/input_ne${NE}.nl <<EOF
 &ctl_nl
 ne = 0
 mesh_file = "${grid_root}/ne${NE}.g"
@@ -127,7 +127,7 @@ io_stride = 1
 /
 EOF
 
-  srun -n 4 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${e3sm_root}/cmake_homme/input.nl >> $slurm_log_create_grid 2>&1
+  srun -n 4 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${e3sm_root}/cmake_homme/input_ne${NE}.nl >> $slurm_log_create_grid 2>&1
 
   # srun -n 256 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${e3sm_root}/cmake_homme/input.nl
 
