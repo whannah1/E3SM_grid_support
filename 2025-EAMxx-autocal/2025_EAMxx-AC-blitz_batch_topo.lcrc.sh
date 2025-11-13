@@ -1,42 +1,42 @@
 #!/bin/bash
+#-------------------------------------------------------------------------------
+# chrysalis
 #SBATCH --account=e3sm
-#SBATCH --constraint=cpu
-#SBATCH --qos=regular
-#SBATCH --job-name=EAMxx-AC-blitz_generate_topo
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/EAMxx-AC-blitz_gen_topo_slurm-%x-%j.out
-#SBATCH --time=8:00:00
+#SBATCH --job-name=EAMxx-AC_gen_topo
+#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/%x-%j.slurm.main.out
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
+#SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-# NE=256 ; sbatch --job-name=gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_topo.sh
-# NE=128 ; sbatch --job-name=gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_topo.sh
-# NE=64  ; sbatch --job-name=gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_topo.sh
-# NE=32  ; sbatch --job-name=gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM/batch_scripts/2025_EAMxx-AC-blitz_batch_topo.sh
-# NE=1024
+# NE=256 ; sbatch --job-name=EAMxx-AC_gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_topo.lcrc.sh
+# NE=128 ; sbatch --job-name=EAMxx-AC_gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_topo.lcrc.sh
+# NE=64  ; sbatch --job-name=EAMxx-AC_gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_topo.lcrc.sh
+# NE=32  ; sbatch --job-name=EAMxx-AC_gen_topo_ne$NE --export=ALL,NE=$NE ${HOME}/E3SM_grid_support/2025-EAMxx-autocal/2025_EAMxx-AC-blitz_batch_topo.lcrc.sh
 #-------------------------------------------------------------------------------
 create_grid=true
 cttrmp_topo=true
 smooth_topo=true
 cttsgh_topo=true
 #-------------------------------------------------------------------------------
-timestamp=20250904
-# timestamp=20251023
+# LCRC paths
+home=/home/ac.whannah
+data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2025-EAMxx-autocal
+DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
+e3sm_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src
+#-------------------------------------------------------------------------------
+timestamp=20251006
 
-slurm_log_root=/global/homes/w/whannah/E3SM/logs_slurm
-slurm_log_create_grid=$slurm_log_root/EAMxx-AC-blitz_gen_topo_slurm_$SLURM_JOB_NAME-$SLURM_JOB_ID.create_grid.out
-slurm_log_cttrmp_topo=$slurm_log_root/EAMxx-AC-blitz_gen_topo_slurm_$SLURM_JOB_NAME-$SLURM_JOB_ID.cttrmp_topo.out
-slurm_log_smooth_topo=$slurm_log_root/EAMxx-AC-blitz_gen_topo_slurm_$SLURM_JOB_NAME-$SLURM_JOB_ID.smooth_topo.out
-slurm_log_cttsgh_topo=$slurm_log_root/EAMxx-AC-blitz_gen_topo_slurm_$SLURM_JOB_NAME-$SLURM_JOB_ID.cttsgh_topo.out
-
-e3sm_root=/pscratch/sd/w/whannah/tmp_e3sm_src
-
-data_root=/global/cfs/cdirs/e3sm/whannah
+slurm_log_root=${home}/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm
+slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_grid.out
+slurm_log_cttrmp_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttrmp_topo.out
+slurm_log_smooth_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.smooth_topo.out
+slurm_log_cttsgh_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttsgh_topo.out
 
 grid_root=${data_root}/files_grid
 maps_root=${data_root}/files_map
 topo_root=${data_root}/files_topo
 
-DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
 homme_tool_root=${e3sm_root}/cmake_homme
 
 #-------------------------------------------------------------------------------
@@ -60,6 +60,7 @@ echo "   grid_root           = $grid_root"
 echo "   maps_root           = $maps_root"
 echo "   topo_root           = $topo_root"
 echo "   DIN_LOC_ROOT        = $DIN_LOC_ROOT"; echo
+echo "   np4 scrip grid file = ${grid_root}/ne${NE}np4_scrip.nc"; echo
 echo "   topo_file_0         = $topo_file_0"
 echo "   topo_file_1         = $topo_file_1"
 echo "   topo_file_2         = $topo_file_2"
@@ -88,9 +89,8 @@ set -e
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-unset ENVIRONMENT_RUNNING_E3SM_UNIFIED_USE_ANOTHER_TERMINAL
-unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
-module load python
+unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
+source ${home}/.bashrc
 source activate hiccup_env
 eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
 ulimit -s unlimited # required for larger grids
@@ -145,7 +145,7 @@ chk_file=${grid_root}/ne${NE}np4_scrip.nc
 if [ ! -f ${chk_file} ]; then
   echo; echo -e ${RED} Failed to create file: ${NC} ${chk_file} ; exit; echo;
 else
-  echo; echo -e ${GRN} Successfully created file: ${NC} ${chk_file} ; echo;
+  echo; echo -e ${CYN} Successfully created file: ${NC} ${chk_file} ; echo;
 fi
 #-------------------------------------------------------------------------------
 # echo ; echo Successfully finished homme_tool grid generation ; echo
@@ -172,7 +172,7 @@ chk_file=${topo_file_1}
 if [ ! -f ${chk_file} ]; then
   echo; echo -e ${RED} Failed to create file: ${NC} ${chk_file} ; exit; echo;
 else
-  echo; echo -e ${GRN} Successfully created file: ${NC} ${chk_file} ; echo;
+  echo; echo -e ${CYN} Successfully created file: ${NC} ${chk_file} ; echo;
 fi
 #*******************************************************************************
 #*******************************************************************************
@@ -215,7 +215,7 @@ chk_file=${topo_file_2}
 if [ ! -f ${chk_file} ]; then
   echo; echo -e ${RED} Failed to create file: ${NC} ${chk_file} ; exit; echo;
 else
-  echo; echo -e ${GRN} Successfully created file: ${NC} ${chk_file} ; echo;
+  echo; echo -e ${CYN} Successfully created file: ${NC} ${chk_file} ; echo;
 fi
 #*******************************************************************************
 #*******************************************************************************

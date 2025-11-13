@@ -1,12 +1,4 @@
 #!/bin/bash
-###SBATCH --account=e3sm
-###SBATCH --constraint=cpu
-###SBATCH --qos=regular
-###SBATCH --job-name=EAMxx-AC_generate_domain
-###SBATCH --output=/global/homes/w/whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/EAMxx-AC_gen_domain_slurm-%x-%j.out
-###SBATCH --time=4:00:00
-###SBATCH --nodes=1
-###SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
 # chrysalis
 #SBATCH --account=e3sm
@@ -26,7 +18,7 @@
 home=/home/ac.whannah
 data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2025-EAMxx-autocal
 DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
-e3sm_root=
+e3sm_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src
 #-------------------------------------------------------------------------------
 # NERSC paths
 # e3sm_root=/pscratch/sd/w/whannah/tmp_e3sm_src
@@ -81,8 +73,8 @@ set -e
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.11.1_login/bin
-module load python
+unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
+source ${home}/.bashrc
 source activate hiccup_env
 # eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
 # ulimit -s unlimited # required for larger grids

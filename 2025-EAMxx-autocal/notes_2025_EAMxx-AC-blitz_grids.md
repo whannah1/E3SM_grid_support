@@ -4,6 +4,7 @@
 salloc --nodes 1 --qos interactive --time 04:00:00 --constraint cpu --account=e3sm
 # LCRC
 salloc --nodes 1 --qos interactive --time 04:00:00 --account=e3sm
+srun --pty --nodes=1 --time=04:00:00 /bin/bash
 
 #-------------------------------------------------------------------------------
 

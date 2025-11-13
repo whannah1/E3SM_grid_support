@@ -60,7 +60,8 @@ def main():
     # dk_list = [ 5, 5, 5, 5,  5,  5,  5,  5,216,]
     # dz_list = [50,55,60,80,100,125,150,200,220,]
 
-    ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc'
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc'
+    ofile = os.getenv('HOME')+f'/E3SM_grid_support/2025-SOHIP-RRM/SOHIP_L256_v4_c20250930.nc'
     dk_list = [ 5, 5, 5, 5,  5,  5,  5,  5,216,]
     dz_list = [20,40,60,80,100,125,150,200,220,]
     nsmooth = 20
