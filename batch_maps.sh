@@ -1,65 +1,55 @@
 #!/bin/bash
-#SBATCH --account=e3sm
-###SBATCH --job-name=SOHIP_gen_maps
-###SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/%x-%j.slurm.out
+#-------------------------------------------------------------------------------
 #SBATCH --time=48:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-# grid_name=2025-sohip-256x3-ptgnia-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
-# grid_name=2025-sohip-256x3-sw-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
-# grid_name=2025-sohip-256x3-se-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
-# grid_name=2025-sohip-256x3-sc-pac-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
-# grid_name=2025-sohip-256x3-eq-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
-# grid_name=2025-sohip-256x3-sc-ind-v1; sbatch --job-name=gen_maps_$grid_name --export=ALL,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_maps.lcrc.sh
 #-------------------------------------------------------------------------------
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/set_project.sh
+if [ -z "${proj_root}" ]; then echo -e ${RED}ERROR: proj_root is not defined${NC}; exit ; fi
+if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC}; exit ; fi
+#-------------------------------------------------------------------------------
+source ${proj_root}/set_project.sh
+#-------------------------------------------------------------------------------
+echo --------------------------------------------------------------------------------
+echo "   proj_root           = ${proj_root}"
+echo "   grid_name           = ${grid_name}"
+echo --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 start=`date +%s` # start timer for entire script
 set -e  # Stop script execution on error
 #-------------------------------------------------------------------------------
-create_maps_ocn=true
-create_maps_lnd=true
+create_maps_ocn=false
+create_maps_lnd=false
 #-------------------------------------------------------------------------------
-# NERSC
-# home=/global/homes/w/whannah
-# # data_root=/global/cfs/cdirs/e3sm/whannah
-# data_root=/global/cfs/cdirs/m4842/whannah
-# DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
+for arg in "$@"; do
+  case $arg in
+    --create_maps_ocn) create_maps_ocn=true ;;
+    --create_maps_lnd) create_maps_lnd=true ;;
+    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+  esac
+done
 #-------------------------------------------------------------------------------
-# LCRC
-home=/home/ac.whannah
-data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/SOHIP
-DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
-#-------------------------------------------------------------------------------
-timestamp=20251006
-
 slurm_log_create_maps_ocn=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_ocn.out
 slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_lnd.out
-
+#-------------------------------------------------------------------------------
 # atm_grid_name=ne${NE}pg2
 atm_grid_name=${grid_name}-pg2
-lnd_grid_name=r025
-ocn_grid_name=RRSwISC6to18E3r5
-
 atm_grid_file=${grid_root}/${atm_grid_name}_scrip.nc
-
-# /lcrc/group/e3sm/data/inputdata/share/meshes/rof/SCRIPgrid_0.25x0.25_nomask_c200309.nc
-# /global/cfs/cdirs/e3sm/inputdata/share/meshes/rof/SCRIPgrid_0.25x0.25_nomask_c200309.nc
-lnd_grid_file=${DIN_LOC_ROOT}/share/meshes/rof/SCRIPgrid_0.25x0.25_nomask_c200309.nc
-ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.nomask.scrip.20240327.nc
-# ocn_grid_file=${DIN_LOC_ROOT}/ocn/mpas-o/RRSwISC6to18E3r5/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc
-rof_grid_file=${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.25x0.25_nomask_c200309.nc
-
+#---------------------------------------------------------------------------------------------------
 # alg_list_arg="--alg_lst=esmfaave,esmfbilin,ncoaave,ncoidw,traave,trbilin,trfv2,trintbilin" # default
 alg_list_arg="--alg_lst=traave,trbilin,trfv2,trintbilin"
-
 #---------------------------------------------------------------------------------------------------  
 # print some useful things
 echo --------------------------------------------------------------------------------
-# echo "   NE                  = ${NE}"; echo
-echo "   grid_name           = ${grid_name}"; echo
+echo "   atm_grid_name       = ${atm_grid_name}"
+echo "   lnd_grid_name       = ${lnd_grid_name}"
+echo "   rof_grid_name       = ${rof_grid_name}"
+echo "   ocn_grid_name       = ${ocn_grid_name}"; echo
+echo "   atm_grid_file       = ${atm_grid_file}"
+echo "   lnd_grid_file       = ${lnd_grid_file}"
+echo "   rof_grid_file       = ${rof_grid_file}"
+echo "   ocn_grid_file       = ${ocn_grid_file}"
 echo --------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

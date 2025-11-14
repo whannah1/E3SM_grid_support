@@ -1,16 +1,14 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
-#SBATCH --account=e3sm
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/set_project.sh
+if [ -z "${proj_root}" ]; then echo -e ${RED}ERROR: proj_root is not defined${NC}; exit ; fi
+if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC}; exit ; fi
 #-------------------------------------------------------------------------------
-start=`date +%s` # start timer for entire script
-set -e  # Stop script execution on error
+source ${proj_root}/set_project.sh
 #-------------------------------------------------------------------------------
 create_grid=false
 cttrmp_topo=false
@@ -40,6 +38,7 @@ topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
 #-------------------------------------------------------------------------------  
 # print some useful things
 echo --------------------------------------------------------------------------------; echo
+echo "   proj_root           = ${proj_root}"
 echo "   grid_name           = ${grid_name}"
 echo "   create_grid         = ${create_grid}"
 echo "   cttrmp_topo         = ${cttrmp_topo}"
@@ -52,9 +51,9 @@ echo "   topo_file_1         = $topo_file_1"
 echo "   topo_file_2         = $topo_file_2"
 echo "   topo_file_3         = $topo_file_3"
 echo --------------------------------------------------------------------------------
-exit
-#---------------------------------------------------------------------------
-if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC}; exit ; fi
+#-------------------------------------------------------------------------------
+start=`date +%s` # start timer for entire script
+set -e  # Stop script execution on error
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
@@ -62,6 +61,7 @@ source ${home}/.bashrc
 source activate hiccup_env
 # source ${unified_src}
 eval $(${e3sm_src_root}/cime/CIME/Tools/get_case_env)
+#-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 # Generate GLL SCRIP grid file for target topo grid
@@ -71,8 +71,8 @@ if $create_grid; then
   echo
   cd ${homme_tool_root}
 
-  rm -f ${homme_tool_root}/input.nl
-  cat > ${homme_tool_root}/input.nl <<EOF
+  rm -f ${homme_tool_root}/input.${grid_name}.nl
+  cat > ${homme_tool_root}/input.${grid_name}.nl <<EOF
 &ctl_nl
 ne = 0
 mesh_file = "${grid_root}/${grid_name}.g"
@@ -90,7 +90,7 @@ io_stride = 1
 /
 EOF
 
-  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.nl >> $slurm_log_create_grid 2>&1
+  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.${grid_name}.nl >> $slurm_log_create_grid 2>&1
 
   # use python utility for format conversion
   # python3 ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
@@ -142,8 +142,8 @@ if $smooth_topo; then
   echo
   cd ${homme_tool_root}
   # Create namelist file for HOMME
-  rm -f ${homme_tool_root}/input.nl
-  cat > ${homme_tool_root}/input.nl <<EOF
+  rm -f ${homme_tool_root}/input.${grid_name}.nl
+  cat > ${homme_tool_root}/input.${grid_name}.nl <<EOF
 &ctl_nl
 mesh_file = "${grid_root}/${grid_name}.g"
 smooth_phis_p2filt = 0
@@ -160,7 +160,7 @@ infilenames = '${topo_file_1}', '${topo_file_2}'
 /
 EOF
   # run homme_tool for topography smoothing
-  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.nl >> $slurm_log_smooth_topo 2>&1
+  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.${grid_name}.nl >> $slurm_log_smooth_topo 2>&1
   # rename output file to remove "1.nc" suffix
   mv ${topo_file_2}1.nc ${topo_file_2}
 else
