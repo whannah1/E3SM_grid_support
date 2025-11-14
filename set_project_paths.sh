@@ -11,8 +11,17 @@ export init_root=${data_root}/files_init
 export domn_root=${data_root}/files_domain
 export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
+export homme_tool_root=${e3sm_src_root}/cmake_homme
+#-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
-echo "   data_root        = ${data_root}"
+echo "   host                = $host"
+echo "   grid_code_root      = $grid_code_root"
+echo "   grid_data_root      = $grid_data_root"
+echo "   e3sm_src_root       = $e3sm_src_root"
+echo "   DIN_LOC_ROOT        = $DIN_LOC_ROOT"
+echo --------------------------------------------------------------------------------
+echo "   proj             = ${proj}"
+echo "   data_root        = ${data_root}"; echo
 echo "   grid_root        = ${grid_root}"
 echo "   maps_root        = ${maps_root}"
 echo "   topo_root        = ${topo_root}"

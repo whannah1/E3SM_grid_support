@@ -50,13 +50,13 @@ fi
 # common paths
 export grid_code_root=${home}/E3SM_grid_support
 #-------------------------------------------------------------------------------
-echo --------------------------------------------------------------------------------
-echo "   host                = $host"
-echo "   grid_code_root      = $grid_code_root"
-echo "   grid_data_root      = $grid_data_root"
-echo "   e3sm_src_root       = $e3sm_src_root"
-echo "   DIN_LOC_ROOT        = $DIN_LOC_ROOT"
-echo --------------------------------------------------------------------------------
+# echo --------------------------------------------------------------------------------
+# echo "   host                = $host"
+# echo "   grid_code_root      = $grid_code_root"
+# echo "   grid_data_root      = $grid_data_root"
+# echo "   e3sm_src_root       = $e3sm_src_root"
+# echo "   DIN_LOC_ROOT        = $DIN_LOC_ROOT"
+# echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 # check system paths
 if [ ! -d ${home}           ]; then echo -e ${RED}ERROR directory does not exist:${NC} home: ${home} ; fi
