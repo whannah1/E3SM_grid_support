@@ -5,7 +5,6 @@
 ###SBATCH --job-name=SOHIP_gen_topo
 ###SBATCH --output=${HOME}/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/%x_%j.slurm.main.out
 #SBATCH --time=12:00:00
-###SBATCH --time=0:10:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
 #SBATCH --mail-type=END,FAIL
@@ -17,8 +16,9 @@
 # grid_name=2025-sohip-256x3-sc-pac-v1;sbatch --job-name=SOHIP_gen_topo_$grid_name --export=ALL,HOME=$HOME,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
 # grid_name=2025-sohip-256x3-sc-ind-v1;sbatch --job-name=SOHIP_gen_topo_$grid_name --export=ALL,HOME=$HOME,grid_name=$grid_name ${HOME}/E3SM_grid_support/2025-SOHIP-RRM/2025_SOHIP_batch_topo.sh
 #-------------------------------------------------------------------------------
-# SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ${SCRIPT_DIR}/set_project.sh
+#-------------------------------------------------------------------------------
 start=`date +%s` # start timer for entire script
 set -e  # Stop script execution on error
 #-------------------------------------------------------------------------------
