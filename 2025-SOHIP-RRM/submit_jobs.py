@@ -19,14 +19,24 @@ grid_name_list.append('2025-sohip-256x3-se-pac-v1')
 grid_name_list.append('2025-sohip-256x3-sc-pac-v1')
 grid_name_list.append('2025-sohip-256x3-sc-ind-v1')
 #-------------------------------------------------------------------------------
+topo_args = ''
+topo_args += ' --create_grid'
+topo_args += ' --cttrmp_topo'
+topo_args += ' --smooth_topo'
+topo_args += ' --cttsgh_topo'
+#-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
   sbatch_common += f' --export=ALL,SCRIPT_DIR={script_root},grid_name={grid_name}'
   sbatch_common += f' --output={logs_root}/%x_%j.slurm.main.out'
 
-  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   {script_root}/{proj}_batch_maps.sh')
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name} {script_root}/{proj}_batch_maps.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} {script_root}/{proj}_batch_domain.sh')
-  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   {script_root}/{proj}_batch_topo.sh')
+  # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} {script_root}/{proj}_batch_topo.sh {topo_args}')
+
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   {script_root}/../batch_maps.sh')
+  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} {script_root}/../batch_domain.sh')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   {script_root}/../batch_topo.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()

@@ -1,9 +1,8 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
-# chrysalis
 #SBATCH --account=e3sm
-###SBATCH --job-name=SOHIP_gen_topo
-###SBATCH --output=${HOME}/E3SM_grid_support/2025-SOHIP-RRM/logs_slurm/%x_%j.slurm.main.out
+###SBATCH --job-name=gen_topo
+###SBATCH --output=%x_%j.slurm.main.out
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov
@@ -22,18 +21,25 @@ source ${SCRIPT_DIR}/set_project.sh
 start=`date +%s` # start timer for entire script
 set -e  # Stop script execution on error
 #-------------------------------------------------------------------------------
-create_grid=true
-cttrmp_topo=true
-smooth_topo=true
-cttsgh_topo=true
+create_grid=false
+cttrmp_topo=false
+smooth_topo=false
+cttsgh_topo=false
 #-------------------------------------------------------------------------------
-timestamp=20251006
-
+for arg in "$@"; do
+  case $arg in
+    --create_grid) create_grid=true ;;
+    --cttrmp_topo) cttrmp_topo=true ;;
+    --smooth_topo) smooth_topo=true ;;
+    --cttsgh_topo) cttsgh_topo=true ;;
+    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+  esac
+done
+#-------------------------------------------------------------------------------
 slurm_log_create_grid=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_grid.out
 slurm_log_cttrmp_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttrmp_topo.out
 slurm_log_smooth_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.smooth_topo.out
 slurm_log_cttsgh_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttsgh_topo.out
-
 #-------------------------------------------------------------------------------
 # Specify topo file names - including temporary files that will be deleted
 topo_file_0=${DIN_LOC_ROOT}/atm/cam/hrtopo/USGS-topo-cube3000.nc
