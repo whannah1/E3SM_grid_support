@@ -69,6 +69,11 @@ echo -e "\n"\
 
 SQuadGen --refine_file ${HOME}/E3SM_grid_support/figs_RRM/RRM-png.2025-conus.v1.png --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist ${SDIST} --smooth_iter ${SITER} --lon_ref 260 --lat_ref 40 --output ${GRID_ROOT}/${GRID_NAME}.g ; GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform ; ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc; ls -l ${GRID_ROOT}/${GRID_NAME}*
 
+# alt w/o rotation
+BASE_RES=128; REFINE_LVL=2; GRID_NAME=2025-scream-conus-no-rot-${BASE_RES}x${REFINE_LVL}
+# BASE_RES=1024;REFINE_LVL=2; GRID_NAME=2025-scream-conus-rect-${BASE_RES}x${REFINE_LVL}
+SQuadGen --refine_file ${HOME}/E3SM_grid_support/figs_RRM/RRM-png.2025-conus.v1.png --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist ${SDIST} --smooth_iter ${SITER} --output ${GRID_ROOT}/${GRID_NAME}.g ; GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform ; ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc; ls -l ${GRID_ROOT}/${GRID_NAME}*
+
 # alt rectangule refinement for comparison
 # BASE_RES=128; REFINE_LVL=2; GRID_NAME=2025-scream-conus-rect-${BASE_RES}x${REFINE_LVL}
 BASE_RES=128; REFINE_LVL=4; GRID_NAME=2025-scream-conus-rect-${BASE_RES}x${REFINE_LVL}

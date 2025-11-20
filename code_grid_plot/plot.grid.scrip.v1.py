@@ -31,14 +31,18 @@ def add_grid(file,name,topo=None,clat=0,clon=0,slat=None, slon=None, xlat=None, 
 # add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-1024x2-pg2_scrip.nc','2025-scream-conus-1024x2',clat=40,clon=360-105)
 # add_grid(f'/global/cfs/cdirs/e3sm/whannah/files_grid/2025-scream-conus-rect-128x2-pg2_scrip.nc','2025-scream-conus-rect-1024x2',clat=40,clon=360-105)
 
-grid_root = '/lcrc/group/e3sm/ac.whannah/files_grid'
-add_grid(f'{grid_root}/2025-scream-conus-128x2-pg2_scrip.nc',     'conus-coast-128x2',clat=40,clon=360-105)
-add_grid(f'{grid_root}/2025-scream-conus-128x4-pg2_scrip.nc',     'conus-coast-128x4',clat=40,clon=360-105)
-add_grid(f'{grid_root}/2025-scream-conus-rect-128x2-pg2_scrip.nc','conus-rect-128x2', clat=40,clon=360-105)
-add_grid(f'{grid_root}/2025-scream-conus-rect-128x4-pg2_scrip.nc','conus-rect-128x4', clat=40,clon=360-105)
-add_grid(f'{grid_root}/ne128pg2_scrip.nc',                        'ne128',            clat=40,clon=360-105)
-num_plot_col = 2
+# grid_root = '/lcrc/group/e3sm/ac.whannah/files_grid'
+# add_grid(f'{grid_root}/2025-scream-conus-128x2-pg2_scrip.nc',     'conus-coast-128x2',clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2025-scream-conus-128x4-pg2_scrip.nc',     'conus-coast-128x4',clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2025-scream-conus-rect-128x2-pg2_scrip.nc','conus-rect-128x2', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2025-scream-conus-rect-128x4-pg2_scrip.nc','conus-rect-128x4', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/ne128pg2_scrip.nc',                        'ne128',            clat=40,clon=360-105)
+# num_plot_col = 2
 
+grid_root = '/global/cfs/cdirs/e3sm/whannah/files_grid'
+# add_grid(f'{grid_root}/2025-scream-conus-128x2-pg2_scrip.nc',       'conus-128x2',        clat=40,clon=360-105)
+add_grid(f'{grid_root}/2025-scream-conus-no-rot-128x2-pg2_scrip.nc','conus-128x2-no-rot', clat=40,clon=360-105)
+num_plot_col = 1
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon=-94.45, xlat=None, xlon=None)
@@ -107,7 +111,7 @@ res.mpGridAndLimbOn              = True
 res.cnFillMode      = 'CellFill'
 # res.cnCellFillEdgeColor = 'black'
 
-res.lbLabelBarOn = False
+res.lbLabelBarOn = True
 
 ### use this for no topo data
 #res.cnFillPalette   = "CBR_wet"
@@ -170,7 +174,7 @@ for f in range(num_grid):
   if topo_file_list[f] is None:
     area_min = np.min([area_min,np.nanmin(topo_data_list[f])])
     area_max = np.max([area_max,np.nanmax(topo_data_list[f])])
-(cmin,cmax,cint) = ngl.nice_cntr_levels(area_min, area_max, outside=False, cint=None, max_steps=11, aboutZero=False )
+(cmin,cmax,cint) = ngl.nice_cntr_levels(area_min, area_max, outside=True, cint=None, max_steps=11, aboutZero=False )
 
 # print(cmin)
 # print(cmax)
@@ -201,18 +205,20 @@ for f in range(num_grid):
     tres.cnLevels = np.arange(5,4805+105,105)
   else:
     # tres.cnFillPalette   = "MPL_viridis"
-    tres.cnFillPalette   = np.array( cmocean.cm.curl(np.linspace(0,1,256)) )
+    tres.cnFillPalette   = np.array( cmocean.cm.phase(np.linspace(0,1,256)) )
+    # tres.cnFillPalette   = np.array( cmocean.cm.curl(np.linspace(0,1,256)) )
     tres.cnLevelSelectionMode = "ExplicitLevels"
     # tres.cnLevels = np.linspace(cmin,cmax,num=21)
-    tres.cnLevels = np.logspace(np.log10(cmin),np.log10(cmax),num=30)
-    tres.cnLevelSelectionMode = 'ExplicitLevels'
+    tres.cnLevels = np.linspace(area_min,area_min*2,num=31)
+    # tres.cnLevels = np.logspace(np.log10(cmin),np.log10(cmax),num=30)
+    # tres.cnLevels = np.logspace(np.log10(area_min),np.log10(area_max),num=100)
 
   # tres.mpProjection          = 'Robinson'
   # tres.mpProjection          = 'Satellite'
 
-  # tres.mpProjection          = 'Orthographic'
-  # tres.mpCenterLonF = clon_list[f]
-  # tres.mpCenterLatF = clat_list[f]
+  tres.mpProjection = 'Orthographic'
+  tres.mpCenterLonF = clon_list[f]
+  tres.mpCenterLatF = clat_list[f]
   
   # res.tiXAxisString = 'normalized level index'
   # res.tiYAxisString = 'lev [mb]'

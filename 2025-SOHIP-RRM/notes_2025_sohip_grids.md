@@ -43,12 +43,12 @@ DATESTAMP=20250904
 # GRID_NAME=2025-sohip-256x3-eq-ind
 # GRID_NAME=2025-sohip-256x3-sc-ind
 
-# GRID_NAME=2025-sohip-256x3-ptgnia-v1
+GRID_NAME=2025-sohip-256x3-ptgnia-v1
 GRID_NAME=2025-sohip-256x3-sw-ind-v1
-# GRID_NAME=2025-sohip-256x3-se-pac-v1
-# GRID_NAME=2025-sohip-256x3-sc-pac-v1
-# GRID_NAME=2025-sohip-256x3-eq-ind-v1
-# GRID_NAME=2025-sohip-256x3-sc-ind-v1
+GRID_NAME=2025-sohip-256x3-se-pac-v1
+GRID_NAME=2025-sohip-256x3-sc-pac-v1
+GRID_NAME=2025-sohip-256x3-eq-ind-v1
+GRID_NAME=2025-sohip-256x3-sc-ind-v1
 #-------------------------------------------------------------------------------
 echo -e "\n"\
 "  DIN_LOC_ROOT : $DIN_LOC_ROOT \n"\
