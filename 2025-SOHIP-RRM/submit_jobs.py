@@ -18,15 +18,15 @@ def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
 #-------------------------------------------------------------------------------
 grid_name_list = []
 grid_name_list.append('2025-sohip-256x3-ptgnia-v1')
-grid_name_list.append('2025-sohip-256x3-sw-ind-v1')
-grid_name_list.append('2025-sohip-256x3-eq-ind-v1')
-grid_name_list.append('2025-sohip-256x3-se-pac-v1')
+# grid_name_list.append('2025-sohip-256x3-sw-ind-v1')
+# grid_name_list.append('2025-sohip-256x3-eq-ind-v1')
+# grid_name_list.append('2025-sohip-256x3-se-pac-v1')
 # grid_name_list.append('2025-sohip-256x3-sc-pac-v1')
-grid_name_list.append('2025-sohip-256x3-sc-ind-v1')
+# grid_name_list.append('2025-sohip-256x3-sc-ind-v1')
 #-------------------------------------------------------------------------------
 topo_args = ''
-# topo_args += ' --create_grid'
-# topo_args += ' --cttrmp_topo'
+topo_args += ' --create_grid'
+topo_args += ' --cttrmp_topo'
 topo_args += ' --smooth_topo'
 topo_args += ' --cttsgh_topo'
 #-------------------------------------------------------------------------------
@@ -40,9 +40,13 @@ for grid_name in grid_name_list:
   sbatch_common += f' --output={logs_root}/%x_%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
 
-  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {script_root}/../batch_maps.sh {map_args}')
-  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
-  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {home}/E3SM_grid_support/batch_maps.sh {map_args}')
+  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {home}/E3SM_grid_support/batch_domain.sh')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {home}/E3SM_grid_support/batch_topo.sh {topo_args}')
+
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {proj_root}/../batch_maps.sh {map_args}')
+  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {proj_root}/../batch_domain.sh')
+  # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {proj_root}/../batch_topo.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()

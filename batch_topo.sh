@@ -71,8 +71,10 @@ if $create_grid; then
   echo
   cd ${homme_tool_root}
 
-  rm -f ${homme_tool_root}/input.${grid_name}.nl
-  cat > ${homme_tool_root}/input.${grid_name}.nl <<EOF
+  nl_file=${homme_tool_root}/input.grd.${grid_name}.nl
+
+  rm -f ${nl_file}
+  cat > ${nl_file} <<EOF
 &ctl_nl
 ne = 0
 mesh_file = "${grid_root}/${grid_name}.g"
@@ -90,7 +92,7 @@ io_stride = 1
 /
 EOF
 
-  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.${grid_name}.nl >> $slurm_log_create_grid 2>&1
+  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${nl_file} >> $slurm_log_create_grid 2>&1
 
   # use python utility for format conversion
   # python3 ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
@@ -141,9 +143,10 @@ if $smooth_topo; then
   echo -e ${GRN} Smoothing topogaphy with homme_tool ${NC} $slurm_log_smooth_topo
   echo
   cd ${homme_tool_root}
+  nl_file=${homme_tool_root}/input.grd.${grid_name}.nl
   # Create namelist file for HOMME
-  rm -f ${homme_tool_root}/input.${grid_name}.nl
-  cat > ${homme_tool_root}/input.${grid_name}.nl <<EOF
+  rm -f ${nl_file}
+  cat > ${nl_file} <<EOF
 &ctl_nl
 mesh_file = "${grid_root}/${grid_name}.g"
 smooth_phis_p2filt = 0
@@ -160,7 +163,7 @@ infilenames = '${topo_file_1}', '${topo_file_2}'
 /
 EOF
   # run homme_tool for topography smoothing
-  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.${grid_name}.nl >> $slurm_log_smooth_topo 2>&1
+  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${nl_file} >> $slurm_log_smooth_topo 2>&1
   # rename output file to remove "1.nc" suffix
   mv ${topo_file_2}1.nc ${topo_file_2}
 else
@@ -194,20 +197,16 @@ if $cttsgh_topo; then
   echo
 
   cmd="ncks -5 ${topo_file_2} ${topo_file_2}.tmp"
-  echo $cmd ; echo
-  eval "$cmd"
+  echo "  $cmd" ; echo; eval "$cmd"
   
   cmd="mv ${topo_file_2}.tmp ${topo_file_2}"
-  echo $cmd ; echo
-  eval "$cmd"
+  echo "  $cmd" ; echo; eval "$cmd"
 
   cmd="ncks -5 ${topo_file_3} ${topo_file_3}.tmp"
-  echo $cmd ; echo
-  eval "$cmd"
+  echo "  $cmd" ; echo; eval "$cmd"
   
   cmd="mv ${topo_file_3}.tmp ${topo_file_3}"
-  echo $cmd ; echo
-  eval "$cmd"
+  echo "  $cmd" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   # Append the GLL phi_s data to the output
   ### source {unified_src} # this is problematic - just use unified_bin
@@ -217,9 +216,7 @@ if $cttsgh_topo; then
   echo
 
   cmd="ncks -A ${topo_file_2} ${topo_file_3} >> $slurm_log_cttsgh_topo 2>&1"
-  echo $cmd ; echo
-
-  eval "$cmd"
+  echo "  $cmd" ; echo; eval "$cmd"
 else
   echo
   echo -e ${CYN} Skipping SGH calculation ${NC}
