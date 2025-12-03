@@ -30,6 +30,9 @@ slurm_log_cttrmp_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttrmp
 slurm_log_smooth_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.smooth_topo.out
 slurm_log_cttsgh_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cttsgh_topo.out
 #-------------------------------------------------------------------------------
+grid_file_exodus=${grid_root}/${grid_name}.g
+grid_file_np4_scrip="${grid_root}/${grid_name}-np4_scrip.nc"
+#-------------------------------------------------------------------------------
 # Specify topo file names - including temporary files that will be deleted
 topo_file_0=${DIN_LOC_ROOT}/atm/cam/hrtopo/USGS-topo-cube3000.nc
 topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
@@ -45,7 +48,8 @@ echo "   cttrmp_topo         = ${cttrmp_topo}"
 echo "   smooth_topo         = ${smooth_topo}"
 echo "   cttsgh_topo         = ${cttsgh_topo}"
 echo "   homme_tool_root     = $homme_tool_root"
-echo "   np4 scrip grid file = ${grid_root}/${grid_name}-np4_scrip.nc"
+echo "   exodus grid file    = ${grid_file_exodus}"
+echo "   np4 scrip grid file = ${grid_file_np4_scrip}"
 echo "   topo_file_0         = $topo_file_0"
 echo "   topo_file_1         = $topo_file_1"
 echo "   topo_file_2         = $topo_file_2"
@@ -77,7 +81,7 @@ if $create_grid; then
   cat > ${nl_file} <<EOF
 &ctl_nl
 ne = 0
-mesh_file = "${grid_root}/${grid_name}.g"
+mesh_file = "${grid_file_exodus}"
 /
 &vert_nl    
 /
@@ -98,14 +102,14 @@ EOF
   # python3 ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
   ${unified_bin}/python ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
           --src_file ${homme_tool_root}/ne0np4_tmp1.nc \
-          --dst_file ${grid_root}/${grid_name}-np4_scrip.nc >> $slurm_log_create_grid 2>&1
+          --dst_file ${grid_file_np4_scrip} >> $slurm_log_create_grid 2>&1
 else
   echo
   echo -e ${CYN} Skipping grid generation ${NC}
   echo
 fi
 #-------------------------------------------------------------------------------
-chk_file=${grid_root}/${grid_name}-np4_scrip.nc
+chk_file=${grid_file_np4_scrip}
 if [ ! -f ${chk_file} ]; then
   echo; echo -e ${RED} Failed to create file: ${NC} ${chk_file} ; exit; echo;
 else
@@ -121,7 +125,7 @@ if $cttrmp_topo; then
   echo -e ${GRN} Remapping topogaphy with cube_to_target ${NC} $slurm_log_cttrmp_topo
   echo
   ${e3sm_src_root}/components/eam/tools/topo_tool/cube_to_target/cube_to_target \
-    --target-grid ${grid_root}/${grid_name}-np4_scrip.nc \
+    --target-grid ${grid_file_np4_scrip} \
     --input-topography ${topo_file_0} \
     --output-topography ${topo_file_1} >> $slurm_log_cttrmp_topo 2>&1
 else
@@ -148,7 +152,7 @@ if $smooth_topo; then
   rm -f ${nl_file}
   cat > ${nl_file} <<EOF
 &ctl_nl
-mesh_file = "${grid_root}/${grid_name}.g"
+mesh_file = "${grid_file_exodus}"
 smooth_phis_p2filt = 0
 smooth_phis_numcycle = 6 ! v2/v3 uses 12/6 for more/less smoothing
 smooth_phis_nudt = 4e-16

@@ -25,15 +25,15 @@ def add_grid( **kwargs ):
 # add_grid(region='eq-ind-v2', base_res=256, dy=10, dx=18, lat_ref= -5,  lon_ref=75 ) # v2
 
 
-add_grid(region='ptgnia-v1',base_res=256, lat_ref=-50, lon_ref=-60, rlat1=-55, rlat2=-42, rlon1=-92,  rlon2=-48 )
+# add_grid(region='ptgnia-v1',base_res=256, lat_ref=-50, lon_ref=-60, rlat1=-55, rlat2=-42, rlon1=-92,  rlon2=-48 )
 add_grid(region='sw-ind-v1',base_res=256, dy=10, dx=20, lat_ref=-50, lon_ref=40 )
 add_grid(region='se-pac-v1',base_res=256, dy=10, dx=20, lat_ref=-50, lon_ref=-100 )
 add_grid(region='sc-pac-v1',base_res=256, dy=10, dx=20, lat_ref=-35, lon_ref=-135 )
 add_grid(region='eq-ind-v1',base_res=256, dy=10, dx=18, lat_ref= -5, lon_ref=75 )
 add_grid(region='sc-ind-v1',base_res=256, dy=10, dx=20, lat_ref=-50, lon_ref=65 )
 
-GRID_ROOT = '/global/cfs/cdirs/m4842/whannah/files_grid'
-
+# GRID_ROOT = '/global/cfs/cdirs/m4842/whannah/files_grid'
+GRID_ROOT = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2025-SOHIP-RRM/files_grid'
 
 #---------------------------------------------------------------------------------------------------
 def main(opts):
@@ -42,7 +42,8 @@ def main(opts):
   # BASE_RES=256
   BASE_RES=opts['base_res']
   
-  REFINE_LVL=3
+  # REFINE_LVL=3
+  REFINE_LVL=2
   SDIST=3
   SITER=20
 

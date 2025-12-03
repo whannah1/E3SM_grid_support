@@ -10,6 +10,15 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 #-------------------------------------------------------------------------------
 source ${proj_root}/set_project.sh
 #-------------------------------------------------------------------------------
+create_domain_map=false
+#-------------------------------------------------------------------------------
+for arg in "$@"; do
+  case $arg in
+    --create_domain_map) create_domain_map=true ;;
+    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+  esac
+done
+#-------------------------------------------------------------------------------
 if [ -z "${ocn_grid_name}" ]; then echo -e ${RED}ERROR: ocn_grid_name is not defined${NC}; exit ; fi
 # if [ -z "${ocn_grid_file}" ]; then echo -e ${RED}ERROR: ocn_grid_file is not defined${NC}; exit ; fi
 #-------------------------------------------------------------------------------
@@ -38,7 +47,9 @@ source ${unified_src}
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-# ncremap -a traave --src_grd=${ocn_grid_file} --dst_grd=${atm_grid_file} --map_file=${map_file}
+if $create_domain_map; then
+  ncremap -a traave --src_grd=${ocn_grid_file} --dst_grd=${atm_grid_file} --map_file=${map_file}
+fi
 #-------------------------------------------------------------------------------
 cmd="python ${domn_tool} -m ${map_file} -o ${ocn_grid_name} -l ${grid_name} --date-stamp=${timestamp} --output-root=${domn_root}"
 echo $cmd ; echo

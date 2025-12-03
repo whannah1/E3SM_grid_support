@@ -55,6 +55,7 @@ echo "   cttrmp_topo         = ${cttrmp_topo}"
 echo "   smooth_topo         = ${smooth_topo}"
 echo "   cttsgh_topo         = ${cttsgh_topo}"
 echo "   homme_tool_root     = $homme_tool_root"
+echo "   np4 exodus grid file= ${grid_root}/${grid_name}.g"
 echo "   np4 scrip grid file = ${grid_root}/${grid_name}-np4_scrip.nc"
 echo "   topo_file_0         = $topo_file_0"
 echo "   topo_file_1         = $topo_file_1"
@@ -79,8 +80,10 @@ if $create_grid; then
   echo
   cd ${homme_tool_root}
 
-  rm -f ${homme_tool_root}/input.nl
-  cat > ${homme_tool_root}/input.nl <<EOF
+  nl_file=${homme_tool_root}/input_grid_${grid_name}.nl
+
+  rm -f ${nl_file}
+  cat > ${nl_file} <<EOF
 &ctl_nl
 ne = 0
 mesh_file = "${grid_root}/${grid_name}.g"
@@ -98,7 +101,7 @@ io_stride = 1
 /
 EOF
 
-  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.nl >> $slurm_log_create_grid 2>&1
+  srun -n 4 ${homme_tool_root}/src/tool/homme_tool < ${nl_file} >> $slurm_log_create_grid 2>&1
 
   # use python utility for format conversion
   # python3 ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
@@ -150,8 +153,9 @@ if $smooth_topo; then
   echo
   cd ${homme_tool_root}
   # Create namelist file for HOMME
-  rm -f ${homme_tool_root}/input.nl
-  cat > ${homme_tool_root}/input.nl <<EOF
+  nl_file=${homme_tool_root}/input_smooth_${grid_name}.nl
+  rm -f ${nl_file}
+  cat > ${nl_file} <<EOF
 &ctl_nl
 mesh_file = "${grid_root}/${grid_name}.g"
 smooth_phis_p2filt = 0
@@ -168,7 +172,7 @@ infilenames = '${topo_file_1}', '${topo_file_2}'
 /
 EOF
   # run homme_tool for topography smoothing
-  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${homme_tool_root}/input.nl >> $slurm_log_smooth_topo 2>&1
+  srun -n 8 ${homme_tool_root}/src/tool/homme_tool < ${nl_file} >> $slurm_log_smooth_topo 2>&1
   # rename output file to remove "1.nc" suffix
   mv ${topo_file_2}1.nc ${topo_file_2}
 else

@@ -201,6 +201,10 @@ else
   echo; echo -e ${CYN} Skipping lnd map generation ${NC}; echo
 fi
 #---------------------------------------------------------------------------------------------------
+echo
+echo -e ${GRN} Finished creating map files ${NC}
+echo
+#---------------------------------------------------------------------------------------------------
 # Indicate overall run time for this script
 end=`date +%s`
 runtime_sc=$(( end - start ))
