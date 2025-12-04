@@ -31,10 +31,6 @@ grid_name_list = []
 # grid_name_list.append('2025-sohip-256x2-sc-pac-v1')
 # grid_name_list.append('2025-sohip-256x2-sc-ind-v1')
 
-
-# need to run these one at a time!
-grid_name_list.append('2025-sohip-256x2-se-pac-v1')
-# grid_name_list.append('2025-sohip-256x2-sc-ind-v1')
 #-------------------------------------------------------------------------------
 topo_args = ''
 topo_args += ' --create_grid'
