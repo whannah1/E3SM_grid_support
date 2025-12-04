@@ -159,6 +159,62 @@ ls -l $map_file_A2R $map_file_R2A
 ```
 
 --------------------------------------------------------------------------------
+# fix topo data - remove shape parameters for EAMxx
+
+```shell
+ncks -x -v OC,OA,OL /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne32np4_smoothedx6t_20250904.nc  /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne32np4_smoothedx6t_20250904_no-oro-shape.nc
+ncks -x -v OC,OA,OL /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne64np4_smoothedx6t_20250904.nc  /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne64np4_smoothedx6t_20250904_no-oro-shape.nc
+ncks -x -v OC,OA,OL /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne128np4_smoothedx6t_20250904.nc /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_ne128np4_smoothedx6t_20250904_no-oro-shape.nc
+```
+
+--------------------------------------------------------------------------------
+# SPA remap file
+
+```shell
+GRID_ROOT=/global/cfs/cdirs/e3sm/whannah/files_grid
+DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
+ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/ne32pg2_scrip.nc  --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne32pg2_intbilin_se2fv.20251124.nc
+ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/ne64pg2_scrip.nc  --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne64pg2_intbilin_se2fv.20251124.nc
+ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/ne128pg2_scrip.nc --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne128pg2_intbilin_se2fv.20251124.nc
+
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne32pg2_intbilin_se2fv.20251124.nc  ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne32pg2_intbilin_se2fv.20251124.nc
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne64pg2_intbilin_se2fv.20251124.nc  ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne64pg2_intbilin_se2fv.20251124.nc
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne128pg2_intbilin_se2fv.20251124.nc ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne128pg2_intbilin_se2fv.20251124.nc
+
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne32pg2_intbilin_se2fv.20251124.nc
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne64pg2_intbilin_se2fv.20251124.nc
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_ne128pg2_intbilin_se2fv.20251124.nc
+
+```
+
+```shell
+GRID_ROOT=/global/cfs/cdirs/e3sm/whannah/files_grid
+DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc  --grd_dst=${GRID_ROOT}/ne32pg2_scrip.nc  --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne32pg2_traave.20251124.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc  --grd_dst=${GRID_ROOT}/ne64pg2_scrip.nc  --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne64pg2_traave.20251124.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc  --grd_dst=${GRID_ROOT}/ne128pg2_scrip.nc --map_fl=${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne128pg2_traave.20251124.nc
+
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne32pg2_traave.20251124.nc  ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne32pg2_traave.20251124.nc
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne64pg2_traave.20251124.nc  ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne64pg2_traave.20251124.nc
+ncks -5 -O ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne128pg2_traave.20251124.nc ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne128pg2_traave.20251124.nc
+
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne32pg2_traave.20251124.nc
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne64pg2_traave.20251124.nc
+ncdump -k ${DIN_LOC_ROOT}/atm/scream/maps/map_ne30pg2_to_ne128pg2_traave.20251124.nc
+
+```
+--------------------------------------------------------------------------------
+# copy initial condition files
+
+```shell
+cp /global/cfs/cdirs/m4310/whannah/files_init/v3.LR.amip_0101.eam.i.2000-01-01-00000.EAMxx-format.ne32np4.20251001.nc  /global/cfs/cdirs/e3sm/inputdata/atm/scream/init/eamxxi_ne32np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc
+cp /global/cfs/cdirs/m4310/whannah/files_init/v3.LR.amip_0101.eam.i.2000-01-01-00000.EAMxx-format.ne64np4.20251001.nc  /global/cfs/cdirs/e3sm/inputdata/atm/scream/init/eamxxi_ne64np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc
+cp /global/cfs/cdirs/m4310/whannah/files_init/v3.LR.amip_0101.eam.i.2000-01-01-00000.EAMxx-format.ne128np4.20251001.nc /global/cfs/cdirs/e3sm/inputdata/atm/scream/init/eamxxi_ne128np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc
+```
+
+
+
+--------------------------------------------------------------------------------
 
 # XML grid definition - cime_config/config_grids.xml
 
