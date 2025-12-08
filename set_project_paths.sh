@@ -3,6 +3,7 @@
 export proj_root=${home}/E3SM_grid_support/${proj}
 export data_root=${grid_data_root}/${proj}
 export slurm_log_root=${proj_root}/logs_slurm
+export hiccup_log_root=${proj_root}/logs_hiccup
 #-------------------------------------------------------------------------------
 export grid_root=${data_root}/files_grid
 export maps_root=${data_root}/files_map
@@ -14,21 +15,25 @@ export atms_root=${data_root}/files_atmsrf
 export homme_tool_root=${e3sm_src_root}/cmake_homme
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
-echo "   host                = $host"
-echo "   grid_code_root      = $grid_code_root"
-echo "   grid_data_root      = $grid_data_root"
-echo "   e3sm_src_root       = $e3sm_src_root"
-echo "   DIN_LOC_ROOT        = $DIN_LOC_ROOT"
-echo --------------------------------------------------------------------------------
-echo "   proj             = ${proj}"
-echo "   data_root        = ${data_root}"; echo
-echo "   grid_root        = ${grid_root}"
-echo "   maps_root        = ${maps_root}"
-echo "   topo_root        = ${topo_root}"
-echo "   init_root        = ${init_root}"
-echo "   domn_root        = ${domn_root}"
-echo "   atms_root        = ${atms_root}"; echo
-echo "   homme_tool_root  = ${homme_tool_root}"
+echo "MACHINE SPECIFIC PATHS:"
+echo "  host              = $host"
+echo "  grid_code_root    = $grid_code_root"
+echo "  grid_data_root    = $grid_data_root"
+echo "  e3sm_src_root     = $e3sm_src_root"
+echo "  homme_tool_root   = ${homme_tool_root}"
+echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
+# echo --------------------------------------------------------------------------------
+echo "PROJECT SPECIFIC PATHS:"
+echo "  proj              = ${proj}"
+echo "  data_root         = ${data_root}"; echo
+echo "  grid_root         = ${grid_root}"
+echo "  maps_root         = ${maps_root}"
+echo "  topo_root         = ${topo_root}"
+echo "  init_root         = ${init_root}"
+echo "  domn_root         = ${domn_root}"
+echo "  atms_root         = ${atms_root}"; echo
+echo "  slurm_log_root    = ${slurm_log_root}"
+echo "  hiccup_log_root   = ${hiccup_log_root}"; echo
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 if [ ! -d ${grid_root} ]; then mkdir -p ${grid_root}; fi
