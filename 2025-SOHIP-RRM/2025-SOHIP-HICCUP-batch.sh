@@ -17,6 +17,14 @@
 # NE=120 ; sbatch --job-name=hiccup_ne$NE --output=logs_slurm/slurm-%x-%j.out --export=NE=$NE ./run_hiccup_batch.rhea.sh
 # ------------------------------------------------------------------------------
 
+# HGRID=2025-sohip-256x2-ptgnia-v1; IDATE=2023-06-13; HR=19; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-sw-ind-v1; IDATE=2023-06-12; HR=06; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-se-pac-v1; IDATE=2023-06-12; HR=16; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-sc-pac-v1; IDATE=2023-06-14; HR=15; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-eq-ind-v1; IDATE=2023-06-19; HR=09; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-eq-ind-v1; IDATE=2023-06-21; HR=02; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+# HGRID=2025-sohip-256x2-sc-ind-v1; IDATE=2023-06-21; HR=09; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
+
 # HGRID=2025-sohip-256x3-ptgnia-v1; IDATE=2023-06-13; HR=19; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
 # HGRID=2025-sohip-256x3-sw-ind-v1; IDATE=2023-06-12; HR=06; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh
 # HGRID=2025-sohip-256x3-se-pac-v1; IDATE=2023-06-12; HR=16; sbatch --job-name=HICCUP_SOHIP_${HGRID}_${IDATE} --export=ALL,HGRID=${HGRID},IDATE=${IDATE},HR=${HR} ~/E3SM_grid_support/2025-SOHIP-RRM/2025-SOHIP-HICCUP-batch.sh

@@ -582,23 +582,23 @@ ncks -A ${topo_file_2} ${topo_file_3}
     <!-- 2025-sohip-256x3-se-pac -->
     <gridmap atm_grid="ne0np4_sohip-256x3-se-pac.pg2" ocn_grid="RRSwISC6to18E3r5">
       <map name="ATM2OCN_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_RRSwISC6to18E3r5_traave.20251006.nc</map>
-      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
-      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
-      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_RRSwISC6to18E3r5_to_2025-sohip-256x3-se-pac_traave.20251006.nc</map>
-      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_RRSwISC6to18E3r5_to_2025-sohip-256x3-se-pac_traave.20251006.nc</map>
+      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
+      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
+      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_RRSwISC6to18E3r5_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc</map>
+      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_RRSwISC6to18E3r5_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc</map>
       <!-- <map name="ATM2ICE_FMAPNAME_NONLINEAR">cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_RRSwISC6to18E3r5_trfvnp2.20251006.nc</map> -->
       <!-- <map name="ATM2OCN_FMAPNAME_NONLINEAR">cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_RRSwISC6to18E3r5_trfvnp2.20251006.nc</map> -->
     </gridmap>
     <gridmap atm_grid="ne0np4_sohip-256x3-se-pac.pg2" lnd_grid="r025">
-      <map name="ATM2LND_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_r025_traave.20251006.nc</map>
-      <!-- <map name="ATM2LND_FMAPNAME_NONLINEAR">cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_r025_trfvnp2.20251006.nc</map> -->
-      <map name="ATM2LND_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_r025_trbilin.20251006.nc</map>
-      <map name="LND2ATM_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_r025_to_2025-sohip-256x3-se-pac_traave.20251006.nc</map>
-      <map name="LND2ATM_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_r025_to_2025-sohip-256x3-se-pac_traave.20251006.nc</map>
+      <map name="ATM2LND_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_r025_traave.20251006.nc</map>
+      <!-- <map name="ATM2LND_FMAPNAME_NONLINEAR">cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_r025_trfvnp2.20251006.nc</map> -->
+      <map name="ATM2LND_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_r025_trbilin.20251006.nc</map>
+      <map name="LND2ATM_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_r025_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc</map>
+      <map name="LND2ATM_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_r025_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc</map>
     </gridmap>
     <gridmap atm_grid="ne0np4_sohip-256x3-se-pac.pg2" rof_grid="r025">
-      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_r025_traave.20251006.nc</map>
-      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac_to_r025_trbilin.20251006.nc</map>
+      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_r025_traave.20251006.nc</map>
+      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/2025-SOHIP/map_2025-sohip-256x3-se-pac-v1-pg2_to_r025_trbilin.20251006.nc</map>
     </gridmap>
     <!-- ******************************************************************* -->
     <!-- 2025-sohip-256x3-sw-ind -->
@@ -652,15 +652,34 @@ reg=sw-ind; cp /global/cfs/cdirs/m4842/whannah/files_map/*${reg}*_tr[ab]* /globa
 ## components/eamxx/cime_config/namelist_defaults_eamxx.xml
 
 ```shell
+
+# DATA_ROOT=/global/cfs/cdirs/m4842/whannah
+# GRID_ROOT=${DATA_ROOT}/files_grid
+# MAPS_ROOT=${DATA_ROOT}/files_map
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-eq-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-ptgnia-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-se-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+# ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sw-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+
+
 DATA_ROOT=/global/cfs/cdirs/m4842/whannah
 GRID_ROOT=${DATA_ROOT}/files_grid
 MAPS_ROOT=${DATA_ROOT}/files_map
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-eq-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-ptgnia-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-se-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
-ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sw-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-eq-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-eq-ind-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-ptgnia-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-ptgnia-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-sc-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-sc-ind-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-sc-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-sc-pac-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-se-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-se-pac-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x2-sw-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x2-sw-ind-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-eq-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-eq-ind-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-ptgnia-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-ptgnia-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-sc-ind-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sc-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-sc-pac-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-se-pac-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc
+ncremap --alg_typ=traave --grd_src=${HOME}/grids/ne30pg2_scrip.nc --grd_dst=${GRID_ROOT}/2025-sohip-256x3-sw-ind-v1-pg2_scrip.nc --map_fl=${MAPS_ROOT}/map_ne30pg2_to_2025-sohip-256x3-sw-ind-v1-pg2_traave.20251006.nc
+
 ```
 
 ```xml
@@ -678,14 +697,28 @@ ncremap --alg_typ=intbilin_se2fv --grd_src=${HOME}/grids/ne30.g  --grd_dst=${GRI
     <!-- <spa_remap_file hgrid="ne0np4_CAx32v1">${DIN_LOC_ROOT}/atm/scream/maps/map_ne30np4_to_CAx32v1pg2_intbilin_se2fv_20230420.nc</spa_remap_file> -->
     <!-- ******************************************************************* -->
     <!-- 2025 SOHIP -->
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-eq-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-ptgnia">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-se-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
-    <spa_remap_file hgrid="ne0np4_sohip-256x3-sw-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file>
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-eq-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-ptgnia">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-se-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
+    <!-- <spa_remap_file hgrid="ne0np4_sohip-256x3-sw-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30np4_to_2025-sohip-256x3-ptgnia-v1-pg2_intbilin_se2fv.20251006.nc</spa_remap_file> -->
     <!-- ******************************************************************* -->
-
+    <!-- 2025 SOHIP 256x2-->
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-eq-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-eq-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-ptgnia">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-ptgnia-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-sc-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-sc-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-sc-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-sc-pac-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-se-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-se-pac-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x2-sw-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x2-sw-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <!-- ******************************************************************* -->
+    <!-- 2025 SOHIP 256x3-->
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-eq-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-eq-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-ptgnia">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-ptgnia-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-sc-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-sc-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-sc-pac-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-se-pac">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-se-pac-v1-pg2_traave.20251006.nc</spa_remap_file>
+    <spa_remap_file hgrid="ne0np4_sohip-256x3-sw-ind">/global/cfs/cdirs/m4842/whannah/files_map/map_ne30pg2_to_2025-sohip-256x3-sw-ind-v1-pg2_traave.20251006.nc</spa_remap_file>
 
     <!-- ******************************************************************* -->
     <!-- 2025 SOHIP -->
