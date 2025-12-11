@@ -39,9 +39,13 @@ def add_grid(file,name,topo=None,clat=0,clon=0,slat=None, slon=None, xlat=None, 
 # add_grid(f'{grid_root}/ne128pg2_scrip.nc',                        'ne128',            clat=40,clon=360-105)
 # num_plot_col = 2
 
-grid_root = '/global/cfs/cdirs/e3sm/whannah/files_grid'
-# add_grid(f'{grid_root}/2025-scream-conus-128x2-pg2_scrip.nc',       'conus-128x2',        clat=40,clon=360-105)
-add_grid(f'{grid_root}/2025-scream-conus-no-rot-128x2-pg2_scrip.nc','conus-128x2-no-rot', clat=40,clon=360-105)
+grid_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid'
+# add_grid(f'{grid_root}/2026-incite-conus-128x2-pg2_scrip.nc','conus-128x2', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2026-incite-conus-128x3-pg2_scrip.nc','conus-128x3', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2026-incite-conus-128x4-pg2_scrip.nc','conus-128x4', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2026-incite-conus-1024x2-pg2_scrip.nc','conus-1024x2', clat=40,clon=360-105)
+add_grid(f'{grid_root}/2026-incite-conus-1024x3-pg2_scrip.nc','conus-1024x3', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2026-incite-conus-1024x4-pg2_scrip.nc','conus-1024x4', clat=40,clon=360-105)
 num_plot_col = 1
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
@@ -67,7 +71,8 @@ fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','pn
 num_grid = len(grid_file_list)
 
 
-if num_plot_col not in locals(): num_plot_col = 1
+# if num_plot_col not in locals(): num_plot_col = 1
+if num_plot_col not in locals(): num_plot_col = num_grid
 
 #---------------------------------------------------------------------------------------------------
 # debug section - just print stuff and exit
@@ -80,7 +85,7 @@ for f,grid_file in enumerate(grid_file_list):
 #---------------------------------------------------------------------------------------------------
 # Set up workstation
 wkres = ngl.Resources()
-npix = 4096; wkres.wkWidth,wkres.wkHeight=npix,npix # 1024 / 2048 / 4096
+npix = 2048; wkres.wkWidth,wkres.wkHeight=npix,npix # 1024 / 2048 / 4096
 wks = ngl.open_wks(fig_type,fig_file,wkres)
 plot = [None]*num_grid
 res = ngl.Resources()
@@ -164,7 +169,10 @@ for f in range(num_grid):
     # land = ds_topo['LANDFRAC'].values
     # topo = np.where(land>0.5,topo,-1e3)
   else:
-    topo = ds_grid['grid_area'].values
+    # topo = ds_grid['grid_area'].values
+    re = 6.37122e06  # radius of earth
+    topo = np.sqrt( ds_grid['grid_area'].values ) * re / 1e3
+    res.lbTitleString = 'approx. grid spacing [km]'
   
   topo_data_list.append(topo) 
 #---------------------------------------------------------------------------------------------------
@@ -175,6 +183,14 @@ for f in range(num_grid):
     area_min = np.min([area_min,np.nanmin(topo_data_list[f])])
     area_max = np.max([area_max,np.nanmax(topo_data_list[f])])
 (cmin,cmax,cint) = ngl.nice_cntr_levels(area_min, area_max, outside=True, cint=None, max_steps=11, aboutZero=False )
+
+print()
+print(f' area_min: {area_min}')
+print(f' area_max: {area_max}')
+print()
+
+dx_min = 0.2
+dx_max = 6.0
 
 # print(cmin)
 # print(cmax)
@@ -205,13 +221,14 @@ for f in range(num_grid):
     tres.cnLevels = np.arange(5,4805+105,105)
   else:
     # tres.cnFillPalette   = "MPL_viridis"
-    tres.cnFillPalette   = np.array( cmocean.cm.phase(np.linspace(0,1,256)) )
-    # tres.cnFillPalette   = np.array( cmocean.cm.curl(np.linspace(0,1,256)) )
+    # tres.cnFillPalette   = np.array( cmocean.cm.phase(np.linspace(0,1,256)) )
+    tres.cnFillPalette   = np.array( cmocean.cm.curl(np.linspace(0,1,256)) )
     tres.cnLevelSelectionMode = "ExplicitLevels"
     # tres.cnLevels = np.linspace(cmin,cmax,num=21)
-    tres.cnLevels = np.linspace(area_min,area_min*2,num=31)
-    # tres.cnLevels = np.logspace(np.log10(cmin),np.log10(cmax),num=30)
-    # tres.cnLevels = np.logspace(np.log10(area_min),np.log10(area_max),num=100)
+    # tres.cnLevels = np.linspace(area_min,area_max,num=60)
+    # tres.cnLevels = np.logspace(np.log10(cmin),np.log10(cmax),num=60)
+    # tres.cnLevels = np.logspace(np.log10(area_min),np.log10(area_max),num=60)
+    tres.cnLevels = np.logspace(np.log10(dx_min),np.log10(dx_max),num=60)
 
   # tres.mpProjection          = 'Robinson'
   # tres.mpProjection          = 'Satellite'
