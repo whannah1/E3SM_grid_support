@@ -20,19 +20,24 @@ grid_name_list.append('ne16')
 #-------------------------------------------------------------------------------
 topo_args = ''
 topo_args += ' --create_grid'
-topo_args += ' --cttrmp_topo'
-topo_args += ' --smooth_topo'
-topo_args += ' --cttsgh_topo'
+# topo_args += ' --cttrmp_topo'
+# topo_args += ' --smooth_topo'
+# topo_args += ' --cttsgh_topo'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
-  sbatch_common += f' --export=ALL,proj_root={proj_root},grid_name={grid_name}'
+  sbatch_common += f' --export=ALL,proj_root={proj_root}'
+  sbatch_common += f',grid_name={grid_name}'
+  sbatch_common += f',grid_name_pg2={grid_name}pg2'
   sbatch_common += f' --output={logs_root}/%x_%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
 
-  run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {script_root}/../batch_maps.sh')
+  sbatch_common += f' --qos=debug'
+
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {script_root}/../batch_maps.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --time=1:00:00 {home}/E3SM_grid_support/batch_topo.v2.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()

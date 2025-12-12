@@ -1,5 +1,14 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
+skip_mkdir=false
+#-------------------------------------------------------------------------------
+for arg in "$@"; do
+  case $arg in
+    --skip_mkdir) skip_mkdir=true ;;
+    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+  esac
+done
+#-------------------------------------------------------------------------------
 export proj_root=${home}/E3SM_grid_support/${proj}
 export data_root=${grid_data_root}/${proj}
 export slurm_log_root=${proj_root}/logs_slurm
@@ -36,12 +45,14 @@ echo "  slurm_log_root    = ${slurm_log_root}"
 echo "  hiccup_log_root   = ${hiccup_log_root}"; echo
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-if [ ! -d ${grid_root} ]; then mkdir -p ${grid_root}; fi
-if [ ! -d ${maps_root} ]; then mkdir -p ${maps_root}; fi
-if [ ! -d ${topo_root} ]; then mkdir -p ${topo_root}; fi
-if [ ! -d ${init_root} ]; then mkdir -p ${init_root}; fi
-if [ ! -d ${domn_root} ]; then mkdir -p ${domn_root}; fi
-# if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
+if ! $skip_mkdir; then
+  if [ ! -d ${grid_root} ]; then mkdir -p ${grid_root}; fi
+  if [ ! -d ${maps_root} ]; then mkdir -p ${maps_root}; fi
+  if [ ! -d ${topo_root} ]; then mkdir -p ${topo_root}; fi
+  if [ ! -d ${init_root} ]; then mkdir -p ${init_root}; fi
+  if [ ! -d ${domn_root} ]; then mkdir -p ${domn_root}; fi
+  # if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
+fi
 #-------------------------------------------------------------------------------
 ulimit -s unlimited # required for larger grids
 #-------------------------------------------------------------------------------

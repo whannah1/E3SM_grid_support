@@ -44,7 +44,9 @@ map_args += f' --create_maps_lnd'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
-  sbatch_common += f' --export=ALL,proj_root={proj_root},grid_name={grid_name}'
+  sbatch_common += f' --export=ALL,proj_root={proj_root}'
+  sbatch_common += f',grid_name={grid_name}'
+  sbatch_common += f',grid_name_pg2={grid_name}-pg2'
   sbatch_common += f' --output={logs_root}/%x_%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
 

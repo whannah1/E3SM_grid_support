@@ -37,7 +37,7 @@ slurm_log_create_maps_lnd=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.cr
 slurm_log_create_maps_spa=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.create_maps_spa.out
 #-------------------------------------------------------------------------------
 # atm_grid_name=ne${NE}pg2
-atm_grid_name=${grid_name}-pg2
+atm_grid_name=${grid_name_pg2}
 atm_grid_file=${grid_root}/${atm_grid_name}_scrip.nc
 #---------------------------------------------------------------------------------------------------
 # SPA map file - typically src grid is ne30pg2 - this should be changed to an input argument

@@ -22,7 +22,7 @@ done
 if [ -z "${ocn_grid_name}" ]; then echo -e ${RED}ERROR: ocn_grid_name is not defined${NC}; exit ; fi
 # if [ -z "${ocn_grid_file}" ]; then echo -e ${RED}ERROR: ocn_grid_file is not defined${NC}; exit ; fi
 #-------------------------------------------------------------------------------
-atm_grid_file=${grid_root}/${grid_name}-pg2_scrip.nc
+atm_grid_file=${grid_root}/${grid_name_pg2}_scrip.nc
 map_file=${maps_root}/map_${ocn_grid_name}_to_${grid_name}-pg2_traave.${timestamp}.nc
 domn_tool=${e3sm_src_root}/tools/generate_domain_files/generate_domain_files_E3SM.py
 #-------------------------------------------------------------------------------
