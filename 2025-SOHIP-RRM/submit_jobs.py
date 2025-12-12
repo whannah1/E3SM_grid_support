@@ -49,8 +49,9 @@ for grid_name in grid_name_list:
   sbatch_common += f' --account=e3sm'
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name} --time=48:00:00 {home}/E3SM_grid_support/batch_maps.sh {map_args}')
-  run_cmd(f'{sbatch_common} --job-name=gen_domn_{grid_name} --time=6:00:00  {home}/E3SM_grid_support/batch_domain.sh')
+  # run_cmd(f'{sbatch_common} --job-name=gen_domn_{grid_name} --time=6:00:00  {home}/E3SM_grid_support/batch_domain.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --time=12:00:00 {home}/E3SM_grid_support/batch_topo.sh {topo_args}')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --time=12:00:00 {home}/E3SM_grid_support/batch_topo.v2.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()
