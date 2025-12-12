@@ -48,6 +48,7 @@ ulimit -s unlimited # required for larger grids
 # ANSI color codes for highlighting terminal output
 export RED='\033[0;31m'
 export GRN='\033[0;32m'
+export YLW='\e[33m'
 export CYN='\033[0;36m'
 export NC='\033[0m'
 #-------------------------------------------------------------------------------
