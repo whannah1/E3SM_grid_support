@@ -10,7 +10,7 @@ export maps_root=${data_root}/files_map
 export topo_root=${data_root}/files_topo
 export init_root=${data_root}/files_init
 export domn_root=${data_root}/files_domain
-export atms_root=${data_root}/files_atmsrf
+# export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
 export homme_tool_root=${e3sm_src_root}/cmake_homme
 #-------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ echo "  grid_data_root    = $grid_data_root"
 echo "  e3sm_src_root     = $e3sm_src_root"
 echo "  homme_tool_root   = ${homme_tool_root}"
 echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
-# echo --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 echo "PROJECT SPECIFIC PATHS:"
 echo "  proj              = ${proj}"
 echo "  data_root         = ${data_root}"; echo
@@ -30,8 +30,8 @@ echo "  grid_root         = ${grid_root}"
 echo "  maps_root         = ${maps_root}"
 echo "  topo_root         = ${topo_root}"
 echo "  init_root         = ${init_root}"
-echo "  domn_root         = ${domn_root}"
-echo "  atms_root         = ${atms_root}"; echo
+echo "  domn_root         = ${domn_root}"; echo
+# echo "  atms_root         = ${atms_root}"; echo
 echo "  slurm_log_root    = ${slurm_log_root}"
 echo "  hiccup_log_root   = ${hiccup_log_root}"; echo
 echo --------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ if [ ! -d ${maps_root} ]; then mkdir -p ${maps_root}; fi
 if [ ! -d ${topo_root} ]; then mkdir -p ${topo_root}; fi
 if [ ! -d ${init_root} ]; then mkdir -p ${init_root}; fi
 if [ ! -d ${domn_root} ]; then mkdir -p ${domn_root}; fi
-if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
+# if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
 #-------------------------------------------------------------------------------
 ulimit -s unlimited # required for larger grids
 #-------------------------------------------------------------------------------
