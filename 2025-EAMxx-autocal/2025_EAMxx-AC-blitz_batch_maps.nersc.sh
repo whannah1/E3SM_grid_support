@@ -3,7 +3,7 @@
 #SBATCH --constraint=cpu
 #SBATCH --qos=regular
 #SBATCH --job-name=EAMxx-AC-blitz_gen_maps
-#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/EAMxx-AC-blitz_slurm_%x_%j.out
+#SBATCH --output=/global/homes/w/whannah/E3SM/logs_slurm/EAMxx-AC-blitz_slurm_%x-%j.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-type=END,FAIL

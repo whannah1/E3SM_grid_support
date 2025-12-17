@@ -19,3 +19,4 @@ if [ -d ${domn_root} ]; then echo -e "domn_root => ${GRN}OK${NC}"; else echo -e 
 # if [ ! -d "${domn_root}" ]; then echo -e "Creating domn_root => ${domn_root}"; fi #mkdir -p ${domn_root}
 # if [ ! -d "${atms_root}" ]; then echo -e "Creating atms_root => ${atms_root}"; fi #mkdir -p ${atms_root}
 #-------------------------------------------------------------------------------
+echo --------------------------------------------------------------------------------

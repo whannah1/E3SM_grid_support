@@ -18,7 +18,7 @@ add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc', n='L128 (default)'
 grid_root = '/global/homes/w/whannah/E3SM_grid_support/2026-INCITE-CONUS-RRM'
 # add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v1_c20251211.nc',n='L128v1',d=0,c='green')
 # add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v2_c20251211.nc',n='L128v2',d=0,c='magenta')
-add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v3_c20251211.nc',n='L128 v3',d=0,c='cyan')
+# add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v3_c20251211.nc',n='L128 v3',d=0,c='cyan')
 add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L144_v1_c20251211.nc',n='L144 v1',d=0,c='purple')
 
 #-------------------------------------------------------------------------------

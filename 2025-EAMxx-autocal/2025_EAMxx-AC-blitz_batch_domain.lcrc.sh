@@ -3,7 +3,7 @@
 # chrysalis
 #SBATCH --account=e3sm
 #SBATCH --job-name=EAMxx-AC_gen_domain
-#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/EAMxx-AC_gen_domain_slurm_%x_%j.out
+#SBATCH --output=/home/ac.whannah/E3SM_grid_support/2025-EAMxx-autocal/logs_slurm/EAMxx-AC_gen_domain_slurm_%x-%j.out
 #SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --mail-user=hannah6@llnl.gov

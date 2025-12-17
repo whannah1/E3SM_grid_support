@@ -18,15 +18,18 @@ if [ ${host} == "LCRC" ]; then
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
   export unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
   export unified_src=/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
+  export mbda_path=
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "NERSC" ]; then
   export home=/global/homes/w/whannah
-  export grid_data_root=/global/cfs/cdirs/e3sm/whannah
+  export grid_data_root=/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support
   export e3sm_src_root=/pscratch/sd/w/whannah/tmp_e3sm_src
   export DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
-  export unified_bin=
-  export unified_src=
+  export unified_bin=/global/common/software/e3sm/anaconda_envs/e3smu_1_12_0/pm-cpu/conda/envs/e3sm_unified_1.12.0_login/bin
+  export unified_src=/global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+  export mbda_path=/global/cfs/cdirs/e3sm/software/moab/gnu/bin/mbda
+  # export OMP_NUM_THREADS=256 # this is used by MBDA
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "ALCF" ]; then
@@ -34,8 +37,9 @@ if [ ${host} == "ALCF" ]; then
   export grid_data_root=/lus/flare/projects/E3SM_Dec/whannah/E3SM_grid_support
   export e3sm_src_root=/lus/flare/projects/E3SM_Dec/whannah/e3sm_src
   export DIN_LOC_ROOT=/lus/flare/projects/E3SMinput/data
-  export unified_bin=
-  export unified_src=
+  export unified_bin=/lus/flare/projects/E3SMinput/soft/e3sm-unified/e3smu_1_12_0/aurora/conda/envs/e3sm_unified_1.12.0_login/bin
+  export unified_src=/lus/flare/projects/E3SMinput/soft/e3sm-unified/load_latest_e3sm_unified_aurora.sh
+  export mbda_path=
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "OLCF" ]; then
@@ -45,6 +49,7 @@ if [ ${host} == "OLCF" ]; then
   export DIN_LOC_ROOT=
   export unified_bin=
   export unified_src=
+  export mbda_path=
 fi
 #-------------------------------------------------------------------------------
 # common paths

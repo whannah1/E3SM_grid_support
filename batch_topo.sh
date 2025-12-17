@@ -10,10 +10,7 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 #-------------------------------------------------------------------------------
 source ${proj_root}/set_project.sh
 #-------------------------------------------------------------------------------
-create_grid=false
-cttrmp_topo=false
-smooth_topo=false
-cttsgh_topo=false
+create_grid=false; cttrmp_topo=false; smooth_topo=false; cttsgh_topo=false
 #-------------------------------------------------------------------------------
 for arg in "$@"; do
   case $arg in
