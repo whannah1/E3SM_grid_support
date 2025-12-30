@@ -1,5 +1,6 @@
 import os, numpy as np, xarray as xr, ngl, copy
 import hapy_common as hc
+import hapy_setres as hs
 home = os.getenv('HOME')
 
 vert_file_list,name,clr,dsh = [],[],[],[]
@@ -11,22 +12,23 @@ def add_grid(grid_in,n=None,d=0,c='black'):
 #-------------------------------------------------------------------------------
 
 
-# add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',          n='L72', d=0,c='red' )
-# add_grid(f'{home}/E3SM/vert_grid_files/L80_for_E3SMv3.nc',    n='L80',      d=0,c='blue')
-add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc', n='L128 (default)', d=0,c='red'  )
+# add_grid(f'{home}/E3SM/vert_grid_files/L80_for_E3SMv3.nc',    n='L80  (EAM)',   d=0,c='blue')
+# add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc', n='L128 (EAMxx)', d=0,c='red' )
 
 grid_root = '/global/homes/w/whannah/E3SM_grid_support/2026-INCITE-CONUS-RRM'
 # add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v1_c20251211.nc',n='L128v1',d=0,c='green')
 # add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v2_c20251211.nc',n='L128v2',d=0,c='magenta')
 # add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L128_v3_c20251211.nc',n='L128 v3',d=0,c='cyan')
-add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L144_v1_c20251211.nc',n='L144 v1',d=0,c='purple')
+add_grid(f'{home}/E3SM/vert_grid_files/L80_for_E3SMv3.nc',         n='L80  (EAM)',   d=0,c='blue')
+add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',      n='L128 (EAMxx)', d=0,c='red'  )
+add_grid(f'{grid_root}/2026-INCITE-CONUS-RRM_L144_v1_c20251211.nc',n='L144 (new)',d=0,c='purple')
 
 #-------------------------------------------------------------------------------
 fig_file,fig_type = os.getenv('HOME')+'/E3SM_grid_support/figs_grid_plot/vertical_grid_spacing','png'
 
 print_table     = True
-use_height      = True # for Y-axis, or else use pressure
-add_zoomed_plot = True
+# use_height      = True # for Y-axis, or else use pressure
+# add_zoomed_plot = True
 add_refine_box  = False
 
 # set limits for second plot zoomed in on lower levels
@@ -37,7 +39,7 @@ zoom_top_idx = -40 # 1km
 # Set up workstation
 #-------------------------------------------------------------------------------
 wks = ngl.open_wks(fig_type,fig_file)
-plot = []
+plot = [None]*4
 res = ngl.Resources()
 res.vpWidthF = 0.5
 res.nglDraw,res.nglFrame         = False,False
@@ -57,11 +59,6 @@ res.xyLineThicknessF             = 6.
 res.xyMarkLineMode = 'MarkLines'
 res.xyMarkerSizeF = 0.005
 res.xyMarker = 16
-
-if use_height:
-  res.trYReverse = False
-else:
-  res.trYReverse = True
 
 # res.xyYStyle = "Log"
 
@@ -114,8 +111,10 @@ if print_table:
 #-------------------------------------------------------------------------------
 # Load data
 #-------------------------------------------------------------------------------
-mlev_list = []
-dlev_list = []
+z_mid_lev_list = []
+z_del_lev_list = []
+p_mid_lev_list = []
+p_del_lev_list = []
 
 print('vertical grid height/pressure bounds:')
 
@@ -141,49 +140,93 @@ for f,vert_file in enumerate(vert_file_list):
   dlevz = mlevz*0.
   for k in range(len(mlev)): dlevz[k] = ilevz[k] - ilevz[k+1]
 
-  if use_height:
-    mlev_list.append(mlevz)
-    dlev_list.append(dlevz)
-  else:
-    mlev_list.append(mlev)
-    dlev_list.append(dlevz)
+  z_mid_lev_list.append(mlevz)
+  z_del_lev_list.append(dlevz)
+  p_mid_lev_list.append(mlev)
+  p_del_lev_list.append(dlevz)
+
+  # if use_height:
+  #   mlev_list.append(mlevz)
+  #   dlev_list.append(dlevz)
+  # else:
+  #   mlev_list.append(mlev)
+  #   dlev_list.append(dlevz)
 
 print('-'*100)
 
 #-------------------------------------------------------------------------------
 # Create plot
 #-------------------------------------------------------------------------------
-dlev_min = np.min([np.nanmin(d) for d in dlev_list])
-dlev_max = np.max([np.nanmax(d) for d in dlev_list])
 
-mlev_min = np.min([np.nanmin(d) for d in mlev_list])
-mlev_max = np.max([np.nanmax(d) for d in mlev_list])
+z_mid_lev_min = np.min([np.nanmin(d) for d in z_mid_lev_list])
+z_mid_lev_max = np.max([np.nanmax(d) for d in z_mid_lev_list])
+z_del_lev_min = np.min([np.nanmin(d) for d in z_del_lev_list])
+z_del_lev_max = np.max([np.nanmax(d) for d in z_del_lev_list])
+p_mid_lev_min = np.min([np.nanmin(d) for d in p_mid_lev_list])
+p_mid_lev_max = np.max([np.nanmax(d) for d in p_mid_lev_list])
+p_del_lev_min = np.min([np.nanmin(d) for d in p_del_lev_list])
+p_del_lev_max = np.max([np.nanmax(d) for d in p_del_lev_list])
 
-# set limits for second plot w/ linear scale
-dlev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in dlev_list])
-dlev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in dlev_list])
-mlev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in mlev_list])
-mlev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in mlev_list])
+# set limits for second plot
+z_mid_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in z_mid_lev_list])
+z_mid_lev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in z_mid_lev_list])
+z_del_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in z_del_lev_list])
+z_del_lev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in z_del_lev_list])
+p_mid_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in p_mid_lev_list])
+p_mid_lev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in p_mid_lev_list])
+p_del_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in p_del_lev_list])
+p_del_lev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in p_del_lev_list])
 
+#-------------------------------------------------------------------------------
+# print()
+# print(z_del_lev_list[0])
+# print()
+# print(z_del_lev_list[0][zoom_top_idx:])
+# print()
+#-------------------------------------------------------------------------------
+print(f'  z_mid_lev_min_2: {z_mid_lev_min_2}')
+print(f'  z_mid_lev_max_2: {z_mid_lev_max_2}'); print()
+print(f'  z_del_lev_min_2: {z_del_lev_min_2}')
+print(f'  z_del_lev_max_2: {z_del_lev_max_2}'); print()
+print(f'  p_mid_lev_min_2: {p_mid_lev_min_2}')
+print(f'  p_mid_lev_max_2: {p_mid_lev_max_2}'); print()
+print(f'  p_del_lev_min_2: {p_del_lev_min_2}')
+print(f'  p_del_lev_max_2: {p_del_lev_max_2}'); print()
+# exit()
+#-------------------------------------------------------------------------------
 
+# dlev_min = np.min([np.nanmin(d) for d in dlev_list])
+# dlev_max = np.max([np.nanmax(d) for d in dlev_list])
+# mlev_min = np.min([np.nanmin(d) for d in mlev_list])
+# mlev_max = np.max([np.nanmax(d) for d in mlev_list])
+
+# # set limits for second plot w/ linear scale
+# dlev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in dlev_list])
+# dlev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in dlev_list])
+# mlev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in mlev_list])
+# mlev_max_2 = np.max([np.nanmax(d[zoom_top_idx:]) for d in mlev_list])
+
+#---------------------------------------------------------------------------------------------------
 for f,vert_file in enumerate(vert_file_list):
 
-  mlev = mlev_list[f]
-  dlev = dlev_list[f]
+  # mlev = mlev_list[f]
+  # dlev = dlev_list[f]
 
-  if use_height:
-    res.tiXAxisString = 'Grid Spacing [m]'
-    res.tiYAxisString = 'Approx. Height [km]'
-  else:
-    res.tiXAxisString = 'Grid Spacing [m]'
-    res.tiYAxisString = 'Approx. Pressure [hPa]'
+  # if use_height:
+  #   res.tiXAxisString = 'Grid Spacing [m]'
+  #   res.tiYAxisString = 'Approx. Height [km]'
+  #   res.trYReverse = False
+  # else:
+  #   res.tiXAxisString = 'Grid Spacing [m]'
+  #   res.tiYAxisString = 'Approx. Pressure [hPa]'
+  #   res.trYReverse = True
 
   res.xyDashPattern = dsh[f]
-  res.xyLineColor = clr[f]
+  res.xyLineColor   = clr[f]
   res.xyMarkerColor = clr[f]
 
-  tres1 = copy.deepcopy(res)
-  tres2 = copy.deepcopy(res)
+  # tres1 = copy.deepcopy(res)
+  # tres2 = copy.deepcopy(res)
 
   # tres1.trXMinF = dlev_min
   # tres1.trXMaxF = dlev_max + (dlev_max-dlev_min)*0.05
@@ -201,40 +244,81 @@ for f,vert_file in enumerate(vert_file_list):
   #print('-'*80)
   #tres1.trXMaxF = 1e3
   #tres1.trYMinF = 10
-
-  tres2.trXMinF = 0 # dlev_min_2
-  tres2.trXMaxF = 300#dlev_max_2 + (dlev_max_2-dlev_min_2)*0.05
-  if use_height:
-    tres2.trYMinF = 0
-    tres2.trYMaxF = 4
-  else:
-    tres2.trYMinF = mlev_min_2 #- mlev_min_2/2
-    tres2.trYMaxF = 1e3 #mlev_max_2
+  #-----------------------------------------------------------------------------
+  # tres2.trXMinF = 0 # dlev_min_2
+  # tres2.trXMaxF = 300#dlev_max_2 + (dlev_max_2-dlev_min_2)*0.05
+  # if use_height:
+  #   tres2.trYMinF = 0
+  #   tres2.trYMaxF = 4
+  # else:
+  #   tres2.trYMinF = mlev_min_2 #- mlev_min_2/2
+  #   tres2.trYMaxF = 1e3 #mlev_max_2
 
   # temporary override to highlight new grid
   #tres1.trXMaxF = 800
   #tres2.trXMaxF = 100
 
-  if use_height: 
-    tres1.xyYStyle = "Linear"
-    tres2.xyYStyle = "Linear"
-  else:
-    tres1.xyYStyle = "Log"
-    tres2.xyYStyle = "Linear"
+  # if use_height: 
+  #   tres1.xyYStyle = "Linear"
+  #   tres2.xyYStyle = "Linear"
+  # else:
+  #   tres1.xyYStyle = "Log"
+  #   tres2.xyYStyle = "Linear"
 
-  tplot1 = ngl.xy(wks, dlev, mlev, tres1)
-  
-  ### add plot zoomed in on lowest levels
-  if add_zoomed_plot: 
-    tplot2 = ngl.xy(wks, dlev, mlev, tres2)
+  # tplot1 = ngl.xy(wks, dlev, mlev, tres1)
+  # tplot2 = ngl.xy(wks, dlev, mlev, tres2)
 
+  res.trXMinF = 0
+  res.xyYStyle = 'Linear'
+  #-----------------------------------------------------------------------------
+  res.tiXAxisString = 'Grid Spacing [m]'
+  res.tiYAxisString = 'Approx. Height [km]'
+  res.trYReverse = False
+  tres1,tres2 = copy.deepcopy(res),copy.deepcopy(res)
+  tres1.xyYStyle = 'Linear'
+  tres1.trYMinF,tres2.trYMinF = 0,0
+  tres2.trYMaxF = z_mid_lev_max_2
+  # tres2.trXMaxF = 400
+  tres2.trXMaxF = z_del_lev_max_2
+  tplot1 = ngl.xy(wks, z_del_lev_list[f], z_mid_lev_list[f], tres1)
+  tplot2 = ngl.xy(wks, z_del_lev_list[f], z_mid_lev_list[f], tres2)
+  #-----------------------------------------------------------------------------
+  res.tiXAxisString = 'Grid Spacing [m]'
+  res.tiYAxisString = 'Approx. Pressure [hPa]'
+  res.trYReverse = True
+  tres1,tres2 = copy.deepcopy(res),copy.deepcopy(res)
+  tres1.xyYStyle = 'Log'
+  tres1.trYMaxF,tres2.trYMaxF = 1e3,1e3
+  tres2.trYMinF = p_mid_lev_min_2
+  tres2.trXMaxF = p_del_lev_max_2
+  tplot3 = ngl.xy(wks, p_del_lev_list[f], p_mid_lev_list[f], tres1)
+  tplot4 = ngl.xy(wks, p_del_lev_list[f], p_mid_lev_list[f], tres2)
+  #-----------------------------------------------------------------------------
+  fhgt = 0.012
+  hs.set_subtitles(wks, tplot1, center_string='Vertical Grid Spacing vs Altitude', font_height=fhgt)
+  hs.set_subtitles(wks, tplot2, center_string='Vertical Grid Spacing vs Altitude', font_height=fhgt)
+  hs.set_subtitles(wks, tplot3, center_string='Vertical Grid Spacing vs Pressure', font_height=fhgt)
+  hs.set_subtitles(wks, tplot4, center_string='Vertical Grid Spacing vs Pressure', font_height=fhgt)
+  #-----------------------------------------------------------------------------
+  # z_mid_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in z_mid_lev_list])
+  # z_mid_lev_max_2 = np.max([np.nanmin(d[zoom_top_idx:]) for d in z_mid_lev_list])
+  # z_del_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in z_del_lev_list])
+  # z_del_lev_max_2 = np.max([np.nanmin(d[zoom_top_idx:]) for d in z_del_lev_list])
+  # p_mid_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in p_mid_lev_list])
+  # p_mid_lev_max_2 = np.max([np.nanmin(d[zoom_top_idx:]) for d in p_mid_lev_list])
+  # p_del_lev_min_2 = np.min([np.nanmin(d[zoom_top_idx:]) for d in p_del_lev_list])
+  # p_del_lev_max_2 = np.max([np.nanmin(d[zoom_top_idx:]) for d in p_del_lev_list])
+  #-----------------------------------------------------------------------------
   if f==0:
-    plot.append(tplot1)
-    if add_zoomed_plot: plot.append(tplot2)
+    plot[0] = tplot1
+    plot[1] = tplot2
+    plot[2] = tplot3
+    plot[3] = tplot4
   else:
     ngl.overlay(plot[0],tplot1)
-    # if len(plot)>=2: ngl.overlay(plot[1],tplot2)
-    if add_zoomed_plot: ngl.overlay(plot[1],tplot2)
+    ngl.overlay(plot[1],tplot2)
+    ngl.overlay(plot[2],tplot3)
+    ngl.overlay(plot[3],tplot4)
 
 #-------------------------------------------------------------------------------
 # add lines to visually see how grids line up with first case (i.e. control/default)
@@ -291,11 +375,13 @@ lgres.lgLineColors       = clr[::-1]
 
 for n in range(len(name)): name[n] = ' '+name[n]
 
-if add_zoomed_plot:
-  lpx, lpy = 0.26, 0.45
-  # lpx, lpy = 0.8, 0.45
-else:
-  lpx, lpy = 0.6, 0.3
+lpx, lpy = 0.27, 0.72
+
+# if add_zoomed_plot:
+#   lpx, lpy = 0.26, 0.45
+#   # lpx, lpy = 0.8, 0.45
+# else:
+#   lpx, lpy = 0.6, 0.3
 
 pid = ngl.legend_ndc(wks, len(name), name[::-1], lpx, lpy, lgres)
 
@@ -305,7 +391,9 @@ pid = ngl.legend_ndc(wks, len(name), name[::-1], lpx, lpy, lgres)
 pnl_res = ngl.Resources()
 pnl_res.nglPanelXWhiteSpacePercent = 5
 pnl_res.nglPanelYWhiteSpacePercent = 5
-ngl.panel(wks,plot[0:len(plot)],[1,len(plot)],pnl_res); ngl.end()
+
+# ngl.panel(wks,plot,[1,len(plot)],pnl_res); ngl.end()
+ngl.panel(wks,plot,[2,2],pnl_res); ngl.end()
 
 # trim white space
 fig_file = f'{fig_file}.{fig_type}'

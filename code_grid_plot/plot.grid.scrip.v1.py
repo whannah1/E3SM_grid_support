@@ -48,12 +48,13 @@ add_grid(f'{grid_root}/2026-incite-conus-1024x3-pg2_scrip.nc','conus-1024x3', cl
 # add_grid(f'{grid_root}/2026-incite-conus-1024x4-pg2_scrip.nc','conus-1024x4', clat=40,clon=360-105)
 num_plot_col = 1
 
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon=-60.24, xlat=None, xlon=None)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon=-94.45, xlat=None, xlon=None)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-pac-pg2_scrip.nc',   'sc-pac',   clat=-35,clon=-135, slat=-34.73, slon=-136.73, xlat=None, xlon=None)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sw-ind-pg2_scrip.nc',   'sw-ind',   clat=-50,clon=  45, slat=-49.61, slon= 45.20, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-eq-ind-pg2_scrip.nc',   'eq-ind',   clat=-5, clon=  80, slat=[-6.99,-3.05], slon=[84.74,75.97], xlat=None, xlon=None)
-# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-ind-pg2_scrip.nc',   'sc-ind',   clat=-50,clon=  80, slat=-52.49, slon=67.04, xlat=None, xlon=None)
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon= -60.24, xlat=None, xlon=None)
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-ind-pg2_scrip.nc',   'sc-ind',   clat=-50,clon=  80, slat=-52.49, slon=  67.04, xlat=None, xlon=None)
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-pac-pg2_scrip.nc',   'sc-pac',   clat=-35,clon=-135, slat=-34.73, slon=-136.73, xlat=None, xlon=None)
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon= -94.45, xlat=None, xlon=None)
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sw-ind-pg2_scrip.nc',   'sw-ind',   clat=-50,clon=  45, slat=-49.61, slon=  45.20, xlat=None, xlon=None)
+
 
 # grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
 # topo_root = '/global/cfs/cdirs/m4310/whannah/files_topo'

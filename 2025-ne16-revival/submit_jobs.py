@@ -20,11 +20,11 @@ grid_name_list = []
 grid_name_list.append('ne16')
 #-------------------------------------------------------------------------------
 topo_args = ''
-topo_args += ' --create_grid'
-topo_args += ' --remap_topo'
+# topo_args += ' --create_grid'
+# topo_args += ' --remap_topo'
 # topo_args += ' --smooth_topo'
-# topo_args += ' --calc_topo_sgh'
-topo_args += ' --force_new_3km_data'
+topo_args += ' --calc_topo_sgh'
+# topo_args += ' --force_new_3km_data'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'

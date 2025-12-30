@@ -10,7 +10,7 @@ def get_env_var(var):
   return sp.run(cmd,shell=True,capture_output=True,text=True,check=True).stdout.replace('\n','')
 #-------------------------------------------------------------------------------
 proj_root = get_env_var('proj_root')
-DIN_LOC_ROOT = get_env_var('DIN_LOC_ROOT')
+host = get_env_var('host')
 #-------------------------------------------------------------------------------
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 def print_line():print(' '*2+'-'*80)
@@ -22,11 +22,18 @@ grid_name_list.append('2026-incite-conus-1024x2')
 # grid_name_list.append('2026-incite-conus-1024x4')
 
 #-------------------------------------------------------------------------------
+# topo_args = ''
+# topo_args += ' --create_grid'
+# # topo_args += ' --cttrmp_topo'
+# # topo_args += ' --smooth_topo'
+# # topo_args += ' --cttsgh_topo'
+#-------------------------------------------------------------------------------
 topo_args = ''
-topo_args += ' --create_grid'
-# topo_args += ' --cttrmp_topo'
-# topo_args += ' --smooth_topo'
-# topo_args += ' --cttsgh_topo'
+# topo_args += ' --create_grid'
+# topo_args += ' --remap_topo'
+topo_args += ' --smooth_topo'
+# topo_args += ' --calc_topo_sgh'
+# topo_args += ' --force_new_3km_data'
 #-------------------------------------------------------------------------------
 map_args = ''
 map_args += f' --create_maps_ocn'
@@ -40,11 +47,13 @@ for grid_name in grid_name_list:
   sbatch_common += f' --output={logs_root}/%x-%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
   
-  if host=='NERSC': sbatch_common += f' --constraint=cpu --qos=regular'
+  if host=='NERSC':
+    sbatch_common += f' --constraint=cpu'
+    sbatch_common += f' --qos=regular'
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name} --time=48:00:00 {home}/E3SM_grid_support/batch_maps.sh {map_args}')
   # run_cmd(f'{sbatch_common} --job-name=gen_domn_{grid_name} --time=6:00:00  {home}/E3SM_grid_support/batch_domain.sh')
-  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --time=12:00:00 {home}/E3SM_grid_support/batch_topo.v2.sh {topo_args}')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=4 --time=12:00:00 {home}/E3SM_grid_support/batch_topo.v2.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()

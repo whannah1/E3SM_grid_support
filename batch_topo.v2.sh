@@ -40,6 +40,7 @@ slurm_log_calc_topo_sgh=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.calc
 #-------------------------------------------------------------------------------
 export grid_file_exodus=${grid_root}/${grid_name}.g
 export grid_file_np4_scrip="${grid_root}/${grid_name}-np4_scrip.nc"
+export grid_file_pg2_scrip="${grid_root}/${grid_name_pg2}_scrip.nc"
 export grid_file_3km_exodus="${grid_root}/ne3000.g"
 export grid_file_3km_scrip="${grid_root}/ne3000pg1_scrip.nc"
 #-------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
 export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
 #-------------------------------------------------------------------------------  
 # print some useful things
-echo --------------------------------------------------------------------------------; echo
+echo --------------------------------------------------------------------------------
 echo "   proj_root            = ${proj_root}"
 echo "   grid_name            = ${grid_name}"; echo
 echo "   create_grid          = ${create_grid}"
@@ -70,6 +71,19 @@ echo "   topo_file_3sq        = ${topo_file_3sq}"
 echo "   topo_file_1          = $topo_file_1"
 echo "   topo_file_2          = $topo_file_2"
 echo "   topo_file_3 (final)  = $topo_file_3"
+echo --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+echo "SLURM JOB PARAMETERS"
+echo "   Job Name             = $SLURM_JOB_NAME"
+echo "   Job ID               = $SLURM_JOB_ID"
+echo "   Submit Dir           = $SLURM_SUBMIT_DIR"
+echo "   Nodes allocated      = $SLURM_JOB_NODELIST"
+echo "   Number of nodes      = $SLURM_NNODES"
+echo "   Tasks per node       = $SLURM_NTASKS_PER_NODE"
+echo "   Total tasks          = $SLURM_NTASKS"
+echo "   Memory per node      = $SLURM_MEM_PER_NODE"
+echo "   CPUs per task        = $SLURM_CPUS_PER_TASK"
+echo "   Partition            = $SLURM_JOB_PARTITION"
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 if [ ! -f ${grid_file_exodus} ]; then echo -e ${RED}ERROR source grid file does not exist:${NC} ${grid_file_exodus} ; fi
@@ -102,7 +116,7 @@ fi
 # Remap to target grid with cube_to_target
 chk_file=${topo_file_1}
 if $remap_topo; then
-  echo;echo -e "${CYN}Remapping topogaphy with mbda${NC} >> ${YLW}${slurm_log_remap_topo}${NC}"
+  echo;echo -e "${CYN}Remapping topography with mbda${NC} >> ${YLW}${slurm_log_remap_topo}${NC}"
   #-----------------------------------------------------------------------------
   remap_opts=''
   if $force_new_3km_data; then remap_opts="${remap_opts} --force_new_3km_data"; fi
@@ -114,7 +128,7 @@ if $remap_topo; then
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo creation SUCCESSFUL:${NC} ${chk_file}"; fi
 else
   echo;echo -e "${CYN}Skipping topo remapping${NC}"
-  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo does not exist:${NC} ${chk_file}"; echo; exit 1; fi
+  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo does not exist:${NC} ${chk_file}"; echo; exit 0; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo already exists:${NC} ${chk_file}"; fi
 fi
 #===============================================================================
@@ -122,7 +136,7 @@ fi
 # Apply Smoothing with homme_tool
 chk_file=${topo_file_2}
 if $smooth_topo; then
-  echo;echo -e "${CYN}Smoothing topogaphy with homme_tool${NC} >> ${YLW}$slurm_log_smooth_topo${NC}"
+  echo;echo -e "${CYN}Smoothing topography with homme_tool${NC} >> ${YLW}$slurm_log_smooth_topo${NC}"
   #-----------------------------------------------------------------------------
   bash ${grid_code_root}/batch_topo.v2.smooth_topo.sh >> $slurm_log_smooth_topo 2>&1
   #-----------------------------------------------------------------------------
@@ -131,8 +145,8 @@ if $smooth_topo; then
   if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  smoothed topo creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  smoothed topo creation SUCCESSFUL:${NC} ${chk_file}"; fi
 else
-  echo;echo -e "${CYN}Skipping topogaphy smoothing${NC}"
-  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  smoothed topo does not exist:${NC} ${chk_file}"; echo; exit 1; fi
+  echo;echo -e "${CYN}Skipping topography smoothing${NC}"
+  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  smoothed topo does not exist:${NC} ${chk_file}"; echo; exit 0; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  smoothed topo already exists:${NC} ${chk_file}"; fi
 fi
 #===============================================================================
@@ -150,44 +164,8 @@ if $calc_topo_sgh; then
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  final topo creation SUCCESSFUL:${NC} ${chk_file}"; fi
 else
   echo;echo -e "${CYN}Skipping SGH calculation${NC}"
-  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  final topo does not exist:${NC} ${chk_file}"; echo; exit 1; fi
+  if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  final topo does not exist:${NC} ${chk_file}"; echo; exit 0; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  final topo already exists:${NC} ${chk_file}"; fi
-fi
-#===============================================================================
-#===============================================================================
-# Compute SGH
-if $cttsgh_topo; then
-  echo;echo -e ${GRN} Calculating SGH with cube_to_target ${NC} $slurm_log_cttsgh_topo
-
-  ${e3sm_src_root}/components/eam/tools/topo_tool/cube_to_target/cube_to_target \
-    --target-grid ${grid_root}/${grid_name}-pg2_scrip.nc \
-    --input-topography ${topo_file_src} \
-    --smoothed-topography ${topo_file_2} \
-    --output-topography ${topo_file_3} >> $slurm_log_cttsgh_topo 2>&1
-    # --add-oro-shape >> $slurm_log_cttsgh_topo 2>&1
-  #-----------------------------------------------------------------------------
-  # convert to 64-bit data format to avoid problems in next step
-  echo;echo -e ${GRN} Converting smoothed topo file to 64-bit data format ${NC} $slurm_log_cttsgh_topo
-
-  cmd="ncks -5 ${topo_file_2} ${topo_file_2}.tmp"
-  echo "  $cmd" ; echo; eval "$cmd"
-  
-  cmd="mv ${topo_file_2}.tmp ${topo_file_2}"
-  echo "  $cmd" ; echo; eval "$cmd"
-
-  cmd="ncks -5 ${topo_file_3} ${topo_file_3}.tmp"
-  echo "  $cmd" ; echo; eval "$cmd"
-  
-  cmd="mv ${topo_file_3}.tmp ${topo_file_3}"
-  echo "  $cmd" ; echo; eval "$cmd"
-  #-----------------------------------------------------------------------------
-  # Append the GLL phi_s data to the output
-  ### source {unified_src} # this is problematic - just use unified_bin
-  # cmd="${unified_bin}/ncks -5 -A ${topo_file_2} ${topo_file_3} >> $slurm_log_cttsgh_topo 2>&1"
-  echo;echo -e ${GRN} Appending GLL phi_s data to the smoothed topo file ${NC} $slurm_log_cttsgh_topo
-
-  cmd="ncks -A ${topo_file_2} ${topo_file_3} >> $slurm_log_cttsgh_topo 2>&1"
-  echo "  $cmd" ; echo; eval "$cmd"
 fi
 #-------------------------------------------------------------------------------
 #*******************************************************************************
