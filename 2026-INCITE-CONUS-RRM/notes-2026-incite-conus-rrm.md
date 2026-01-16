@@ -1,5 +1,7 @@
 
 
+echo "OMP_PROC_BIND = ${OMP_PROC_BIND}"; echo "OMP_PLACES = ${OMP_PLACES}"; echo "HDF5_USE_FILE_LOCKING = ${HDF5_USE_FILE_LOCKING}"; echo "FI_MR_CACHE_MONITOR = ${FI_MR_CACHE_MONITOR}"; echo "MPICH_COLL_SYNC = ${MPICH_COLL_SYNC}"; echo "MPICH_SMP_SINGLE_COPY_MODE = ${MPICH_SMP_SINGLE_COPY_MODE}"
+
 ----------------------------------------------------------------------------------------------------
 # Start Here to setup environment
 

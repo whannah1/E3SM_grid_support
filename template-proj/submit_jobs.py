@@ -18,11 +18,22 @@ def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
 grid_name_list = []
 grid_name_list.append()
 #-------------------------------------------------------------------------------
+map_args = ''
+map_args += f' --create_maps_ocn'
+map_args += f' --create_maps_lnd'
+# #-------------------------------------------------------------------------------
+# topo_args = ''
+# topo_args += ' --create_grid'
+# topo_args += ' --cttrmp_topo'
+# topo_args += ' --smooth_topo'
+# topo_args += ' --cttsgh_topo'
+#-------------------------------------------------------------------------------
 topo_args = ''
 topo_args += ' --create_grid'
-topo_args += ' --cttrmp_topo'
+topo_args += ' --remap_topo'
 topo_args += ' --smooth_topo'
-topo_args += ' --cttsgh_topo'
+topo_args += ' --calc_topo_sgh'
+topo_args += ' --force_new_3km_data'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
@@ -32,9 +43,11 @@ for grid_name in grid_name_list:
   sbatch_common += f' --output={logs_root}/%x-%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
 
-  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {script_root}/../batch_maps.sh')
-  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
-  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
+  topo_slurm_opts = '--nodes=64 --ntasks-per-node=4 --time=12:00:00'
+
+  # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00   {script_root}/../batch_maps.sh {map_args}')
+  # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00    {script_root}/../batch_domain.sh')
+  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   {topo_slurm_opts} {script_root}/../batch_topo.v2.sh {topo_args}')
 
 #-------------------------------------------------------------------------------
 print_line()
