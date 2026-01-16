@@ -1,14 +1,17 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
+export slurm_mail_user=hannah6@llnl.gov
+export slurm_mail_type="END,FAIL"
+#-------------------------------------------------------------------------------
 # determine the HPC center we are logged into
 host=NONE
 scratch_lcrc=/lcrc/group/e3sm/ac.whannah
 scratch_alcf=/lus/flare/projects/E3SM_Dec/whannah
-scratch_olcf=
+scratch_olcf=/lustre/orion/cli115/proj-shared/hannah6
 scratch_nersc=/pscratch/sd/w/whannah
 if [ -e ${scratch_lcrc} ]; then host=LCRC; fi
 if [ -e ${scratch_alcf} ]; then host=ALCF; fi
-# if [ -e ${scratch_olcf} ]; then host=OLCF; fi
+if [ -e ${scratch_olcf} ]; then host=OLCF; fi
 if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then

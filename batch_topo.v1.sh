@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1
-#SBATCH --mail-user=hannah6@llnl.gov
-#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=${slurm_mail_user}
+#SBATCH --mail-type=${slurm_mail_type}
 #-------------------------------------------------------------------------------
 if [ -z "${proj_root}" ]; then echo -e ${RED}ERROR: proj_root is not defined${NC}; exit ; fi
 if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC}; exit ; fi

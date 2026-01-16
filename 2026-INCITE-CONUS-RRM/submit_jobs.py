@@ -18,9 +18,9 @@ def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
 #-------------------------------------------------------------------------------
 grid_name_list = []
 # grid_name_list.append('2026-incite-conus-128x2') # 4 nodes seem to work
-grid_name_list.append('2026-incite-conus-1024x2')
-# grid_name_list.append('2026-incite-conus-1024x3')
-# grid_name_list.append('2026-incite-conus-1024x4')
+grid_name_list.append('2026-incite-conus-1024x2') # num_elem=7908298
+# grid_name_list.append('2026-incite-conus-1024x3') # num_elem=13017523 => 1.646 more than x2
+# grid_name_list.append('2026-incite-conus-1024x4') # num_elem=33333240 => 4.215 more than x2
 
 #-------------------------------------------------------------------------------
 map_args = ''
@@ -61,7 +61,10 @@ for grid_name in grid_name_list:
     # topo_slurm_opts = '--nodes=16 --cpus-per-task=16 --time=0:30:00'
     # topo_slurm_opts = '--nodes=16 --cpus-per-task=32 --time=0:30:00'
     # topo_slurm_opts = '--nodes=32 --cpus-per-task=32 --time=0:30:00' # Mark thinks this will work for x4
-    
+    if grid_name=='2026-incite-conus-1024x2': topo_slurm_opts = '--nodes=16 --cpus-per-task=8 --time=0:30:00'
+    if grid_name=='2026-incite-conus-1024x3': topo_slurm_opts = '--nodes=32 --cpus-per-task=8 --time=0:30:00'
+    if grid_name=='2026-incite-conus-1024x4': topo_slurm_opts = '--nodes=64 --cpus-per-task=8 --time=0:30:00'
+    if 'topo_slurm_opts' not in locals(): topo_slurm_opts = '--nodes=4 --cpus-per-task=8 --time=0:30:00'
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name} --time=48:00:00 {home}/E3SM_grid_support/batch_maps.sh {map_args}')
   # run_cmd(f'{sbatch_common} --job-name=gen_domn_{grid_name} --time=6:00:00  {home}/E3SM_grid_support/batch_domain.sh')
