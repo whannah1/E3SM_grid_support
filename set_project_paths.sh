@@ -22,6 +22,7 @@ export domn_root=${data_root}/files_domain
 # export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
 export homme_tool_root=${e3sm_src_root}/cmake_homme
+export homme_tool_root=$SCRATCH/hommetool
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 echo "MACHINE SPECIFIC PATHS:"

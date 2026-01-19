@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1
-#SBATCH --mail-user=${slurm_mail_user}
-#SBATCH --mail-type=${slurm_mail_type}
+#XXXSBATCH --mail-user=${slurm_mail_user}
+#XXXSBATCH --mail-type=${slurm_mail_type}
 #-------------------------------------------------------------------------------
 # v2 is updated to handle very-fine grids with the new MVDA mapping tool and
 # the ne12000 source topography dataset
