@@ -18,7 +18,6 @@ rm -f ${nl_file}
 cat > ${nl_file} <<EOF
 &ctl_nl
 ne = 0
-output_prefix="${grid_name}"
 mesh_file = "${grid_file_exodus}"
 /
 &vert_nl    
@@ -26,6 +25,7 @@ mesh_file = "${grid_file_exodus}"
 &analysis_nl
 tool = 'grid_template_tool'
 output_dir = "./"
+output_prefix="${grid_name}"
 output_timeunits=1
 output_frequency=1
 output_varnames1='area','corners','cv_lat','cv_lon'netcdf'
@@ -38,16 +38,14 @@ cmd="srun -c 32 -N $SLURM_NNODES ${homme_tool_root}/src/tool/homme_tool < ${nl_f
 
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
-echo "exiting to check file name with new output_prefix"
-exit
 #-------------------------------------------------------------------------------
-chk_file="${homme_tool_root}/ne0np4_tmp1.nc"
+chk_file="${homme_tool_root}/${grid_name}ne0np4_tmp1.nc"
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  homme_tool grid file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  homme_tool grid file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 # use python utility for format conversion
 cmd="${unified_bin}/python ${e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py"
-cmd="${cmd} --src_file ${homme_tool_root}/ne0np4_tmp1.nc"
+cmd="${cmd} --src_file ${homme_tool_root}/${grid_name}ne0np4_tmp1.nc"
 cmd="${cmd} --dst_file ${grid_file_np4_scrip}"
 
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
@@ -56,7 +54,7 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 if [ ! -f ${grid_file_3km_scrip} ]; then
   #-----------------------------------------------------------------------------
   # first create the exodus file
-  cmd="${unified_bin}/GenerateCSMesh --alt --res 4 --file ${grid_file_3km_exodus}"
+  cmd="${unified_bin}/GenerateCSMesh --alt --res 3000 --file ${grid_file_3km_exodus}"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   # check to make sure grid file was created

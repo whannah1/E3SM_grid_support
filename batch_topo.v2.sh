@@ -39,7 +39,7 @@ slurm_log_smooth_topo=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.smooth
 slurm_log_calc_topo_sgh=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.calc_topo_sgh.out
 #-------------------------------------------------------------------------------
 export grid_file_exodus=${grid_root}/${grid_name}.g
-export grid_file_np4_scrip="${grid_root}/${grid_name}-np4_scrip.nc"
+export grid_file_np4_scrip="${grid_root}/${grid_name}np4_scrip.nc"
 export grid_file_pg2_scrip="${grid_root}/${grid_name_pg2}_scrip.nc"
 export grid_file_3km_exodus="${grid_root}/ne3000.g"
 export grid_file_3km_scrip="${grid_root}/ne3000pg1_scrip.nc"
@@ -47,10 +47,16 @@ export grid_file_3km_scrip="${grid_root}/ne3000pg1_scrip.nc"
 # Specify topo file names - including temporary files that will be deleted
 export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
 export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
-export topo_file_3sq=${topo_root}/tmp_USGS-topo_ne3000-sqr_${grid_name}-np4.nc
+export topo_file_3km_tmp=${topo_root}/tmp2_USGS-topo_ne3000.nc
 export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
+export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
 export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
 export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
+# needed for SGH  topo mapped from 3km source
+export topo_file_3km_1=${topo_root}/tmp_3km-topo_${grid_name}-np4.nc
+export topo_file_3km_2=${topo_root}/tmp_3km-topo_${grid_name}-np4_smoothedx6t.nc
+export topo_file_3km_pg2=${topo_root}/tmp_3km-topo_${grid_name}-pg2.nc
+
 #-------------------------------------------------------------------------------  
 # print some useful things
 echo --------------------------------------------------------------------------------
