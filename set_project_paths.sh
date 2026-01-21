@@ -31,6 +31,8 @@ echo "  grid_data_root    = $grid_data_root"
 echo "  e3sm_src_root     = $e3sm_src_root"
 echo "  homme_tool_root   = ${homme_tool_root}"
 echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
+echo "  slurm_mail_user   = $slurm_mail_user"
+echo "  slurm_mail_type   = $slurm_mail_type"; echo
 #-------------------------------------------------------------------------------
 echo "PROJECT SPECIFIC PATHS:"
 echo "  proj              = ${proj}"

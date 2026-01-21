@@ -9,7 +9,10 @@ def get_env_var(var):
   cmd = f'source {script_root}/set_project.sh>>/dev/null;echo ${var}'
   return sp.run(cmd,shell=True,capture_output=True,text=True,check=True).stdout.replace('\n','')
 #-------------------------------------------------------------------------------
+host      = get_env_var('host')
 proj_root = get_env_var('proj_root')
+mail_user = get_env_var('slurm_mail_user')
+mail_type = get_env_var('slurm_mail_type')
 #-------------------------------------------------------------------------------
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 def print_line():print(' '*2+'-'*80)
@@ -42,6 +45,13 @@ for grid_name in grid_name_list:
   sbatch_common += f',grid_name_pg2={grid_name}pg2'
   sbatch_common += f' --output={logs_root}/%x-%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
+  sbatch_common += f' --mail-user={mail_user}'
+  sbatch_common += f' --mail-type={mail_type}'
+
+  if host=='NERSC':
+    sbatch_common += f' --constraint=cpu'
+    sbatch_common += f' --qos=regular'
+    # sbatch_common += f' --qos=debug'
 
   topo_slurm_opts = '--nodes=64 --ntasks-per-node=4 --time=12:00:00'
 
