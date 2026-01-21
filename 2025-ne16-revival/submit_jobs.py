@@ -20,9 +20,9 @@ grid_name_list = []
 grid_name_list.append('ne16')
 #-------------------------------------------------------------------------------
 topo_args = ''
-#topo_args += ' --create_grid'
-topo_args += ' --remap_topo'
-# topo_args += ' --smooth_topo'
+topo_args += ' --create_grid'
+#topo_args += ' --remap_topo'    # sometimes needs > 30min
+#topo_args += ' --smooth_topo'
 #topo_args += ' --calc_topo_sgh'
 # topo_args += ' --force_new_3km_data'
 #-------------------------------------------------------------------------------
@@ -37,12 +37,15 @@ for grid_name in grid_name_list:
   if host=='NERSC':
     sbatch_common += f' --constraint=cpu'
     # sbatch_common += f' --qos=debug'
+    #sbatch_common += f' --qos=regular'
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00 {script_root}/../batch_maps.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
-  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=1 --time=0:30:00 {script_root}/../batch_topo.v2.sh {topo_args}')
+###  run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=1 --time=0:05:00 {script_root}/../batch_topo.v2.sh {topo_args}')
 
+print("proj_root =",proj_root)
+print("script_root =",script_root)
 #-------------------------------------------------------------------------------
 print_line()
 # sp.run(['/bin/bash','-i','-c','qjob'],shell=False)

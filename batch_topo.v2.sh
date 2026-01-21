@@ -40,9 +40,14 @@ slurm_log_calc_topo_sgh=$slurm_log_root/$SLURM_JOB_NAME-$SLURM_JOB_ID.slurm.calc
 #-------------------------------------------------------------------------------
 export grid_file_exodus=${grid_root}/${grid_name}.g
 export grid_file_np4_scrip="${grid_root}/${grid_name}np4_scrip.nc"
-export grid_file_pg2_scrip="${grid_root}/${grid_name_pg2}_scrip.nc"
+export grid_file_pg2_scrip="${grid_root}/${grid_name}pg2_scrip.nc"
 export grid_file_3km_exodus="${grid_root}/ne3000.g"
 export grid_file_3km_scrip="${grid_root}/ne3000pg1_scrip.nc"
+#MBDA is more efficient with reduced SCRIP files:
+export grid_file_np4_mbda="${grid_root}/${grid_name}np4_mbda.nc"
+export grid_file_pg2_mbda="${grid_root}/${grid_name}pg2_mbda.nc"
+export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
+
 #-------------------------------------------------------------------------------
 # Specify topo file names - including temporary files that will be deleted
 export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
@@ -178,7 +183,7 @@ fi
 #-------------------------------------------------------------------------------
 # list temporary files for manual deletion
 echo;echo "The following temporary files will need to be deleted:"
-ls -1 ${topo_root}/tmp_USGS-topo_ne${NE_DST}*
+ls -1 ${topo_root}/tmp_USGS-topo_ne${NE_DST}* ${topo_root}/tmp_3km-topo_ne${NE_DST}*
 echo
 #-------------------------------------------------------------------------------
 # # Clean up Temporary Files
