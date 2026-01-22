@@ -9,7 +9,7 @@ for arg in "$@"; do
   esac
 done
 #-------------------------------------------------------------------------------
-export proj_root=${home}/E3SM_grid_support/${proj}
+export proj_root=${proj_root_src}/${proj}
 export data_root=${grid_data_root}/${proj}
 export slurm_log_root=${proj_root}/logs_slurm
 export hiccup_log_root=${proj_root}/logs_hiccup
@@ -22,6 +22,7 @@ export domn_root=${data_root}/files_domain
 # export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
 export homme_tool_root=${e3sm_src_root}/cmake_homme
+export homme_tool_root=$SCRATCH/hommetool
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 echo "MACHINE SPECIFIC PATHS:"
