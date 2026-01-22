@@ -52,7 +52,6 @@ export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
 # Specify topo file names - including temporary files that will be deleted
 export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
 export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
-export topo_file_3km_tmp=${topo_root}/tmp2_USGS-topo_ne3000.nc
 export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
 export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
