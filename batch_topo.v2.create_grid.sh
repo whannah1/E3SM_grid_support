@@ -49,7 +49,7 @@ cmd="${cmd} --src_file ${homme_tool_root}/${grid_name}ne0np4_tmp1.nc"
 cmd="${cmd} --dst_file ${grid_file_np4_scrip}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
-# extract MBDA version:
+# extract MBDA version, convert to cdf5
 cmd="${unified_bin}/ncks -5 -O -v grid_center_lon,grid_center_lat,grid_area  ${grid_file_np4_scrip} ${grid_file_np4_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
 
@@ -68,7 +68,7 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_pg2_mbda} --out ${grid_file_pg2_scrip}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
-# extract MBDA version:
+# extract MBDA version, convert to cdf5
 cmd="${unified_bin}/ncks -5 -O -v grid_center_lon,grid_center_lat,grid_area  ${grid_file_pg2_scrip} ${grid_file_pg2_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
 

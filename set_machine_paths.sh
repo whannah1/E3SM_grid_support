@@ -16,6 +16,7 @@ if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then
   export home=/home/ac.whannah
+  export proj_root_src=${home}/E3SM_grid_support
   export grid_data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support
   export e3sm_src_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
@@ -26,6 +27,7 @@ fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "NERSC" ]; then
   export home=$HOME
+  export proj_root_src=${CFS}/e3sm/${USER}/E3SM_grid_support/${proj}
   export grid_data_root=${CFS}/e3sm/${USER}/E3SM_grid_support
   export e3sm_src_root=${home}/codes/acme2
   export DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
@@ -37,6 +39,7 @@ fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "ALCF" ]; then
   export home=/home/whannah
+  export proj_root_src=${home}/E3SM_grid_support
   export grid_data_root=/lus/flare/projects/E3SM_Dec/whannah/E3SM_grid_support
   export e3sm_src_root=/lus/flare/projects/E3SM_Dec/whannah/e3sm_src
   export DIN_LOC_ROOT=/lus/flare/projects/E3SMinput/data
@@ -47,6 +50,7 @@ fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "OLCF" ]; then
   export home=
+  export proj_root_src=${home}/E3SM_grid_support
   export grid_data_root=
   export e3sm_src_root=
   export DIN_LOC_ROOT=

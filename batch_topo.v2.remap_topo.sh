@@ -24,7 +24,7 @@ if [ ! -f ${topo_file_3km} ]; then create_new_3km=true; fi
 # the pg2 data is only needed to compute SGH30
 #===============================================================================
 cmd="${mbda_path}"
-cmd="${cmd} --target ${grid_file_np4_scrip}"
+cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1}"
 cmd="${cmd} --fields   htopo"
@@ -47,7 +47,7 @@ cmd="${unified_bin}/ncap2 -O -s 'PHIS=PHIS*9.80616' ${topo_file_1} ${topo_file_1
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 cmd="${mbda_path}"
-cmd="${cmd} --target ${grid_file_pg2_scrip}"
+cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1_pg2}"
 cmd="${cmd} --fields   htopo --square-fields htopo"
@@ -78,9 +78,9 @@ if $create_new_3km; then
   echo;echo -e "${CYN}Creating 3km topo data file with mbda${NC}"
   #-----------------------------------------------------------------------------
   cmd="${mbda_path}"
-  cmd="${cmd} --target ${grid_file_3km_scrip}"
+  cmd="${cmd} --target ${grid_file_3km_mbda}"
   cmd="${cmd} --source ${topo_file_src}"
-  cmd="${cmd} --output ${topo_file_3km_tmp}"
+  cmd="${cmd} --output ${topo_file_3km}"
   cmd="${cmd} --fields   htopo --square-fields htopo"
   cmd="${cmd} --dof-var  grid_size"
   cmd="${cmd} --lon-var  grid_center_lon"
@@ -93,10 +93,9 @@ if $create_new_3km; then
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
   #-----------------------------------------------------------------------------
   # Compute varience and phi in new file
-  cmd="${unified_bin}/ncap2 -v -O -s 'PHIS=htopo*9.80616; VAR30=(htopo_squared-(htopo*htopo))*9.80616*9.80616' ${topo_file_3km_tmp} ${topo_file_3km}"
-  echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
-  # add coordinates (but skip control volues, they are huge
-  cmd="${unified_bin}/ncks -A -v grid_center_lat,grid_center_lon ${topo_file_3km_tmp} ${topo_file_3km}"
+  cmd="${unified_bin}/ncap2 -v -O -s \
+     'PHIS=htopo*9.80616; VAR30=(htopo_squared-(htopo*htopo))*9.80616*9.80616; grid_center_lat=grid_center_lat; grid_center_lon=grid_center_lon' \
+     ${topo_file_3km} ${topo_file_3km}"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 else
   echo;echo -e "${CYN}Skipping 3km topo data file creation${NC}"
@@ -110,7 +109,7 @@ fi
 echo;echo -e "${CYN}Mapping 3km topo data to np4 with mbda${NC}"
 #-----------------------------------------------------------------------------
 cmd="${mbda_path}"
-cmd="${cmd} --target ${grid_file_np4_scrip}"
+cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_1}"
 cmd="${cmd} --fields PHIS"
@@ -132,7 +131,7 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 echo;echo -e "${CYN}Mapping 3km topo data to pg2 with mbda${NC}"
 #-----------------------------------------------------------------------------
 cmd="${mbda_path}"
-cmd="${cmd} --target ${grid_file_pg2_scrip}"
+cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_pg2}"
 cmd="${cmd} --fields PHIS,VAR30 --square-fields PHIS"
