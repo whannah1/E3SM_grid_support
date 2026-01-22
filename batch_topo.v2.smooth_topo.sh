@@ -37,12 +37,15 @@ if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  smoothed topo creation SUCCE
 # rename output file to remove "1.nc" suffix
 cmd="mv ${topo_file_2}1.nc ${topo_file_2}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
-
-
-
+#-----------------------------------------------------------------------------
+# # convert to 64-bit data format to avoid problems in next steps
+# echo;echo -e "${CYN}Converting to 64-bit data format ${NC}"
+# cmd="${unified_bin}/ncks -5 ${topo_file_2} ${topo_file_2}.tmp"
+# echo "  $cmd" ; echo; eval "$cmd"
+# cmd="mv ${topo_file_2}.tmp ${topo_file_2}"
+# echo "  $cmd" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 # Repeat the above, but with topo coming from cube3000:
-#-------------------------------------------------------------------------------
 nl_file=${homme_tool_root}/input.grd.${grid_name}.nl
 rm -f ${nl_file}
 cat > ${nl_file} <<EOF
