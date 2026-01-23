@@ -44,8 +44,6 @@ for grid_name in grid_name_list:
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
     run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=1 --time=0:30:00 {script_root}/../batch_topo.v2.sh {topo_args}')
 
-print("proj_root =",proj_root)
-print("script_root =",script_root)
 #-------------------------------------------------------------------------------
 print_line()
 # sp.run(['/bin/bash','-i','-c','qjob'],shell=False)
