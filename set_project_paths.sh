@@ -9,7 +9,7 @@ for arg in "$@"; do
   esac
 done
 #-------------------------------------------------------------------------------
-export proj_root=$grid_code_root}/${proj}
+export proj_root=${grid_code_root}/${proj}
 export data_root=${grid_data_root}/${proj}
 export slurm_log_root=${proj_root}/logs_slurm
 export hiccup_log_root=${proj_root}/logs_hiccup
