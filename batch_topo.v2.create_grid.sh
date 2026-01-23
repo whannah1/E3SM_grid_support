@@ -52,7 +52,9 @@ cmd="${cmd} --dst_file ${grid_file_np4_scrip}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # create smaller grid file for MBDA, also convert to cdf5
-cmd="${unified_bin}/ncks -5 -O -v grid_center_lon,grid_center_lat,grid_area  ${grid_file_np4_scrip} ${grid_file_np4_mbda}"
+cmd="${unified_bin}/ncap2 -v -5 -O -s 'lon=grid_center_lon;lat=grid_center_lat;area=grid_area'  ${grid_file_np4_scrip} ${grid_file_np4_mbda}"
+echo "  $cmd" ; echo; eval "$cmd"
+cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_np4_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
 
 #-------------------------------------------------------------------------------
@@ -71,7 +73,9 @@ cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_pg2_mbda} --out ${grid_f
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # create smaller grid file for MBDA, also convert to cdf5
-cmd="${unified_bin}/ncks -5 -O -v grid_center_lon,grid_center_lat,grid_area  ${grid_file_pg2_scrip} ${grid_file_pg2_mbda}"
+cmd="${unified_bin}/ncap2 -v -5 -O -s 'lon=grid_center_lon;lat=grid_center_lat;area=grid_area'  ${grid_file_pg2_scrip} ${grid_file_pg2_mbda}"
+echo "  $cmd" ; echo; eval "$cmd"
+cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_pg2_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
 
 #-------------------------------------------------------------------------------
@@ -103,8 +107,11 @@ if [ ! -f ${grid_file_3km_mbda} ]; then
   if [ ! -f ${grid_file_3km_scrip} ]; then echo;echo -e "${RED}  grid file creation FAILED:${NC} ${grid_file_3km_scrip}"; echo; exit 1; fi
   #-----------------------------------------------------------------------------
   # extract MBDA version, convert to cdf5
-  cmd="${unified_bin}/ncks -5 -O -v grid_center_lon,grid_center_lat,grid_area  ${grid_file_3km_scrip} ${grid_file_3km_mbda}"
+  cmd="${unified_bin}/ncap2 -v -5 -O -s 'lon=grid_center_lon;lat=grid_center_lat;area=grid_area'  ${grid_file_3km_scrip} ${grid_file_3km_mbda}"
   echo "  $cmd" ; echo; eval "$cmd"
+  cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_3km_mbda}"
+  echo "  $cmd" ; echo; eval "$cmd"
+
 else
   echo;echo -e "${CYN}Skipping 3km grid file creation${NC}"
 fi

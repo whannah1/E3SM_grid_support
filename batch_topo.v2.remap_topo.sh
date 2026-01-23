@@ -28,10 +28,6 @@ cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1}"
 cmd="${cmd} --fields   htopo"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 chk_file=${topo_file_1}
@@ -51,10 +47,6 @@ cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1_pg2}"
 cmd="${cmd} --fields   htopo --square-fields htopo"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 chk_file=${topo_file_1_pg2}
@@ -82,10 +74,6 @@ if $create_new_3km; then
   cmd="${cmd} --source ${topo_file_src}"
   cmd="${cmd} --output ${topo_file_3km}"
   cmd="${cmd} --fields   htopo --square-fields htopo"
-  cmd="${cmd} --dof-var  grid_size"
-  cmd="${cmd} --lon-var  grid_center_lon"
-  cmd="${cmd} --lat-var  grid_center_lat"
-  cmd="${cmd} --area-var grid_area"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   chk_file=${topo_file_3km_tmp}
@@ -113,10 +101,6 @@ cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_1}"
 cmd="${cmd} --fields PHIS"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-----------------------------------------------------------------------------
 chk_file=${topo_file_3km_1}
@@ -135,10 +119,6 @@ cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_pg2}"
 cmd="${cmd} --fields PHIS,VAR30 --square-fields PHIS"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-----------------------------------------------------------------------------
 chk_file=${topo_file_3km_pg2}

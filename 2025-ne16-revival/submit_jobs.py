@@ -20,8 +20,8 @@ grid_name_list = []
 grid_name_list.append('ne16')
 #-------------------------------------------------------------------------------
 topo_args = ''
-#topo_args += ' --create_grid'
-topo_args += ' --remap_topo'    # sometimes needs > 30min
+topo_args += ' --create_grid'
+#topo_args += ' --remap_topo'    # sometimes needs > 30min
 #topo_args += ' --smooth_topo'
 #topo_args += ' --calc_topo_sgh'
 # topo_args += ' --force_new_3km_data'
