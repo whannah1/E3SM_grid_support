@@ -109,8 +109,10 @@ if [ ! -f ${grid_file_3km_mbda} ]; then
   # extract MBDA version, convert to cdf5
   cmd="${unified_bin}/ncap2 -v -5 -O -s 'lon=grid_center_lon;lat=grid_center_lat;area=grid_area'  ${grid_file_3km_scrip} ${grid_file_3km_mbda}"
   echo "  $cmd" ; echo; eval "$cmd"
-  cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_3km_mbda}"
-  echo "  $cmd" ; echo; eval "$cmd"
+  # for later remapping with cube3000 as the source grid, we need the grid_size dimension
+  # if this dimension is named ncol, MBDA gets confused and thinks cube3000 is a RLL grid
+  #cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_3km_mbda}"
+  #echo "  $cmd" ; echo; eval "$cmd"
 
 else
   echo;echo -e "${CYN}Skipping 3km grid file creation${NC}"
