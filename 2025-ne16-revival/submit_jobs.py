@@ -43,6 +43,7 @@ for grid_name in grid_name_list:
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
     run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=1 --time=0:30:00 {script_root}/../batch_topo.v2.sh {topo_args}')
+    
 
 #-------------------------------------------------------------------------------
 print_line()
