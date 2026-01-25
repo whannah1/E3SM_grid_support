@@ -107,10 +107,6 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 chk_file=${topo_file_3km_1}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
-#-----------------------------------------------------------------------------
-# rename stuff
-cmd="${unified_bin}/ncrename -O  ${topo_file_3km_1} ${topo_file_3km_1}"
-echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 
 echo;echo -e "${CYN}Mapping 3km topo data to pg2 with mbda${NC}"
@@ -126,10 +122,6 @@ chk_file=${topo_file_3km_pg2}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-----------------------------------------------------------------------------
-# rename stuff
-cmd="${unified_bin}/ncrename -O  ${topo_file_3km_pg2} ${topo_file_3km_pg2}"
-echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
-#-------------------------------------------------------------------------------
 
 
 #===============================================================================
