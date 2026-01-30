@@ -33,7 +33,7 @@ if [ ${host} == "NERSC" ]; then
   export DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
   export unified_bin=/global/common/software/e3sm/anaconda_envs/e3smu_1_12_0/pm-cpu/conda/envs/e3sm_unified_1.12.0_login/bin
   export unified_src=/global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
-  export mbda_path=/global/cfs/cdirs/e3sm/software/moab/gnu/bin/mbda
+  export mbda_path=/global/cfs/cdirs/e3sm/software/moab/intel/bin/mbda
   # export OMP_NUM_THREADS=256 # this is used by MBDA
 fi
 #-------------------------------------------------------------------------------
