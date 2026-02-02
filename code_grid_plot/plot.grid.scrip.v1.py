@@ -39,14 +39,14 @@ def add_grid(file,name,topo=None,clat=0,clon=0,slat=None, slon=None, xlat=None, 
 # add_grid(f'{grid_root}/ne128pg2_scrip.nc',                        'ne128',            clat=40,clon=360-105)
 # num_plot_col = 2
 
-grid_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid'
+# grid_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid'
 # add_grid(f'{grid_root}/2026-incite-conus-128x2-pg2_scrip.nc','conus-128x2', clat=40,clon=360-105)
 # add_grid(f'{grid_root}/2026-incite-conus-128x3-pg2_scrip.nc','conus-128x3', clat=40,clon=360-105)
 # add_grid(f'{grid_root}/2026-incite-conus-128x4-pg2_scrip.nc','conus-128x4', clat=40,clon=360-105)
 # add_grid(f'{grid_root}/2026-incite-conus-1024x2-pg2_scrip.nc','conus-1024x2', clat=40,clon=360-105)
-add_grid(f'{grid_root}/2026-incite-conus-1024x3-pg2_scrip.nc','conus-1024x3', clat=40,clon=360-105)
+# add_grid(f'{grid_root}/2026-incite-conus-1024x3-pg2_scrip.nc','conus-1024x3', clat=40,clon=360-105)
 # add_grid(f'{grid_root}/2026-incite-conus-1024x4-pg2_scrip.nc','conus-1024x4', clat=40,clon=360-105)
-num_plot_col = 1
+# num_plot_col = 1
 
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-eq-ind-pg2_scrip.nc',   'eq-ind',   clat=-5, clon=  80, slat=[-6.99,-3.05], slon=[84.74,75.97], xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-patagonia-pg2_scrip.nc','patagonia',clat=-60,clon= -50, slat=-49.46, slon= -60.24, xlat=None, xlon=None)
@@ -54,6 +54,12 @@ num_plot_col = 1
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sc-pac-pg2_scrip.nc',   'sc-pac',   clat=-35,clon=-135, slat=-34.73, slon=-136.73, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-se-pac-pg2_scrip.nc',   'se-pac',   clat=-50,clon= -95, slat=-49.60, slon= -94.45, xlat=None, xlon=None)
 # add_grid(f'{sohip_grid_root}/2025-sohip-256x3-sw-ind-pg2_scrip.nc',   'sw-ind',   clat=-50,clon=  45, slat=-49.61, slon=  45.20, xlat=None, xlon=None)
+
+sohip_grid_root = '/global/cfs/cdirs/m4842/whannah/files_grid'
+# add_grid(f'{sohip_grid_root}/2025-sohip-256x2-sc-pac-v1-pg2_scrip.nc','sc-pac',
+#         clat=-35,clon=-135, slat=[-34.73,-52.673], slon=[-136.73,-129.993], xlat=None, xlon=None)
+add_grid(f'{sohip_grid_root}/2025-sohip-256x2-ptgnia-v1-pg2_scrip.nc','sc-pac',
+        clat=-60,clon= -50, slat=[-49.46,-49.4319], slon=[-60.24,-83.461], xlat=None, xlon=None)
 
 
 # grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
@@ -71,9 +77,7 @@ fig_file,fig_type = f'{home}/E3SM_grid_support/figs_grid_plot/grid.scrip.v1','pn
 
 num_grid = len(grid_file_list)
 
-
-# if num_plot_col not in locals(): num_plot_col = 1
-if num_plot_col not in locals(): num_plot_col = num_grid
+if 'num_plot_col' not in locals(): num_plot_col = num_grid
 
 #---------------------------------------------------------------------------------------------------
 # debug section - just print stuff and exit
@@ -190,8 +194,8 @@ print(f' area_min: {area_min}')
 print(f' area_max: {area_max}')
 print()
 
-dx_min = 0.2
-dx_max = 6.0
+dx_min,dx_max = 3,15
+# dx_min,dx_max = 0.2,6.0
 
 # print(cmin)
 # print(cmax)
