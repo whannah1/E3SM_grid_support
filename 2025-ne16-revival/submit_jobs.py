@@ -22,9 +22,9 @@ grid_name_list.append('ne16')
 topo_args = ''
 #topo_args += ' --create_grid'
 topo_args += ' --remap_topo'    # sometimes needs > 30min
-#topo_args += ' --smooth_topo'
-#topo_args += ' --calc_topo_sgh'
-# topo_args += ' --force_new_3km_data'
+topo_args += ' --smooth_topo'
+topo_args += ' --calc_topo_sgh'
+#topo_args += ' --force_new_3km_data'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
@@ -43,6 +43,9 @@ for grid_name in grid_name_list:
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00  {script_root}/../batch_domain.sh')
   # run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name}   --time=12:00:00 {script_root}/../batch_topo.sh {topo_args}')
     run_cmd(f'{sbatch_common} --job-name=gen_topo_{grid_name} --nodes=1 --time=0:30:00 {script_root}/../batch_topo.v2.sh {topo_args}')
+
+  #  run_cmd(f'export proj_root={proj_root};  export grid_name={grid_name} ; export grid_name_pg2={grid_name}pg2 ; source {script_root}/../batch_topo.v2.sh --calc_topo_sgh')
+    
 
 #-------------------------------------------------------------------------------
 print_line()

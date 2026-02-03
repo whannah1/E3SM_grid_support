@@ -48,7 +48,11 @@ export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
 
 #-------------------------------------------------------------------------------
 # Specify topo file names - including temporary files that will be deleted
-export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
+
+#export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
+export topo_file_src=/global/cfs/cdirs/e3sm/zhang73/grids2/topo7.5s/GMTED2010_7.5_stitch_S5P_OPER_REF_DEM_15_NCL_24-3.r172800x86400.nc
+
+
 export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
 export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
@@ -164,7 +168,9 @@ chk_file=${topo_file_3}
 if $calc_topo_sgh; then
   echo;echo -e "${CYN}Calculating topography sub-grid std deviation (SGH)${NC} >> ${YLW}$slurm_log_calc_topo_sgh${NC}"
   #-----------------------------------------------------------------------------
-  bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh.sh >> $slurm_log_calc_topo_sgh 2>&1
+  #bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh.sh >> $slurm_log_calc_topo_sgh 2>&1
+  bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.sh >> $slurm_log_calc_topo_sgh 2>&1
+  
   #-----------------------------------------------------------------------------
   if [ ! $? -eq 0 ]; then echo;echo -e "${RED}  ERROR - see log file.${NC}"; exit 1; fi
   #-----------------------------------------------------------------------------

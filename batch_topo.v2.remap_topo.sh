@@ -28,10 +28,6 @@ cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1}"
 cmd="${cmd} --fields   htopo"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 chk_file=${topo_file_1}
@@ -39,7 +35,7 @@ if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation 
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 # rename stuff
-cmd="${unified_bin}/ncrename -O -d grid_size,ncol -v htopo,PHIS ${topo_file_1} ${topo_file_1}"
+cmd="${unified_bin}/ncrename -O -v htopo,PHIS ${topo_file_1} ${topo_file_1}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 # Compute phi_s on the target np4 grid
@@ -51,10 +47,6 @@ cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1_pg2}"
 cmd="${cmd} --fields   htopo --square-fields htopo"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 chk_file=${topo_file_1_pg2}
@@ -62,7 +54,7 @@ if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation 
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 # rename stuff
-cmd="${unified_bin}/ncrename -O -d grid_size,ncol -v htopo,PHIS -v htopo_squared,PHIS_squared  ${topo_file_1_pg2} ${topo_file_1_pg2}"
+cmd="${unified_bin}/ncrename -O  -v htopo,PHIS -v htopo_squared,PHIS_squared  ${topo_file_1_pg2} ${topo_file_1_pg2}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 # Compute phi_s on the target np4 grid
@@ -81,20 +73,17 @@ if $create_new_3km; then
   cmd="${cmd} --target ${grid_file_3km_mbda}"
   cmd="${cmd} --source ${topo_file_src}"
   cmd="${cmd} --output ${topo_file_3km}"
+  cmd="${cmd} --dof-var grid_size"
   cmd="${cmd} --fields   htopo --square-fields htopo"
-  cmd="${cmd} --dof-var  grid_size"
-  cmd="${cmd} --lon-var  grid_center_lon"
-  cmd="${cmd} --lat-var  grid_center_lat"
-  cmd="${cmd} --area-var grid_area"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
-  chk_file=${topo_file_3km_tmp}
+  chk_file=${topo_file_3km}
   if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
   #-----------------------------------------------------------------------------
   # Compute varience and phi in new file
   cmd="${unified_bin}/ncap2 -v -O -s \
-     'PHIS=htopo*9.80616; VAR30=(htopo_squared-(htopo*htopo))*9.80616*9.80616; grid_center_lat=grid_center_lat; grid_center_lon=grid_center_lon' \
+     'PHIS=htopo*9.80616; VAR30=(htopo_squared-(htopo*htopo))*9.80616*9.80616; lat=lat; lon=lon' \
      ${topo_file_3km} ${topo_file_3km}"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 else
@@ -113,19 +102,11 @@ cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_1}"
 cmd="${cmd} --fields PHIS"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-----------------------------------------------------------------------------
 chk_file=${topo_file_3km_1}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
-#-----------------------------------------------------------------------------
-# rename stuff
-cmd="${unified_bin}/ncrename -O -d grid_size,ncol ${topo_file_3km_1} ${topo_file_3km_1}"
-echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 
 echo;echo -e "${CYN}Mapping 3km topo data to pg2 with mbda${NC}"
@@ -135,20 +116,12 @@ cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_3km}"
 cmd="${cmd} --output ${topo_file_3km_pg2}"
 cmd="${cmd} --fields PHIS,VAR30 --square-fields PHIS"
-cmd="${cmd} --dof-var  grid_size"
-cmd="${cmd} --lon-var  grid_center_lon"
-cmd="${cmd} --lat-var  grid_center_lat"
-cmd="${cmd} --area-var grid_area"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-----------------------------------------------------------------------------
 chk_file=${topo_file_3km_pg2}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-----------------------------------------------------------------------------
-# rename stuff
-cmd="${unified_bin}/ncrename -O -d grid_size,ncol ${topo_file_3km_pg2} ${topo_file_3km_pg2}"
-echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
-#-------------------------------------------------------------------------------
 
 
 #===============================================================================
