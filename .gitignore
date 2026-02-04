@@ -1,4 +1,5 @@
 */logs_slurm
 */logs_hiccup
+*/logs
 figs*/._*.png
 figs_grid_plot/*.png
