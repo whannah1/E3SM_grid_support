@@ -85,5 +85,7 @@ if [ ! -d ${DIN_LOC_ROOT}   ]; then echo -e ${RED}ERROR directory does not exist
 #-------------------------------------------------------------------------------
 # check other important variables
 if [ ! -f ${topo_file_src} ];  then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi
+if [ ! -f ${unified_src}   ];  then echo -e ${RED}ERROR E3SM unified script does not exist:${NC} ${unified_src} ; fi
 if [ ! -f ${mbda_path}     ];  then echo -e ${RED}ERROR MBDA path does not exist:${NC} ${mbda_path} ; fi
+
 #-------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ export domn_root=${data_root}/files_domain
 # export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
 export homme_tool_root=${e3sm_src_root}/cmake_homme
-export homme_tool_root=$SCRATCH/hommetool
+# export homme_tool_root=$SCRATCH/hommetool
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 echo "MACHINE SPECIFIC PATHS:"
@@ -35,7 +35,8 @@ echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
 echo "  slurm_mail_user   = $slurm_mail_user"
 echo "  slurm_mail_type   = $slurm_mail_type"; echo
 echo "  topo_file_src     = $topo_file_src"
-echo "  mbda_path         = $mbda_path"; echo
+echo "  mbda_path         = $mbda_path"
+echo "  unified_src       = $unified_src"; echo
 #-------------------------------------------------------------------------------
 echo "PROJECT SPECIFIC PATHS:"
 echo "  proj              = ${proj}"
@@ -57,6 +58,8 @@ if ! $skip_mkdir; then
   if [ ! -d ${init_root} ]; then mkdir -p ${init_root}; fi
   if [ ! -d ${domn_root} ]; then mkdir -p ${domn_root}; fi
   # if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
+  if [ ! -d ${slurm_log_root} ];  then mkdir -p ${slurm_log_root}; fi
+  if [ ! -d ${hiccup_log_root} ]; then mkdir -p ${hiccup_log_root}; fi
 fi
 #-------------------------------------------------------------------------------
 ulimit -s unlimited # required for larger grids
