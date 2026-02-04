@@ -29,7 +29,8 @@ if [ ${host} == "LCRC" ]; then
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
   export unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
   export unified_src=/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
-  export mbda_path=NONE
+  export mbda_path=None
+  export topo_file_src=/lcrc/group/e3sm/$USER/scratch/chrys/E3SM_grid_support/topo7.5s/GMTED2010_7.5_stitch_S5P_OPER_REF_DEM_15_NCL_24-3.r172800x86400.nc
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "NERSC" ]; then
@@ -54,6 +55,7 @@ if [ ${host} == "ALCF" ]; then
   export unified_bin=/lus/flare/projects/E3SMinput/soft/e3sm-unified/e3smu_1_12_0/aurora/conda/envs/e3sm_unified_1.12.0_login/bin
   export unified_src=/lus/flare/projects/E3SMinput/soft/e3sm-unified/load_latest_e3sm_unified_aurora.sh
   export mbda_path=NONE
+  export topo_file_src=NONE
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "OLCF" ]; then
@@ -65,6 +67,7 @@ if [ ${host} == "OLCF" ]; then
   export unified_bin=NONE
   export unified_src=NONE
   export mbda_path=NONE
+  export topo_file_src=NONE
 fi
 #-------------------------------------------------------------------------------
 # echo --------------------------------------------------------------------------------
