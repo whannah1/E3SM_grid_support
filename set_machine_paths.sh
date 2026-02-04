@@ -14,12 +14,10 @@ if [ -e ${scratch_alcf}  ]; then host=ALCF; fi
 if [ -e ${scratch_olcf}  ]; then host=OLCF; fi
 if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 #-------------------------------------------------------------------------------
-# The source topography file is still a matter of debate...
+# NOTE - the source topography file is still a matter of debate...
 # For now, we are focused on a high-res RLL source dataset that is only at NERSC,
-# so we set the topo_file_src env variable to be empty by default.
-# Eventually we will have a soldified workflow that addresses this.
-export topo_file_src=NONE
-# export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
+# so we set the topo_file_src=NONE by default unless it has been manually copied
+# for that machine
 #-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then
   export home=/home/$USER
