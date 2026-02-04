@@ -48,7 +48,7 @@ export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
 
 #-------------------------------------------------------------------------------
 # Specify topo file names - including temporary files that will be deleted
-
+# NOTE that topo_file_src is currently specified in set_machine_paths.sh
 export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
 export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc

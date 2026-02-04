@@ -82,7 +82,6 @@ if [ ! -d ${grid_data_root} ]; then echo -e ${RED}ERROR directory does not exist
 if [ ! -d ${e3sm_root}      ]; then echo -e ${RED}ERROR directory does not exist:${NC} e3sm_root: ${e3sm_root} ; fi
 if [ ! -d ${DIN_LOC_ROOT}   ]; then echo -e ${RED}ERROR directory does not exist:${NC} DIN_LOC_ROOT: ${DIN_LOC_ROOT} ; fi
 #-------------------------------------------------------------------------------
-# check important variables
+# check other important variables
 if [ ! -f ${topo_file_src} ];  then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi
-
 #-------------------------------------------------------------------------------
