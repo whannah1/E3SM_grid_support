@@ -25,6 +25,7 @@ export homme_tool_root=${e3sm_src_root}/cmake_homme
 # export homme_tool_root=$SCRATCH/hommetool
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 echo "MACHINE SPECIFIC PATHS:"
 echo "  host              = $host"
 echo "  grid_code_root    = $grid_code_root"
@@ -32,11 +33,10 @@ echo "  grid_data_root    = $grid_data_root"
 echo "  e3sm_src_root     = $e3sm_src_root"
 echo "  homme_tool_root   = ${homme_tool_root}"
 echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
-echo "  slurm_mail_user   = $slurm_mail_user"
-echo "  slurm_mail_type   = $slurm_mail_type"; echo
+echo "  unified_src       = $unified_src"
+echo "  unified_bin       = $unified_bin"; echo
 echo "  topo_file_src     = $topo_file_src"
-echo "  mbda_path         = $mbda_path"
-echo "  unified_src       = $unified_src"; echo
+echo "  mbda_path         = $mbda_path"; echo
 #-------------------------------------------------------------------------------
 echo "PROJECT SPECIFIC PATHS:"
 echo "  proj              = ${proj}"
@@ -49,6 +49,11 @@ echo "  domn_root         = ${domn_root}"; echo
 # echo "  atms_root         = ${atms_root}"; echo
 echo "  slurm_log_root    = ${slurm_log_root}"
 echo "  hiccup_log_root   = ${hiccup_log_root}"; echo
+#-------------------------------------------------------------------------------
+echo "SLURM VARIABLES:"
+echo "  slurm_mail_user   = $slurm_mail_user"
+echo "  slurm_mail_type   = $slurm_mail_type"; echo
+#-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 if ! $skip_mkdir; then
