@@ -5,13 +5,13 @@ export slurm_mail_type="END,FAIL"
 #-------------------------------------------------------------------------------
 # determine the HPC center we are logged into
 host=NONE
-scratch_lcrc=/lcrc/group/e3sm/ac.whannah
-scratch_alcf=/lus/flare/projects/E3SM_Dec/whannah
-scratch_olcf=/lustre/orion/cli115/proj-shared/hannah6
-scratch_nersc=$SCRATCH
-if [ -e ${scratch_lcrc} ]; then host=LCRC; fi
-if [ -e ${scratch_alcf} ]; then host=ALCF; fi
-if [ -e ${scratch_olcf} ]; then host=OLCF; fi
+scratch_lcrc=/lcrc/group/e3sm/$USER
+scratch_alcf=/lus/flare/projects/E3SM_Dec/$USER
+scratch_olcf=/lustre/orion/cli115/proj-shared/$USER
+scratch_nersc=/pscratch/sd/w/$USER
+if [ -e ${scratch_lcrc}  ]; then host=LCRC; fi
+if [ -e ${scratch_alcf}  ]; then host=ALCF; fi
+if [ -e ${scratch_olcf}  ]; then host=OLCF; fi
 if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 #-------------------------------------------------------------------------------
 # The source topography file is still a matter of debate...
@@ -22,10 +22,10 @@ export topo_file_src=
 # export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
 #-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then
-  export home=/home/ac.whannah
+  export home=/home/$USER
   export grid_code_root=${home}/E3SM_grid_support
-  export grid_data_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support
-  export e3sm_src_root=/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src
+  export grid_data_root=/lcrc/group/e3sm/$USER/scratch/chrys/E3SM_grid_support
+  export e3sm_src_root=/lcrc/group/e3sm/$USER/scratch/chrys/tmp_e3sm_src
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
   export unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
   export unified_src=/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
@@ -46,10 +46,10 @@ if [ ${host} == "NERSC" ]; then
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "ALCF" ]; then
-  export home=/home/whannah
+  export home=/home/$USER
   export grid_code_root=${home}/E3SM_grid_support
-  export grid_data_root=/lus/flare/projects/E3SM_Dec/whannah/E3SM_grid_support
-  export e3sm_src_root=/lus/flare/projects/E3SM_Dec/whannah/e3sm_src
+  export grid_data_root=/lus/flare/projects/E3SM_Dec/$USER/E3SM_grid_support
+  export e3sm_src_root=/lus/flare/projects/E3SM_Dec/$USER/e3sm_src
   export DIN_LOC_ROOT=/lus/flare/projects/E3SMinput/data
   export unified_bin=/lus/flare/projects/E3SMinput/soft/e3sm-unified/e3smu_1_12_0/aurora/conda/envs/e3sm_unified_1.12.0_login/bin
   export unified_src=/lus/flare/projects/E3SMinput/soft/e3sm-unified/load_latest_e3sm_unified_aurora.sh
