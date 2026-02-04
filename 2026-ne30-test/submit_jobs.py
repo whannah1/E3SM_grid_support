@@ -19,18 +19,13 @@ def print_line():print(' '*2+'-'*80)
 def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
 #-------------------------------------------------------------------------------
 grid_name_list = []
-grid_name_list.append()
+grid_name_list.append('ne30')
 #-------------------------------------------------------------------------------
 map_args = ''
 map_args += f' --create_maps_ocn'
 map_args += f' --create_maps_lnd'
-# #-------------------------------------------------------------------------------
-# topo_args = ''
-# topo_args += ' --create_grid'
-# topo_args += ' --cttrmp_topo'
-# topo_args += ' --smooth_topo'
-# topo_args += ' --cttsgh_topo'
 #-------------------------------------------------------------------------------
+# topo generation arguments for MBDA workflow
 topo_args = ''
 topo_args += ' --create_grid'
 topo_args += ' --remap_topo'

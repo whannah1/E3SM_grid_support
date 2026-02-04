@@ -18,7 +18,7 @@ if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 # For now, we are focused on a high-res RLL source dataset that is only at NERSC,
 # so we set the topo_file_src env variable to be empty by default.
 # Eventually we will have a soldified workflow that addresses this.
-export topo_file_src=
+export topo_file_src=NONE
 # export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
 #-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then
@@ -29,7 +29,7 @@ if [ ${host} == "LCRC" ]; then
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
   export unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
   export unified_src=/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
-  export mbda_path=
+  export mbda_path=NONE
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "NERSC" ]; then
@@ -53,18 +53,18 @@ if [ ${host} == "ALCF" ]; then
   export DIN_LOC_ROOT=/lus/flare/projects/E3SMinput/data
   export unified_bin=/lus/flare/projects/E3SMinput/soft/e3sm-unified/e3smu_1_12_0/aurora/conda/envs/e3sm_unified_1.12.0_login/bin
   export unified_src=/lus/flare/projects/E3SMinput/soft/e3sm-unified/load_latest_e3sm_unified_aurora.sh
-  export mbda_path=
+  export mbda_path=NONE
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "OLCF" ]; then
   export home=
   export grid_code_root=${home}/E3SM_grid_support
-  export grid_data_root=
-  export e3sm_src_root=
-  export DIN_LOC_ROOT=
-  export unified_bin=
-  export unified_src=
-  export mbda_path=
+  export grid_data_root=NONE
+  export e3sm_src_root=NONE
+  export DIN_LOC_ROOT=NONE
+  export unified_bin=NONE
+  export unified_src=NONE
+  export mbda_path=NONE
 fi
 #-------------------------------------------------------------------------------
 # echo --------------------------------------------------------------------------------
@@ -84,4 +84,5 @@ if [ ! -d ${DIN_LOC_ROOT}   ]; then echo -e ${RED}ERROR directory does not exist
 #-------------------------------------------------------------------------------
 # check other important variables
 if [ ! -f ${topo_file_src} ];  then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi
+if [ ! -f ${mbda_path}     ];  then echo -e ${RED}ERROR MBDA path does not exist:${NC} ${mbda_path} ; fi
 #-------------------------------------------------------------------------------

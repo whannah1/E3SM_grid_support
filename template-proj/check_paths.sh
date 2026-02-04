@@ -11,12 +11,10 @@ if [ -d ${init_root} ]; then echo -e "init_root => ${GRN}OK${NC}"; else echo -e 
 if [ -d ${domn_root} ]; then echo -e "domn_root => ${GRN}OK${NC}"; else echo -e "domn_root => ${RED}does not exist!${NC}"; fi
 # if [ -d ${atms_root} ]; then echo -e "atms_root => ${GRN}OK${NC}"; else echo -e "atms_root => ${RED}does not exist!${NC}"; fi
 #-------------------------------------------------------------------------------
-# if [ ! -d "${data_root}" ]; then echo -e "Creating data_root => ${data_root}"; fi #mkdir -p ${data_root}
-# if [ ! -d "${grid_root}" ]; then echo -e "Creating grid_root => ${grid_root}"; fi #mkdir -p ${grid_root}
-# if [ ! -d "${maps_root}" ]; then echo -e "Creating maps_root => ${maps_root}"; fi #mkdir -p ${maps_root}
-# if [ ! -d "${topo_root}" ]; then echo -e "Creating topo_root => ${topo_root}"; fi #mkdir -p ${topo_root}
-# if [ ! -d "${init_root}" ]; then echo -e "Creating init_root => ${init_root}"; fi #mkdir -p ${init_root}
-# if [ ! -d "${domn_root}" ]; then echo -e "Creating domn_root => ${domn_root}"; fi #mkdir -p ${domn_root}
-# if [ ! -d "${atms_root}" ]; then echo -e "Creating atms_root => ${atms_root}"; fi #mkdir -p ${atms_root}
+echo --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# check other important variables
+if [ -f ${topo_file_src} ]; then echo -e "topo_file_src => ${GRN}OK${NC}"; else echo -e "topo_file_src => ${RED}does not exist!${NC}"; fi
+if [ -f ${mbda_path}     ]; then echo -e "mbda_path     => ${GRN}OK${NC}"; else echo -e "mbda_path     => ${RED}does not exist!${NC}"; fi
 #-------------------------------------------------------------------------------
 echo --------------------------------------------------------------------------------

@@ -34,6 +34,8 @@ echo "  homme_tool_root   = ${homme_tool_root}"
 echo "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
 echo "  slurm_mail_user   = $slurm_mail_user"
 echo "  slurm_mail_type   = $slurm_mail_type"; echo
+echo "  topo_file_src     = $topo_file_src"
+echo "  mbda_path         = $mbda_path"; echo
 #-------------------------------------------------------------------------------
 echo "PROJECT SPECIFIC PATHS:"
 echo "  proj              = ${proj}"
