@@ -27,7 +27,7 @@ if [ ${host} == "LCRC" ]; then
   export DIN_LOC_ROOT=/lcrc/group/e3sm/data/inputdata
   export unified_bin=/lcrc/soft/climate/e3sm-unified/base/envs/e3sm_unified_1.11.1_login/bin
   export unified_src=/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
-  export mbda_path=None
+  export mbda_path=/lcrc/soft/climate/moab/chrysalis/intel/bin/mbda
   export topo_file_src=/lcrc/group/e3sm/$USER/scratch/chrys/E3SM_grid_support/topo7.5s/GMTED2010_7.5_stitch_S5P_OPER_REF_DEM_15_NCL_24-3.r172800x86400.nc
 fi
 #-------------------------------------------------------------------------------
