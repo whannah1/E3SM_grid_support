@@ -11,13 +11,6 @@ done
 if $force_new_3km_data; then eval "rm ${topo_file_3km}" ; fi
 create_new_3km=false
 if [ ! -f ${topo_file_3km} ]; then create_new_3km=true; fi
-# if $force_new_3km_data; then
-#   create_new_3km=true;
-# fi
-
-
-
-
 #===============================================================================
 # remap source topo to target grid (np4 and pg2)
 # the np4 data is used to apply dycore smoothing
@@ -108,7 +101,6 @@ chk_file=${topo_file_3km_1}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
-
 echo;echo -e "${CYN}Mapping 3km topo data to pg2 with mbda${NC}"
 #-----------------------------------------------------------------------------
 cmd="${mbda_path}"

@@ -14,6 +14,13 @@ if [ -e ${scratch_alcf} ]; then host=ALCF; fi
 if [ -e ${scratch_olcf} ]; then host=OLCF; fi
 if [ -e ${scratch_nersc} ]; then host=NERSC; fi
 #-------------------------------------------------------------------------------
+# The source topography file is still a matter of debate...
+# For now, we are focused on a high-res RLL source dataset that is only at NERSC,
+# so we set the topo_file_src env variable to be empty by default.
+# Eventually we will have a soldified workflow that addresses this.
+export topo_file_src=
+# export topo_file_src=${DIN_LOC_ROOT}/atm/cam/gtopo30data/usgs-rawdata.nc
+#-------------------------------------------------------------------------------
 if [ ${host} == "LCRC" ]; then
   export home=/home/ac.whannah
   export grid_code_root=${home}/E3SM_grid_support
@@ -35,6 +42,7 @@ if [ ${host} == "NERSC" ]; then
   export unified_src=/global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
   export mbda_path=/global/cfs/cdirs/e3sm/software/moab/intel/bin/mbda
   # export OMP_NUM_THREADS=256 # this is used by MBDA
+  export topo_file_src=/global/cfs/cdirs/e3sm/zhang73/grids2/topo7.5s/GMTED2010_7.5_stitch_S5P_OPER_REF_DEM_15_NCL_24-3.r172800x86400.nc
 fi
 #-------------------------------------------------------------------------------
 if [ ${host} == "ALCF" ]; then
@@ -73,4 +81,8 @@ if [ ! -d ${grid_code_root} ]; then echo -e ${RED}ERROR directory does not exist
 if [ ! -d ${grid_data_root} ]; then echo -e ${RED}ERROR directory does not exist:${NC} grid_data_root: ${grid_data_root} ; fi
 if [ ! -d ${e3sm_root}      ]; then echo -e ${RED}ERROR directory does not exist:${NC} e3sm_root: ${e3sm_root} ; fi
 if [ ! -d ${DIN_LOC_ROOT}   ]; then echo -e ${RED}ERROR directory does not exist:${NC} DIN_LOC_ROOT: ${DIN_LOC_ROOT} ; fi
+#-------------------------------------------------------------------------------
+# check important variables
+if [ ! -f ${topo_file_src} ];  then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi
+
 #-------------------------------------------------------------------------------
