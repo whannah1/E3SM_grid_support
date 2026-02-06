@@ -12,6 +12,9 @@ if $force_new_3km_data; then eval "rm ${topo_file_3km}" ; fi
 create_new_3km=false
 if [ ! -f ${topo_file_3km} ]; then create_new_3km=true; fi
 #===============================================================================
+echo; echo -e ${GRN} Setting up environment for MBDA ${NC}; echo
+eval $(${e3sm_src_root}/cime/CIME/Tools/get_case_env)
+#===============================================================================
 # remap source topo to target grid (np4 and pg2)
 # the np4 data is used to apply dycore smoothing
 # the pg2 data is only needed to compute SGH30

@@ -27,11 +27,13 @@ map_args += f' --create_maps_lnd'
 #-------------------------------------------------------------------------------
 # topo generation arguments for MBDA workflow
 topo_args = ''
-topo_args += ' --create_grid'
-topo_args += ' --remap_topo'
-topo_args += ' --smooth_topo'
+# topo_args += ' --create_grid'
+# topo_args += ' --remap_topo'
+# topo_args += ' --smooth_topo'
 topo_args += ' --calc_topo_sgh'
-topo_args += ' --force_new_3km_data'
+# topo_args += ' --force_new_3km_data'
+if host=='NERSC': topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
+if host=='LCRC' : topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
 #-------------------------------------------------------------------------------
 for grid_name in grid_name_list:
   sbatch_common = f'sbatch'
@@ -48,7 +50,7 @@ for grid_name in grid_name_list:
     sbatch_common += f' --qos=regular'
     # sbatch_common += f' --qos=debug'
 
-  topo_slurm_opts = '--nodes=64 --ntasks-per-node=4 --time=12:00:00'
+
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00   {script_root}/../batch_maps.sh {map_args}')
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00    {script_root}/../batch_domain.sh')

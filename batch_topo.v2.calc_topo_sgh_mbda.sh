@@ -51,26 +51,37 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 # VAR = MPDA((H_3-H3_d_pg2)^2) = H3SQ_pg2 + H3_d_pg2^2  - 2 * H3_d_pg2 * H3_pg2        
 # SGH = sqrt(VAR)
 
-ncap2 -O -v -s 'PHIS_smoothed=PHIS' ${topo_file_3km_2} ${topo_root}/tmp-phis.nc
-ncks -A -v PHIS,PHIS_squared ${topo_file_3km_pg2} ${topo_root}/tmp-phis.nc
-ncap2 -O -v -s 'VAR=PHIS_squared+(PHIS_smoothed*PHIS_smoothed)-(2*PHIS_smoothed*PHIS)'  \
-      ${topo_root}/tmp-phis.nc  ${topo_root}/tmp-SGH.nc
-ncap2 -A -v -s 'SGH = sqrt( VAR >> 0)/9.80616' \
-      ${topo_root}/tmp-SGH.nc  ${topo_file_3}
+
+# ?
+cmd="${unified_bin}/ncap2 -O -v -s 'PHIS_smoothed=PHIS' ${topo_file_3km_2} ${topo_root}/tmp-phis.nc"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
+
+# ?
+cmd="${unified_bin}/ncks -A -v PHIS,PHIS_squared ${topo_file_3km_pg2} ${topo_root}/tmp-phis.nc"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
+
+# ?
+ncap_formula="VAR=PHIS_squared+(PHIS_smoothed*PHIS_smoothed)-(2*PHIS_smoothed*PHIS)"
+cmd="${unified_bin}/ncap2 -O -v -s '${ncap_formula}' ${topo_root}/tmp-phis.nc  ${topo_root}/tmp-SGH.nc"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
+
+# ?
+cmd="${unified_bin}/ncap2 -A -v -s 'SGH = sqrt( VAR >> 0)/9.80616' ${topo_root}/tmp-SGH.nc  ${topo_file_3}"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 
 # add phys grid lat,lon
 cmd="${unified_bin}/ncks -A -v lon,lat  ${topo_file_1_pg2} ${topo_file_3}"
-echo "  $cmd" ; echo; eval "$cmd"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # np4 grid lat,lon, but first need to rename
 cmd="${unified_bin}/ncrename -O  -v lon,lon_d -v lat,lat_d -d ncol,ncol_d  ${topo_file_1} ${topo_root}/tmp-latlon.nc"
-echo "  $cmd" ; echo; eval "$cmd"
-cmd="${unified_bin}/ncks -A -v lon_d,lat_d ${topo_root}/tmp-latlon.nc  ${topo_file_3}"
-echo "  $cmd" ; echo; eval "$cmd"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
+cmd="${unified_bin}/ncks -A -v lon_d,lat_d ${topo_root}/tmp-latlon.nc  ${topo_file_3}"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # add smoothed PHIS and PHIS_d 
 cmd="${unified_bin}/ncks -A -v PHIS,PHIS_d ${topo_file_2} ${topo_file_3}"
-echo "  $cmd" ; echo; eval "$cmd"
+echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 

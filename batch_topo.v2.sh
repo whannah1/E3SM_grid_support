@@ -164,8 +164,20 @@ chk_file=${topo_file_3}
 if $calc_topo_sgh; then
   echo;echo -e "${CYN}Calculating topography sub-grid std deviation (SGH)${NC} >> ${YLW}$slurm_log_calc_topo_sgh${NC}"
   #-----------------------------------------------------------------------------
-  #bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh.sh >> $slurm_log_calc_topo_sgh 2>&1
-  bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.sh >> $slurm_log_calc_topo_sgh 2>&1
+  # bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh.sh >> $slurm_log_calc_topo_sgh 2>&1
+  # bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.sh >> $slurm_log_calc_topo_sgh 2>&1
+  #-----------------------------------------------------------------------------
+  # python alternative
+  py_args=""
+  py_args+=" --topo-3km-pg2 ${topo_file_3km_pg2}"
+  py_args+=" --topo-1-pg2 ${topo_file_1_pg2}"
+  py_args+=" --topo-1 ${topo_file_1}"
+  py_args+=" --topo-2 ${topo_file_2}"
+  py_args+=" --topo-3km-2 ${topo_file_3km_2}"
+  py_args+=" --output ${topo_file_3}"
+  cmd="python ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.py ${py_args} >> $slurm_log_calc_topo_sgh 2>&1"
+  cmd="(source ${unified_src} && ${cmd})"
+  echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   
   #-----------------------------------------------------------------------------
   if [ ! $? -eq 0 ]; then echo;echo -e "${RED}  ERROR - see log file.${NC}"; exit 1; fi
