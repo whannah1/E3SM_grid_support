@@ -34,6 +34,7 @@ import xarray as xr
 from pathlib import Path
 
 gravity = 9.80616  # gravitational acceleration
+verbose_indent = ' '*2
 
 #-------------------------------------------------------------------------------
 def compute_variance(phis, phis_smoothed, phis_squared):
@@ -130,25 +131,15 @@ def main():
         epilog=__doc__
     )
     
-    # Input files
-    parser.add_argument('--topo-3km-pg2', required=True,
-                        help='Topo file with VAR30, PHIS, PHIS_squared from cube3000 on target grid')
-    parser.add_argument('--topo-1-pg2', required=True,
-                        help='Topo file with PHIS on target grid from source')
-    parser.add_argument('--topo-1', required=True,
-                        help='Topo file with np4 grid coordinates')
-    parser.add_argument('--topo-2', required=True,
-                        help='Topo file with smoothed PHIS and PHIS_d')
-    parser.add_argument('--topo-3km-2', required=True,
-                        help='Topo file with smoothed PHIS from cube3000')
-    
-    # Output file
-    parser.add_argument('--output', required=True,
-                        help='Output file for final topography with SGH30 and SGH')
-    
+    parser.add_argument('--topo-3km-pg2',required=True,help='Topo file with VAR30, PHIS, PHIS_squared from cube3000 on target grid')
+    parser.add_argument('--topo-1-pg2',  required=True,help='Topo file with PHIS on target grid from source')
+    parser.add_argument('--topo-1',      required=True,help='Topo file with np4 grid coordinates')
+    parser.add_argument('--topo-2',      required=True,help='Topo file with smoothed PHIS and PHIS_d')
+    parser.add_argument('--topo-3km-2',  required=True,help='Topo file with smoothed PHIS from cube3000')
+    parser.add_argument('--output',      required=True,help='Output file for final topography with SGH30 and SGH')
     args = parser.parse_args()
     
-    print("Computing SGH30...")
+    print(f"{verbose_indent}Computing SGH30...")
     ds_out = compute_sgh30(
         args.topo_3km_pg2,
         args.topo_1_pg2,
@@ -156,11 +147,11 @@ def main():
         args.output
     )
     
-    print("Computing SGH...")
+    print(f"{verbose_indent}Computing SGH...")
     sgh = compute_sgh(args.topo_3km_pg2, args.topo_3km_2)
     ds_out['SGH'] = sgh
     
-    print("Adding coordinate and smoothed PHIS fields...")
+    print(f"{verbose_indent}Adding coordinate and smoothed PHIS fields...")
     
     # Add physical grid lat/lon from topo_1_pg2
     ds_1_pg2 = xr.open_dataset(args.topo_1_pg2)
@@ -198,7 +189,7 @@ def main():
     ds_out.to_netcdf(args.output, encoding=encoding)
     ds_out.close()
     
-    print("Done!")
+    print(f"{verbose_indent}Done!")
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
     main()
