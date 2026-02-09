@@ -32,6 +32,7 @@ topo_args = ''
 # topo_args += ' --smooth_topo'
 topo_args += ' --calc_topo_sgh'
 # topo_args += ' --force_new_3km_data'
+topo_args += ' --python-sgh'
 if host=='NERSC': topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
 if host=='LCRC' : topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
 #-------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ for grid_name in grid_name_list:
   sbatch_common += f' --export=ALL,proj_root={proj_root}'
   sbatch_common += f',grid_name={grid_name}'
   sbatch_common += f',grid_name_pg2={grid_name}pg2'
+
   sbatch_common += f' --output={logs_root}/%x-%j.slurm.main.out'
   sbatch_common += f' --account=e3sm'
   sbatch_common += f' --mail-user={mail_user}'
@@ -49,8 +51,6 @@ for grid_name in grid_name_list:
     sbatch_common += f' --constraint=cpu'
     sbatch_common += f' --qos=regular'
     # sbatch_common += f' --qos=debug'
-
-
 
   # run_cmd(f'{sbatch_common} --job-name=gen_maps_{grid_name}   --time=48:00:00   {script_root}/../batch_maps.sh {map_args}')
   # run_cmd(f'{sbatch_common} --job-name=gen_domain_{grid_name} --time=6:00:00    {script_root}/../batch_domain.sh')

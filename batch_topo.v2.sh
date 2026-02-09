@@ -11,6 +11,7 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 #-------------------------------------------------------------------------------
 create_grid=false; remap_topo=false; smooth_topo=false; calc_topo_sgh=false
 force_new_3km_data=false
+use_python_sgh=false
 #-------------------------------------------------------------------------------
 for arg in "$@"; do
   case $arg in
@@ -19,6 +20,7 @@ for arg in "$@"; do
     --smooth_topo)        smooth_topo=true ;;
     --calc_topo_sgh)      calc_topo_sgh=true ;;
     --force_new_3km_data) force_new_3km_data=true;;
+    --python-sgh)         use_python_sgh=true;;
     *) echo "Unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
@@ -53,7 +55,14 @@ export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
 export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
 export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
-export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
+# export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
+
+if $use_python_sgh; then
+  export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}-py.nc
+else
+  export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}-nc.nc
+fi
+
 # needed for SGH  topo mapped from 3km source
 export topo_file_3km_1=${topo_root}/tmp_3km-topo_${grid_name}-np4.nc
 export topo_file_3km_2=${topo_root}/tmp_3km-topo_${grid_name}-np4_smoothedx6t.nc
