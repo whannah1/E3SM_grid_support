@@ -22,27 +22,27 @@ eval $(${e3sm_src_root}/cime/CIME/Tools/get_case_env)
 cmd="${mbda_path}"
 cmd="${cmd} --target ${grid_file_np4_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
-cmd="${cmd} --output ${topo_file_1}"
-cmd="${cmd} --fields   htopo"
+cmd="${cmd} --output ${topo_file_1_np4}"
+cmd="${cmd} --fields htopo"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
-chk_file=${topo_file_1}
+chk_file=${topo_file_1_np4}
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 # rename stuff
-cmd="${unified_bin}/ncrename -O -v htopo,PHIS ${topo_file_1} ${topo_file_1}"
+cmd="${unified_bin}/ncrename -O -v htopo,PHIS ${topo_file_1_np4} ${topo_file_1_np4}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 # Compute phi_s on the target np4 grid
-cmd="${unified_bin}/ncap2 -O -s 'PHIS=PHIS*9.80616' ${topo_file_1} ${topo_file_1}"
+cmd="${unified_bin}/ncap2 -O -s 'PHIS=PHIS*9.80616' ${topo_file_1_np4} ${topo_file_1_np4}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 cmd="${mbda_path}"
 cmd="${cmd} --target ${grid_file_pg2_mbda}"
 cmd="${cmd} --source ${topo_file_src}"
 cmd="${cmd} --output ${topo_file_1_pg2}"
-cmd="${cmd} --fields   htopo --square-fields htopo"
+cmd="${cmd} --fields htopo --square-fields htopo"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 #-------------------------------------------------------------------------------
 chk_file=${topo_file_1_pg2}
@@ -70,7 +70,7 @@ if $create_new_3km; then
   cmd="${cmd} --source ${topo_file_src}"
   cmd="${cmd} --output ${topo_file_3km}"
   cmd="${cmd} --dof-var grid_size"
-  cmd="${cmd} --fields   htopo --square-fields htopo"
+  cmd="${cmd} --fields htopo --square-fields htopo"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   chk_file=${topo_file_3km}

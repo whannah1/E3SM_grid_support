@@ -43,7 +43,7 @@ export grid_file_np4_scrip="${grid_root}/${grid_name}np4_scrip.nc"
 export grid_file_pg2_scrip="${grid_root}/${grid_name}pg2_scrip.nc"
 export grid_file_3km_exodus="${grid_root}/ne3000.g"
 export grid_file_3km_scrip="${grid_root}/ne3000pg1_scrip.nc"
-#MBDA is more efficient with reduced SCRIP files:
+# MBDA is more efficient with reduced SCRIP files:
 export grid_file_np4_mbda="${grid_root}/${grid_name}np4_mbda.nc"
 export grid_file_pg2_mbda="${grid_root}/${grid_name}pg2_mbda.nc"
 export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
@@ -52,7 +52,7 @@ export grid_file_3km_mbda="${grid_root}/ne3000pg1_mbda.nc"
 # Specify topo file names - including temporary files that will be deleted
 # NOTE that topo_file_src is currently specified in set_machine_paths.sh
 export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
-export topo_file_1=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
+export topo_file_1_np4=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
 export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
 # export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
@@ -78,16 +78,20 @@ echo "   remap_topo           = ${remap_topo}"
 echo "   smooth_topo          = ${smooth_topo}"
 echo "   calc_topo_sgh        = ${calc_topo_sgh}"
 echo "   force_new_3km_data   = ${force_new_3km_data}"; echo
-echo "   homme_tool_root      = $homme_tool_root"
-echo "   mbda_path            = $mbda_path"; echo
+echo "   homme_tool_root      = ${homme_tool_root}"
+echo "   mbda_path            = ${mbda_path}"; echo
 echo "   grid_file_exodus     = ${grid_file_exodus}"
 echo "   grid_file_np4_scrip  = ${grid_file_np4_scrip}"
-echo "   topo_file_src        = $topo_file_src"
+echo "   topo_file_src        = ${topo_file_src}"
 echo "   topo_file_3km        = ${topo_file_3km}"
+echo "   topo_file_3km_1      = ${topo_file_3km_1}"
+echo "   topo_file_3km_2      = ${topo_file_3km_2}"
+echo "   topo_file_3km_pg2    = ${topo_file_3km_pg2}"
 echo "   topo_file_3sq        = ${topo_file_3sq}"
-echo "   topo_file_1          = $topo_file_1"
-echo "   topo_file_2          = $topo_file_2"
-echo "   topo_file_3 (final)  = $topo_file_3"
+echo "   topo_file_1_np4      = ${topo_file_1_np4}"
+echo "   topo_file_1_pg2      = ${topo_file_1_pg2}"
+echo "   topo_file_2          = ${topo_file_2}"
+echo "   topo_file_3 (final)  = ${topo_file_3}"
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 echo "SLURM JOB PARAMETERS"
@@ -131,7 +135,7 @@ fi
 #===============================================================================
 #===============================================================================
 # Remap to target grid with cube_to_target
-chk_file=${topo_file_1}
+chk_file=${topo_file_1_np4}
 if $remap_topo; then
   echo;echo -e "${CYN}Remapping topography with mbda${NC} >> ${YLW}${slurm_log_remap_topo}${NC}"
   #-----------------------------------------------------------------------------
@@ -180,7 +184,7 @@ if $calc_topo_sgh; then
   py_args=""
   py_args+=" --topo-3km-pg2 ${topo_file_3km_pg2}"
   py_args+=" --topo-1-pg2 ${topo_file_1_pg2}"
-  py_args+=" --topo-1 ${topo_file_1}"
+  py_args+=" --topo-1-np4 ${topo_file_1_np4}"
   py_args+=" --topo-2 ${topo_file_2}"
   py_args+=" --topo-3km-2 ${topo_file_3km_2}"
   py_args+=" --output ${topo_file_3}"

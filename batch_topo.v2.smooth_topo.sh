@@ -21,7 +21,7 @@ se_ftype = 2 ! actually output NPHYS; overloaded use of ftype
 /
 &analysis_nl
 tool = 'topo_pgn_to_smoothed'
-infilenames = '${topo_file_1}', '${topo_file_2}'
+infilenames = '${topo_file_1_np4}', '${topo_file_2}'
 output_type='netcdf4p'  ! needed for > 2M element meshes
 /
 EOF

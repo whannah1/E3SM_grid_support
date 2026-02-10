@@ -75,7 +75,7 @@ cmd="${unified_bin}/ncks -A -v lon,lat  ${topo_file_1_pg2} ${topo_file_3}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # np4 grid lat,lon, but first need to rename
-cmd="${unified_bin}/ncrename -O  -v lon,lon_d -v lat,lat_d -d ncol,ncol_d  ${topo_file_1} ${topo_root}/tmp-latlon.nc"
+cmd="${unified_bin}/ncrename -O  -v lon,lon_d -v lat,lat_d -d ncol,ncol_d  ${topo_file_1_np4} ${topo_root}/tmp-latlon.nc"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 cmd="${unified_bin}/ncks -A -v lon_d,lat_d ${topo_root}/tmp-latlon.nc  ${topo_file_3}"

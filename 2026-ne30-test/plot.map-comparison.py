@@ -20,22 +20,32 @@ def add_var(var_name,lev=0,s=None,htype=None):
 fig_file = 'map-comparison.png'
 #-------------------------------------------------------------------------------
 
+grid_root = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid'
 
-scrip_file_np4='/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid/ne30np4_scrip.nc'
-scrip_file_pg2='/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid/ne30pg2_scrip.nc'
+# scrip_file = f'{grid_root}/ne30np4_scrip.nc'
+# scrip_file = f'{grid_root}/ne30pg2_scrip.nc'
 
 topo_root1 = '/lcrc/group/e3sm/data/inputdata/atm/cam/topo'
 topo_root2 = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_topo'
 
-add_file(f'{topo_root1}/USGS-gtopo30_ne30np4pg2_x6t-SGH.c20210614.nc',name='default topo')
-add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO topo')
+# add_file(f'{topo_root1}/USGS-gtopo30_ne30np4pg2_x6t-SGH.c20210614.nc',name='default topo')
+# add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO topo')
 # add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-py.nc',name='python topo')
+
+# scrip_file='/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid/ne3000pg1_scrip.nc'
+# add_file(f'/lcrc/group/e3sm/data/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc',name='ne3000 old')
+# add_file(f'{topo_root2}/tmp_USGS-topo_ne3000.nc',name='ne3000 new')
+
+scrip_file = f'{grid_root}/ne30pg2_scrip.nc'
+add_file(f'{topo_root2}/tmp_USGS-topo_ne30-pg2.nc',name='SRC=>ne30pg2  tmp_USGS-topo_ne30-pg2.nc')
+add_file(f'{topo_root2}/tmp_3km-topo_ne30-pg2.nc',name='3km=>ne30pg2  tmp_3km-topo_ne30-pg2.nc')
+# add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO topo')
 
 #-------------------------------------------------------------------------------
 
-# add_var('PHIS')
-add_var('SGH')
-add_var('SGH30')
+add_var('PHIS')
+# add_var('SGH')
+# add_var('SGH30')
 
 
 #-------------------------------------------------------------------------------
@@ -88,8 +98,11 @@ for v in range(num_var):
    for f in range(num_file):
       print(' '*4+'file: '+hapy.tclr.GREEN+file_list[f]+hapy.tclr.END)
       #-------------------------------------------------------------------------
-      ds = ux.open_mfdataset(scrip_file_pg2, file_list[f], data_vars='minimal')
-      data = ds[var[v]]
+      ds = ux.open_dataset(scrip_file, file_list[f])
+      if var[v]=='PHIS' and 'terr' in ds: 
+         data = ds['terr']*9.81
+      else:
+         data = ds[var[v]]
       #-------------------------------------------------------------------------
       # print(); print(data)
       #-------------------------------------------------------------------------
