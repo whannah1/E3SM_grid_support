@@ -27,12 +27,12 @@ map_args += f' --create_maps_lnd'
 #-------------------------------------------------------------------------------
 # topo generation arguments for MBDA workflow
 topo_args = ''
-topo_args += ' --create_grid'
-topo_args += ' --remap_topo'
-topo_args += ' --smooth_topo'
+# topo_args += ' --create_grid'
+# topo_args += ' --remap_topo'
+# topo_args += ' --smooth_topo'
 topo_args += ' --calc_topo_sgh'
 # topo_args += ' --force_new_3km_data'
-# topo_args += ' --python-sgh'
+topo_args += ' --python-sgh'
 if host=='NERSC': topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
 if host=='LCRC' : topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=4:00:00'
 #-------------------------------------------------------------------------------

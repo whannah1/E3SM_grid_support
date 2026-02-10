@@ -19,7 +19,7 @@ export NC='\033[0m'
 #-------------------------------------------------------------------------------
 export proj_root=${grid_code_root}/${proj}
 export data_root=${grid_data_root}/${proj}
-export batch_log_root=${proj_root}/logs_batch
+export slurm_log_root=${proj_root}/logs_batch
 export hiccup_log_root=${proj_root}/logs_hiccup
 #-------------------------------------------------------------------------------
 export grid_root=${data_root}/files_grid
@@ -55,12 +55,12 @@ echo    "  topo_root         = ${topo_root}"
 echo    "  init_root         = ${init_root}"
 echo    "  domn_root         = ${domn_root}"; echo
 # echo    "  atms_root         = ${atms_root}"; echo
-echo    "  batch_log_root    = ${batch_log_root}"
+echo    "  slurm_log_root    = ${slurm_log_root}"
 echo    "  hiccup_log_root   = ${hiccup_log_root}"
 echo    "--------------------------------------------------------------------------------"
 echo -e "${BLD}USER SPECIFIC SLURM VARIABLES:${NC}"
-echo    "  batch_mail_user   = $batch_mail_user"
-echo    "  batch_mail_type   = $batch_mail_type"
+echo    "  slurm_mail_user   = $slurm_mail_user"
+echo    "  slurm_mail_type   = $slurm_mail_type"
 echo    "--------------------------------------------------------------------------------"
 #-------------------------------------------------------------------------------
 if ! $skip_mkdir; then
@@ -70,7 +70,7 @@ if ! $skip_mkdir; then
   if [ ! -d ${init_root} ]; then mkdir -p ${init_root}; fi
   if [ ! -d ${domn_root} ]; then mkdir -p ${domn_root}; fi
   # if [ ! -d ${atms_root} ]; then mkdir -p ${atms_root}; fi
-  if [ ! -d ${batch_log_root} ];  then mkdir -p ${batch_log_root}; fi
+  if [ ! -d ${slurm_log_root} ];  then mkdir -p ${slurm_log_root}; fi
   if [ ! -d ${hiccup_log_root} ]; then mkdir -p ${hiccup_log_root}; fi
 fi
 #-------------------------------------------------------------------------------

@@ -133,7 +133,7 @@ def main():
     
     parser.add_argument('--topo-3km-pg2',required=True,help='Topo file with VAR30, PHIS, PHIS_squared from cube3000 on target grid')
     parser.add_argument('--topo-1-pg2',  required=True,help='Topo file with PHIS on target grid from source')
-    parser.add_argument('--topo-1',      required=True,help='Topo file with np4 grid coordinates')
+    parser.add_argument('--topo-1-np4',  required=True,help='Topo file with np4 grid coordinates')
     parser.add_argument('--topo-2',      required=True,help='Topo file with smoothed PHIS and PHIS_d')
     parser.add_argument('--topo-3km-2',  required=True,help='Topo file with smoothed PHIS from cube3000')
     parser.add_argument('--output',      required=True,help='Output file for final topography with SGH30 and SGH')
@@ -161,7 +161,7 @@ def main():
     ds_1_pg2.close()
     
     # Add np4 grid lat/lon from topo_1 (renamed to lon_d, lat_d)
-    ds_1 = xr.open_dataset(args.topo_1)
+    ds_1 = xr.open_dataset(args.topo_1_np4)
     if 'lon' in ds_1:
         lon_var = ds_1['lon'].reset_coords(drop=True) if 'lon' in ds_1.coords else ds_1['lon']
         if 'ncol' in lon_var.dims:

@@ -20,14 +20,17 @@ def add_var(var_name,lev=0,s=None,htype=None):
 fig_file = 'map-comparison.png'
 #-------------------------------------------------------------------------------
 
-grid_root = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid'
+# grid_root = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_grid'
+# topo_root1 = '/lcrc/group/e3sm/data/inputdata/atm/cam/topo'
+# topo_root2 = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_topo'
+
+grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_grid'
+topo_root1 = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
+topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_topo/'
 
 # scrip_file = f'{grid_root}/ne30np4_scrip.nc'
+
 # scrip_file = f'{grid_root}/ne30pg2_scrip.nc'
-
-topo_root1 = '/lcrc/group/e3sm/data/inputdata/atm/cam/topo'
-topo_root2 = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_topo'
-
 # add_file(f'{topo_root1}/USGS-gtopo30_ne30np4pg2_x6t-SGH.c20210614.nc',name='default topo')
 # add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO topo')
 # add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-py.nc',name='python topo')
