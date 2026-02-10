@@ -56,7 +56,7 @@ set -e  # Stop script execution on error
 #-------------------------------------------------------------------------------
 echo; echo -e ${GRN} Setting up environment ${NC}; echo
 #-------------------------------------------------------------------------------
-source ${home}/.bashrc
+source ${HOME}/.bashrc
 source activate hiccup_env
 # source ${unified_src}
 eval $(${e3sm_src_root}/cime/CIME/Tools/get_case_env)

@@ -34,10 +34,11 @@ The commands below provide a simple way to generate a standard cube sphere grid 
 
 ```shell
 GRID_ROOT=???
+unified_bin=???
 NE=30
-GenerateCSMesh --alt --res ${NE} --file ${GRID_ROOT}/ne${NE}.g
-GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2.g --np 2 --uniform
-ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
+${unified_bin}/GenerateCSMesh --alt --res ${NE} --file ${GRID_ROOT}/ne${NE}.g
+${unified_bin}/GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2.g --np 2 --uniform
+${unified_bin}/ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
 ```
 
 ## Regionally Refined Mesh (RRM)

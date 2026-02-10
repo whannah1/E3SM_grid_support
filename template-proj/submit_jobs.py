@@ -3,7 +3,7 @@ import os,subprocess as sp
 #-------------------------------------------------------------------------------
 home = os.getenv('HOME')
 script_root = os.path.realpath(__file__).replace('/submit_jobs.py','')
-logs_root = f'{script_root}/logs_slurm'
+logs_root = f'{script_root}/logs_batch'
 #-------------------------------------------------------------------------------
 def get_env_var(var):
   cmd = f'source {script_root}/set_project.sh>>/dev/null;echo ${var}'
