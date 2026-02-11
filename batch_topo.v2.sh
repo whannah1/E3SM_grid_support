@@ -100,19 +100,20 @@ echo "   topo_file_2          = ${topo_file_2}"
 echo "   topo_file_3 (final)  = ${topo_file_3}"
 echo --------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-echo "SLURM JOB PARAMETERS"
-echo "   Job Name             = $SLURM_JOB_NAME"
-echo "   Job ID               = $SLURM_JOB_ID"
-echo "   Submit Dir           = $SLURM_SUBMIT_DIR"
-echo "   Nodes allocated      = $SLURM_JOB_NODELIST"
-echo "   Number of nodes      = $SLURM_NNODES"
-echo "   Tasks per node       = $SLURM_NTASKS_PER_NODE"
-echo "   Total tasks          = $SLURM_NTASKS"
-echo "   Memory per node      = $SLURM_MEM_PER_NODE"
-echo "   CPUs per task        = $SLURM_CPUS_PER_TASK"
-echo "   Partition            = $SLURM_JOB_PARTITION"
-echo --------------------------------------------------------------------------------
-exit 0
+if [ -n "$SLURM_JOB_NAME" ]; then
+  echo "SLURM JOB PARAMETERS"
+  echo "   Job Name             = $SLURM_JOB_NAME"
+  echo "   Job ID               = $SLURM_JOB_ID"
+  echo "   Submit Dir           = $SLURM_SUBMIT_DIR"
+  echo "   Nodes allocated      = $SLURM_JOB_NODELIST"
+  echo "   Number of nodes      = $SLURM_NNODES"
+  echo "   Tasks per node       = $SLURM_NTASKS_PER_NODE"
+  echo "   Total tasks          = $SLURM_NTASKS"
+  echo "   Memory per node      = $SLURM_MEM_PER_NODE"
+  echo "   CPUs per task        = $SLURM_CPUS_PER_TASK"
+  echo "   Partition            = $SLURM_JOB_PARTITION"
+  echo --------------------------------------------------------------------------------
+fi
 #-------------------------------------------------------------------------------
 if [ ! -f ${grid_file_exodus} ]; then echo -e ${RED}ERROR source grid file does not exist:${NC} ${grid_file_exodus} ; fi
 if [ ! -f ${topo_file_src} ];    then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi
