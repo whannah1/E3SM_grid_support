@@ -7,7 +7,7 @@ class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m
 def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
 #-------------------------------------------------------------------------------
 
-fig_file,fig_type = f'figs_RRM/RRM-png.2025-conus.v1','png'
+fig_file,fig_type = f'2026-INCITE-CONUS-RRM_refinement_image_ngl','png'
 
 #-------------------------------------------------------------------------------
 wkres = ngl.Resources()
