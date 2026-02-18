@@ -77,7 +77,7 @@ if $create_new_3km; then
   if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  remapped topo file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
   if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  remapped topo file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
   #-----------------------------------------------------------------------------
-  # Compute varience and phi in new file
+  # Compute variance and phi in new file
   cmd="${unified_bin}/ncap2 -v -O -s \
      'PHIS=htopo*9.80616; VAR30=(htopo_squared-(htopo*htopo))*9.80616*9.80616; lat=lat; lon=lon' \
      ${topo_file_3km} ${topo_file_3km}"

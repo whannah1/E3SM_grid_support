@@ -12,6 +12,7 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 create_grid=false; remap_topo=false; smooth_topo=false; calc_topo_sgh=false
 force_new_3km_data=false
 use_python_sgh=false
+print_paths=false
 #-------------------------------------------------------------------------------
 for arg in "$@"; do
   case $arg in
@@ -21,6 +22,7 @@ for arg in "$@"; do
     --calc_topo_sgh)      calc_topo_sgh=true ;;
     --force_new_3km_data) force_new_3km_data=true;;
     --python-sgh)         use_python_sgh=true;;
+    --print_paths)        print_paths=true;;
     *) echo "Unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
@@ -71,6 +73,7 @@ export topo_file_3km_pg2=${topo_root}/tmp_3km-topo_${grid_name}-pg2.nc
 #-------------------------------------------------------------------------------  
 # print some useful things
 echo --------------------------------------------------------------------------------
+echo -e "${BLD}TOPO WORKFLOW VARIABLES:${NC}"
 echo "   proj_root            = ${proj_root}"
 echo "   grid_name            = ${grid_name}"; echo
 echo "   create_grid          = ${create_grid}"
@@ -99,9 +102,8 @@ echo "   topo_file_1_pg2      = ${topo_file_1_pg2}"
 echo "   topo_file_2          = ${topo_file_2}"
 echo "   topo_file_3 (final)  = ${topo_file_3}"
 echo --------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
 if [ -n "$SLURM_JOB_NAME" ]; then
-  echo "SLURM JOB PARAMETERS"
+  echo -e "${BLD}SLURM JOB PARAMETERS:${NC}"
   echo "   Job Name             = $SLURM_JOB_NAME"
   echo "   Job ID               = $SLURM_JOB_ID"
   echo "   Submit Dir           = $SLURM_SUBMIT_DIR"
@@ -114,6 +116,8 @@ if [ -n "$SLURM_JOB_NAME" ]; then
   echo "   Partition            = $SLURM_JOB_PARTITION"
   echo --------------------------------------------------------------------------------
 fi
+#-------------------------------------------------------------------------------
+if $print_paths; then echo "STOPPING - remove --print_paths to continue"; exit 0; fi
 #-------------------------------------------------------------------------------
 if [ ! -f ${grid_file_exodus} ]; then echo -e ${RED}ERROR source grid file does not exist:${NC} ${grid_file_exodus} ; fi
 if [ ! -f ${topo_file_src} ];    then echo -e ${RED}ERROR source topo data does not exist:${NC} ${topo_file_src} ; fi

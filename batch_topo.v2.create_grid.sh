@@ -6,7 +6,8 @@ eval $(${e3sm_src_root}/cime/CIME/Tools/get_case_env)
 grid_template_file="${grid_name}_ne0np4_tmp1.nc"
 #-------------------------------------------------------------------------------
 # clear previous temp file created by homme_tool
-if [   -f ${chk_file} ]; then
+chk_file="${homme_tool_root}/${grid_template_file}"
+if [ -f ${chk_file} ]; then
   cmd="rm ${homme_tool_root}/${grid_template_file}"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 fi
@@ -63,10 +64,9 @@ if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  MBDA np4 target file creatio
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  MBDA np4 target file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 
-
-# lets also compute the PG2 grid file
-cmd="${unified_bin}/GenerateVolumetricMesh --in ${grid_file_exodus} --out ${grid_file_pg2_mbda} --np 2 --uniform"
-echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
+# # compute the PG2 grid file
+# cmd="${unified_bin}/GenerateVolumetricMesh --in ${grid_file_exodus} --out ${grid_file_pg2_mbda} --np 2 --uniform"
+# echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
 # convert to SCRIP format (use mbda version as a temp file)
 cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_pg2_mbda} --out ${grid_file_pg2_scrip}"
@@ -75,6 +75,7 @@ echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 # create smaller grid file for MBDA, also convert to cdf5
 cmd="${unified_bin}/ncap2 -v -5 -O -s 'lon=grid_center_lon;lat=grid_center_lat;area=grid_area'  ${grid_file_pg2_scrip} ${grid_file_pg2_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
+
 cmd="${unified_bin}/ncrename -d grid_size,ncol ${grid_file_pg2_mbda}"
 echo "  $cmd" ; echo; eval "$cmd"
 
@@ -82,7 +83,6 @@ echo "  $cmd" ; echo; eval "$cmd"
 chk_file="${grid_file_pg2_mbda}"
 if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  MBDA np4 target file creation FAILED:${NC} ${chk_file}"; echo; exit 1; fi
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  MBDA np4 target file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
-
 
 #-------------------------------------------------------------------------------
 # create 3km/ne3000 scrip grid file if it does not exist

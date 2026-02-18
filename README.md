@@ -2,6 +2,20 @@
 
 This repository is a place for scripts and notes on supporting new grids in E3SM.
 
+# Environment Variable Descriptions
+
+```
+grid_code_root  - ?
+grid_data_root  - ?
+e3sm_src_root   - path to E3SM source code
+DIN_LOC_ROOT    - official E3SM input data
+unified_bin     - E3SM unified environment path to binaries
+unified_src     - E3SM unified environment source file
+homme_tool_root - path to pre-built homme_tool for topography smoothing
+mbda_path       - path to pre-built Moab Disk Averaging tool (MBDA)
+topo_file_src   - source topography data file on lat/lon grid (RLL)
+```
+
 # Build Notes
 
 ## Build `homme_tool`

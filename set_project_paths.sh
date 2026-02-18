@@ -29,21 +29,18 @@ export init_root=${data_root}/files_init
 export domn_root=${data_root}/files_domain
 # export atms_root=${data_root}/files_atmsrf
 #-------------------------------------------------------------------------------
-export homme_tool_root=${e3sm_src_root}/cmake_homme
-# export homme_tool_root=$SCRATCH/hommetool
-#-------------------------------------------------------------------------------
 echo    "--------------------------------------------------------------------------------"
 echo -e "${BLD}MACHINE SPECIFIC PATHS:${NC}"
-echo    "  host              = $host"
+echo    "  host              = $swag_host"
 echo    "  grid_code_root    = $grid_code_root"
 echo    "  grid_data_root    = $grid_data_root"
 echo    "  e3sm_src_root     = $e3sm_src_root"
 echo    "  homme_tool_root   = ${homme_tool_root}"
+echo    "  mbda_path         = $mbda_path"
 echo    "  DIN_LOC_ROOT      = $DIN_LOC_ROOT"; echo
 echo    "  unified_src       = $unified_src"
 echo    "  unified_bin       = $unified_bin"; echo
 echo    "  topo_file_src     = $topo_file_src"
-echo    "  mbda_path         = $mbda_path"
 echo    "--------------------------------------------------------------------------------"
 echo -e "${BLD}PROJECT SPECIFIC PATHS:${NC}"
 echo    "  proj              = ${proj}"
