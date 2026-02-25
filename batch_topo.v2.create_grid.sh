@@ -68,7 +68,7 @@ if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  MBDA np4 target file creatio
 cmd="${unified_bin}/GenerateVolumetricMesh --in ${grid_file_exodus} --out ${grid_file_pg2_mbda} --np 2 --uniform"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
-# convert to PG2 exodus to SCRIP format 
+# convert PG2 exodus to SCRIP format 
 cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_pg2_mbda} --out ${grid_file_pg2_scrip}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
