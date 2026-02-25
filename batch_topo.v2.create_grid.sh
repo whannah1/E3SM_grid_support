@@ -95,6 +95,10 @@ if [ ! -f ${grid_file_3km_mbda} ]; then
   # check to make sure grid file was created
   if [ ! -f ${grid_file_3km_exodus} ]; then echo;echo -e "${RED}  grid file creation FAILED:${NC} ${grid_file_3km_exodus}"; echo; exit 1; fi
   #-----------------------------------------------------------------------------
+  # # convert the format
+  # cmd="${unified_bin}/ncks -O -5 ${grid_file_3km_exodus} ${grid_file_3km_exodus}"
+  # echo "  $cmd" ; echo; eval "$cmd"
+  #-----------------------------------------------------------------------------
   # now create the pg1 scrip format grid file
   cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_3km_exodus} --out ${grid_file_3km_scrip}"
   echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
