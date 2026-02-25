@@ -17,7 +17,7 @@ SGH30 Procedure:
     VAR30_3000 = MBDA( (H-H3)^2) = HSQ_3 - H3^2     file: topo_file_3km  (variance on cube3000 grid)
     VAR30 = MBDA(VAR1_3000)                          file: topo_file_3km_pg2
 
-    VAR2 = VAR2 = MBDA( H^2 - H_d_pg2^2) = HSQ_pg2 + H_d_pg2^2 - 2 H_d_pg2 H_pg2  
+    VAR2 = MBDA( H^2 - H_d_pg2^2) = HSQ_pg2 + H_d_pg2^2 - 2 H_d_pg2 H_pg2  
     HSQ_pg2, H_pg2:                                  file: topo_file_1_pg2   (mapped from RLL)
     H_d_pg2                                          file: topo_file_2       (dycore smoothed)
 
