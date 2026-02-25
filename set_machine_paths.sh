@@ -79,7 +79,7 @@ if [ -z "${e3sm_src_root}"  ]; then error_found=true; echo -e ${RED}ERROR - vari
 if [ -z "${DIN_LOC_ROOT}"   ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} DIN_LOC_ROOT ; fi
 if [ -z "${unified_bin}"    ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} unified_bin ; fi
 if [ -z "${unified_src}"    ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} unified_src ; fi
-if [ -z "${homme_tool_root}"]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} homme_tool_root ; fi
+if [ -z "${homme_tool_root}" ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} homme_tool_root ; fi
 if [ -z "${mbda_path}"      ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} mbda_path ; fi
 if [ -z "${topo_file_src}"  ]; then error_found=true; echo -e ${RED}ERROR - variable not set:${NC} topo_file_src ; fi
 #-------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ if [ ! -d ${e3sm_root}      ]; then error_found=true; echo -e ${RED}ERROR - dire
 if [ ! -d ${DIN_LOC_ROOT}   ]; then error_found=true; echo -e ${RED}ERROR - directory does not exist:${NC} DIN_LOC_ROOT: ${DIN_LOC_ROOT} ; fi
 if [ ! -d ${unified_bin}    ]; then error_found=true; echo -e ${RED}ERROR - E3SM unified binaries path not exist:${NC} ${unified_bin} ; fi
 if [ ! -f ${unified_src}    ]; then error_found=true; echo -e ${RED}ERROR - E3SM unified script does not exist:${NC} ${unified_src} ; fi
-if [ ! -d ${homme_tool_root}]; then error_found=true; echo -e ${RED}ERROR - directory does not exist:${NC} homme_tool_root: ${homme_tool_root} ; fi
+if [ ! -d ${homme_tool_root} ]; then error_found=true; echo -e ${RED}ERROR - directory does not exist:${NC} homme_tool_root: ${homme_tool_root} ; fi
 if [ ! -f ${topo_file_src}  ]; then error_found=true; echo -e ${RED}ERROR - source topo data does not exist:${NC} ${topo_file_src} ; fi
 if [ ! -f ${mbda_path}      ]; then error_found=true; echo -e ${RED}ERROR - MBDA path does not exist:${NC} ${mbda_path} ; fi
 #-------------------------------------------------------------------------------
