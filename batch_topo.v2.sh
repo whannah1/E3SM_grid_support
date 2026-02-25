@@ -3,7 +3,7 @@
 #SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #-------------------------------------------------------------------------------
-# v2 is updated to handle very-fine grids with the new MVDA mapping tool and
+# v2 is updated to handle very-fine grids with the new MBDA mapping tool and
 # the ne12000 source topography dataset
 #-------------------------------------------------------------------------------
 if [ -z "${proj_root}" ]; then echo -e ${RED}ERROR: proj_root is not defined${NC}; exit ; fi

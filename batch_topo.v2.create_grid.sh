@@ -64,7 +64,7 @@ if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  MBDA np4 target file creatio
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  MBDA np4 target file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 
-# # compute the PG2 exodus file (use mbda version as a temp file)
+# compute the PG2 exodus file (use mbda version as a temp file)
 cmd="${unified_bin}/GenerateVolumetricMesh --in ${grid_file_exodus} --out ${grid_file_pg2_mbda} --np 2 --uniform"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 

@@ -56,8 +56,8 @@ echo    "  slurm_log_root    = ${slurm_log_root}"
 echo    "  hiccup_log_root   = ${hiccup_log_root}"
 echo    "--------------------------------------------------------------------------------"
 echo -e "${BLD}USER SPECIFIC SLURM VARIABLES:${NC}"
-echo    "  slurm_mail_user   = $slurm_mail_user"
-echo    "  slurm_mail_type   = $slurm_mail_type"
+echo    "  slurm_mail_user   = $swag_slurm_mail_user"
+echo    "  slurm_mail_type   = $swag_slurm_mail_type"
 echo    "--------------------------------------------------------------------------------"
 #-------------------------------------------------------------------------------
 if ! $skip_mkdir; then
