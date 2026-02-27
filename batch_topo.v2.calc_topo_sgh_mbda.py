@@ -12,6 +12,17 @@ SGH30 Procedure:
     VAR2:   variance between SRC and target (computed below)
     SGH30 = sqrt(min(VAR2,VAR30)
 
+    H    = topo on RLL source grid
+    H_3 = topo on cube3000
+    VAR30_3000 = MBDA( (H-H3)^2) = HSQ_3 - H3^2     file: topo_file_3km  (variance on cube3000 grid)
+    VAR30 = MBDA(VAR1_3000)                          file: topo_file_3km_pg2
+
+    VAR2 = MBDA( H^2 - H_d_pg2^2) = HSQ_pg2 + H_d_pg2^2 - 2 H_d_pg2 H_pg2  
+    HSQ_pg2, H_pg2:                                  file: topo_file_1_pg2   (mapped from RLL)
+    H_d_pg2                                          file: topo_file_2       (dycore smoothed)
+
+    
+
 SGH Procedure:
     H_3 = topo on cube3000
     H3_pg2   =   H_3 mapped to target grid       file:  $topo_file_3km_pg2
@@ -82,7 +93,9 @@ def compute_sgh30(topo_3km_pg2_file, topo_1_pg2_file, topo_2_file, output_file):
     sgh30 = np.sqrt(var_min) / gravity
     
     # Create output dataset with SGH30
-    ds_out = xr.Dataset({'SGH30': sgh30})
+    ds_out = xr.Dataset( {'SGH30': sgh30} )
+    ds_out['SGH30'].attrs['units'] = 'm'
+    ds_out['SGH30'].attrs['long_name'] = 'standard deviation of source elevation from 3km cube'
     
     # Close input datasets
     ds_3km.close()
@@ -150,6 +163,9 @@ def main():
     print(f"{verbose_indent}Computing SGH...")
     sgh = compute_sgh(args.topo_3km_pg2, args.topo_3km_2)
     ds_out['SGH'] = sgh
+    ds_out['SGH'].attrs['units'] = 'm'
+    ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
+
     
     print(f"{verbose_indent}Adding coordinate and smoothed PHIS fields...")
     
@@ -194,3 +210,4 @@ def main():
 if __name__ == '__main__':
     main()
 #-------------------------------------------------------------------------------
+

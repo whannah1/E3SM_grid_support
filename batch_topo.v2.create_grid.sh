@@ -31,7 +31,7 @@ output_prefix="${grid_name}_"
 tool = 'grid_template_tool'
 output_timeunits=1
 output_frequency=1
-output_varnames1='area','corners','cv_lat','cv_lon','netcdf'
+output_varnames1='area','corners','cv_lat','cv_lon'
 output_type='netcdf4p'
 io_stride = 1
 /
@@ -64,11 +64,11 @@ if [ ! -f ${chk_file} ]; then echo;echo -e "${RED}  MBDA np4 target file creatio
 if [   -f ${chk_file} ]; then echo;echo -e "${GRN}  MBDA np4 target file creation SUCCESSFUL:${NC} ${chk_file}"; echo; fi
 #-------------------------------------------------------------------------------
 
-# compute the PG2 grid file
+# compute the PG2 exodus file (use mbda version as a temp file)
 cmd="${unified_bin}/GenerateVolumetricMesh --in ${grid_file_exodus} --out ${grid_file_pg2_mbda} --np 2 --uniform"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
-# convert to SCRIP format (use mbda version as a temp file)
+# convert PG2 exodus to SCRIP format 
 cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_pg2_mbda} --out ${grid_file_pg2_scrip}"
 echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
 
@@ -95,9 +95,9 @@ if [ ! -f ${grid_file_3km_mbda} ]; then
   # check to make sure grid file was created
   if [ ! -f ${grid_file_3km_exodus} ]; then echo;echo -e "${RED}  grid file creation FAILED:${NC} ${grid_file_3km_exodus}"; echo; exit 1; fi
   #-----------------------------------------------------------------------------
-  # convert the format
-  cmd="${unified_bin}/ncks -O -5 ${grid_file_3km_exodus} ${grid_file_3km_exodus}"
-  echo "  $cmd" ; echo; eval "$cmd"
+  # # convert the format
+  # cmd="${unified_bin}/ncks -O -5 ${grid_file_3km_exodus} ${grid_file_3km_exodus}"
+  # echo "  $cmd" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   # now create the pg1 scrip format grid file
   cmd="${unified_bin}/ConvertMeshToSCRIP --in ${grid_file_3km_exodus} --out ${grid_file_3km_scrip}"
