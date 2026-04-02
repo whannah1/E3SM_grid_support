@@ -17,7 +17,7 @@ SGH30 Procedure:
     VAR30_3000 = MBDA( (H-H3)^2) = HSQ_3 - H3^2     file: topo_file_3km  (variance on cube3000 grid)
     VAR30 = MBDA(VAR1_3000)                          file: topo_file_3km_pg2
 
-    VAR2 = MBDA( H^2 - H_d_pg2^2) = HSQ_pg2 + H_d_pg2^2 - 2 H_d_pg2 H_pg2  
+    VAR2 = MBDA( H^2 - H_pg2^2) = HSQ_pg2 + H_pg2^2 - 2 H_pg2 H_pg2  = HSQ_pg2 - H_pg2^2
     HSQ_pg2, H_pg2:                                  file: topo_file_1_pg2   (mapped from RLL)
     H_d_pg2                                          file: topo_file_2       (dycore smoothed)
 
@@ -28,8 +28,12 @@ SGH Procedure:
     H3_pg2   =   H_3 mapped to target grid       file:  $topo_file_3km_pg2
     H3SQ_pg2 =  (H_3)^2 mapped to target grid    file:  $topo_file_3km_pg2
     H3_d_pg2 =   H_3 after dycore smoothing      file:  $topo_file_3km_2.nc
-    VAR = MPDA((H_3-H3_d_pg2)^2) = H3SQ_pg2 + H3_d_pg2^2  - 2 * H3_d_pg2 * H3_pg2        
+    VAR = MPDA((H_3-H3_pg2)^2) = H3SQ_pg2 + H3_pg2^2  - 2 * H3_pg2 * H3_pg2  = H3SQ_pg2 - H3_pg2^2
     SGH = sqrt(VAR)
+
+    # to reproduce NCAR behavoir for low-res grids:
+    VAR = MPDA((H_3-H3_d_pg2)^2) = H3SQ_pg2 + H3_d_pg2^2  - 2 * H3_d_pg2 * H3_pg2        
+    SGH_dycore = sqrt(VAR)
 
 Notes:
   - For target grid regions with resolution << 3km, VAR2 will always be less than VAR30
@@ -80,8 +84,10 @@ def compute_sgh30(topo_3km_pg2_file, topo_1_pg2_file, topo_2_file, output_file):
     phis = ds_1['PHIS']
     phis_squared = ds_1['PHIS_squared']
     
-    # Compute VAR2: variance between source and smoothed on target grid
-    var2 = compute_variance(phis, phis_smoothed, phis_squared)
+    # Compute VAR2: variance between source and target grid
+    var2 = phis_squared - phis*phis
+    # Compute VAR2: variance between source and dycore smoothed on target grid
+    #var2_dycore = compute_variance(phis, phis_smoothed, phis_squared)
     
     # Get VAR30 from 3km file
     var30 = ds_3km['VAR30']
@@ -126,6 +132,8 @@ def compute_sgh(topo_3km_pg2_file, topo_3km_2_file):
     phis_squared = ds_3km_pg2['PHIS_squared']
     
     # Compute variance
+    # often phis=phis_smoothed, in which case compute_variance() can be replaced with
+    # var=phis_squared-phis*phis, but dont bother for now.
     var = compute_variance(phis, phis_smoothed, phis_squared)
     
     # SGH = sqrt(max(VAR, 0)) / g
@@ -161,10 +169,17 @@ def main():
     )
     
     print(f"{verbose_indent}Computing SGH...")
-    sgh = compute_sgh(args.topo_3km_pg2, args.topo_3km_2)
+    sgh = compute_sgh(args.topo_3km_pg2, args.topo_3km_pg2)
     ds_out['SGH'] = sgh
     ds_out['SGH'].attrs['units'] = 'm'
     ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
+
+    #debug: compute SGH with the dycore smoothed phi:
+    sgh_dycore = compute_sgh(args.topo_3km_pg2, args.topo_3km_2)
+    ds_out['SGH_dycore'] = sgh_dycore
+    ds_out['SGH_dycore'].attrs['units'] = 'm'
+    ds_out['SGH_dycore'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
+
 
     
     print(f"{verbose_indent}Adding coordinate and smoothed PHIS fields...")
