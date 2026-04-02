@@ -1,8 +1,13 @@
-*/logs_slurm
-*/logs_batch
-*/logs_hiccup
-*/logs
+projects/*/logs_slurm
+projects/*/logs_batch
+projects/*/logs_hiccup
+projects/*/logs
 figs*/._*.png
 figs_grid_plot/*.png
 */._*.png
 */*.png
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.pyc
+*.pyo
