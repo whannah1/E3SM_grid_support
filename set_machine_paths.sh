@@ -4,7 +4,7 @@ export swag_slurm_mail_user=hannah6@llnl.gov
 export swag_slurm_mail_type="END,FAIL"
 #-------------------------------------------------------------------------------
 # determine the HPC center we are logged into
-swag_host=NERSC
+swag_host=
 swag_scratch_lcrc=/lcrc/group/e3sm/$USER
 swag_scratch_alcf=/lus/flare/projects/E3SM_Dec/$USER
 swag_scratch_olcf=/lustre/orion/cli115/proj-shared/$USER
@@ -34,13 +34,14 @@ if [ ${swag_host} == "LCRC" ]; then
 fi
 #-------------------------------------------------------------------------------
 if [ ${swag_host} == "NERSC" ]; then
-  export grid_code_root=${HOME}/proj/E3SM_grid_support
+  # export grid_code_root=/global/cfs/cdirs/e3sm/${USER}/E3SM_grid_support
+  export grid_code_root=${HOME}/E3SM_grid_support
   export grid_data_root=/global/cfs/cdirs/e3sm/${USER}/E3SM_grid_support
-  export e3sm_src_root=${HOME}/codes/acme2
+  export e3sm_src_root=/pscratch/sd/w/whannah/tmp_e3sm_src # ${HOME}/codes/acme2
   export DIN_LOC_ROOT=/global/cfs/cdirs/e3sm/inputdata
   export unified_bin=/global/common/software/e3sm/anaconda_envs/e3smu_1_12_0/pm-cpu/conda/envs/e3sm_unified_1.12.0_login/bin
   export unified_src=/global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
-  export homme_tool_root=$SCRATCH/hommetool
+  export homme_tool_root=${e3sm_src_root}/cmake_homme # $SCRATCH/hommetool
   export mbda_path=/global/cfs/cdirs/e3sm/software/moab/intel/bin/mbda
   export topo_file_src=/global/cfs/cdirs/e3sm/zhang73/grids2/topo7.5s/GMTED2010_7.5_stitch_S5P_OPER_REF_DEM_15_NCL_24-3.r172800x86400.nc
 fi
