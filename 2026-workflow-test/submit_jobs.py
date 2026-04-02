@@ -12,7 +12,7 @@ mail_type = get_env_var(f'{proj_root}/set_project.sh','swag_slurm_mail_type')
 #-------------------------------------------------------------------------------
 grid_name_list = []
 grid_name_list.append('ne30')
-#grid_name_list.append('ne256')
+# grid_name_list.append('ne256')
 #-------------------------------------------------------------------------------
 map_args = ''
 map_args += f' --create_maps_ocn'

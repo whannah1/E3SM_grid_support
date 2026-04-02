@@ -20,14 +20,21 @@ def add_grid(file,name,clat=0,clon=0,slat=None, slon=None, xlat=None, xlon=None)
   xlat_list.append(xlat); xlon_list.append(xlon)
 #---------------------------------------------------------------------------------------------------
 
-grid_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid'
+# grid_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid'
 # add_grid(f'{grid_root}/2026-incite-conus-128x2-pg2_scrip.nc','conus-128x2', clat=40,clon=-105)
 # add_grid(f'{grid_root}/2026-incite-conus-128x3-pg2_scrip.nc','conus-128x3', clat=40,clon=-105)
 # add_grid(f'{grid_root}/2026-incite-conus-128x4-pg2_scrip.nc','conus-128x4', clat=40,clon=-105)
 # add_grid(f'{grid_root}/2026-incite-conus-1024x2-pg2_scrip.nc','conus-1024x2', clat=40,clon=360-105)
 # add_grid(f'{grid_root}/2026-incite-conus-1024x3-pg2_scrip.nc','conus-1024x3', clat=40,clon=360-105)
-add_grid(f'{grid_root}/2026-incite-conus-1024x4-pg2_scrip.nc','conus-1024x4', clat=40,clon=360-105)
-num_plot_col = 1
+# add_grid(f'{grid_root}/2026-incite-conus-1024x4-pg2_scrip.nc','conus-1024x4', clat=40,clon=360-105)
+# num_plot_col = 1
+
+grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
+# topo_root = '/global/cfs/cdirs/m4310/whannah/files_topo'
+topo_root = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/'
+add_grid(f'{grid_root}/ne30pg2_scrip.nc', 'ne30', topo=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc',clat=30,clon=-120)
+add_grid(f'{grid_root}/scrip_ne120pg2.nc','ne120',topo=f'{topo_root}/USGS-gtopo30_ne120np4pg2_x6t_20230404.nc', clat=30,clon=-120)
+
 
 #---------------------------------------------------------------------------------------------------
 # set explicit bounds for colorbar - or comment out to have it determined automatically
