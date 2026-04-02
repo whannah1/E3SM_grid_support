@@ -11,7 +11,6 @@ if [ -z "${grid_name}" ]; then echo -e ${RED}ERROR: grid_name is not defined${NC
 #-------------------------------------------------------------------------------
 create_grid=false; remap_topo=false; smooth_topo=false; calc_topo_sgh=false
 force_new_3km_data=false
-use_python_sgh=false
 print_paths=false
 #-------------------------------------------------------------------------------
 for arg in "$@"; do
@@ -21,7 +20,6 @@ for arg in "$@"; do
     --smooth_topo)        smooth_topo=true ;;
     --calc_topo_sgh)      calc_topo_sgh=true ;;
     --force_new_3km_data) force_new_3km_data=true;;
-    --python-sgh)         use_python_sgh=true;;
     --print_paths)        print_paths=true;;
     *) echo "Unknown argument: $arg" >&2; exit 1 ;;
   esac
@@ -57,13 +55,7 @@ export topo_file_3km=${topo_root}/tmp_USGS-topo_ne3000.nc
 export topo_file_1_np4=${topo_root}/tmp_USGS-topo_${grid_name}-np4.nc
 export topo_file_1_pg2=${topo_root}/tmp_USGS-topo_${grid_name}-pg2.nc
 export topo_file_2=${topo_root}/tmp_USGS-topo_${grid_name}-np4_smoothedx6t.nc
-# export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
-
-if $use_python_sgh; then
-  export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}-py.nc
-else
-  export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}-nc.nc
-fi
+export topo_file_3=${topo_root}/USGS-topo_${grid_name}-np4_smoothedx6t_${timestamp}.nc
 
 # needed for SGH  topo mapped from 3km source
 export topo_file_3km_1=${topo_root}/tmp_3km-topo_${grid_name}-np4.nc
@@ -189,23 +181,16 @@ chk_file=${topo_file_3}
 if $calc_topo_sgh; then
   echo;echo -e "${CYN}Calculating topography sub-grid std deviation (SGH)${NC} >> ${YLW}$slurm_log_calc_topo_sgh${NC}"
   #-----------------------------------------------------------------------------
-  if $use_python_sgh; then
-    # python alternative
-    py_args=""
-    py_args+=" --topo-3km-pg2 ${topo_file_3km_pg2}"
-    py_args+=" --topo-1-pg2 ${topo_file_1_pg2}"
-    py_args+=" --topo-1-np4 ${topo_file_1_np4}"
-    py_args+=" --topo-2 ${topo_file_2}"
-    py_args+=" --topo-3km-2 ${topo_file_3km_2}"
-    py_args+=" --output ${topo_file_3}"
-    cmd="python ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.py ${py_args} >> $slurm_log_calc_topo_sgh 2>&1"
-    cmd="(source ${unified_src} && ${cmd})"
-    echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
-  else
-    # bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh.sh >> $slurm_log_calc_topo_sgh 2>&1
-    bash ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.sh >> $slurm_log_calc_topo_sgh 2>&1
-  fi
-  
+  py_args=""
+  py_args+=" --topo-3km-pg2 ${topo_file_3km_pg2}"
+  py_args+=" --topo-1-pg2 ${topo_file_1_pg2}"
+  py_args+=" --topo-1-np4 ${topo_file_1_np4}"
+  py_args+=" --topo-2 ${topo_file_2}"
+  py_args+=" --topo-3km-2 ${topo_file_3km_2}"
+  py_args+=" --output ${topo_file_3}"
+  cmd="python ${grid_code_root}/batch_topo.v2.calc_topo_sgh_mbda.py ${py_args} >> $slurm_log_calc_topo_sgh 2>&1"
+  cmd="(source ${unified_src} && ${cmd})"
+  echo; echo -e "  ${GRN}${cmd}${NC}" ; echo; eval "$cmd"
   #-----------------------------------------------------------------------------
   if [ ! $? -eq 0 ]; then echo;echo -e "${RED}  ERROR - see log file.${NC}"; exit 1; fi
   #-----------------------------------------------------------------------------
