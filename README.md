@@ -1,4 +1,4 @@
-# Scripted Workflow for Atmosphere Grids (SWAG)
+# Streamlined Workflow for Atmosphere Grids (SWAG)
 
 SWAG is a workflow tool to streamline the creation of files needed to support a new atmosphere grid in E3SM. This tool is focsused on producing three types of files needed for any new atmosphere grid in E3SM:
 
