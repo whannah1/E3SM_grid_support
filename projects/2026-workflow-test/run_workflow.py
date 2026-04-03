@@ -24,6 +24,7 @@ slurm_qos        = cfg.get('slurm.qos', '')
 #-------------------------------------------------------------------------------
 # step flags — set to False (or comment out) to skip a step
 
+use_batch = True  # set False to run steps directly on the current node
 do_maps   = True
 do_domain = True
 # do_topo   = True
@@ -67,23 +68,21 @@ for grid_cfg in cfg.iter_grids():
         map_args += ' --create-maps-ocn'
         map_args += ' --create-maps-lnd'
 
-        run_cmd(f'{sbatch}'
-                f' --job-name=gen_maps_{grid_name}'
-                f' --nodes=1 --ntasks-per-node=4'
-                f' --time=04:00:00'
-                f' --wrap="python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}"'
-        )
+        cmd = f'python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}'
+        if use_batch:
+            run_cmd(f'{sbatch} --job-name=gen_maps_{grid_name} --nodes=1 --ntasks-per-node=4 --time=04:00:00 --wrap="{cmd}"')
+        else:
+            run_cmd(cmd)
 
     #---------------------------------------------------------------------------
     # domain files
 
     if locals().get('do_domain', False):
-        run_cmd(f'{sbatch}'
-                f' --job-name=gen_domain_{grid_name}'
-                f' --nodes=1 --ntasks-per-node=4'
-                f' --time=4:00:00'
-                f' --wrap="python -m swag.domain {yaml_path} --grid-name {grid_name}"'
-        )
+        cmd = f'python -m swag.domain {yaml_path} --grid-name {grid_name}'
+        if use_batch:
+            run_cmd(f'{sbatch} --job-name=gen_domain_{grid_name} --nodes=1 --ntasks-per-node=4 --time=4:00:00 --wrap="{cmd}"')
+        else:
+            run_cmd(cmd)
 
     #---------------------------------------------------------------------------
     # topography
@@ -96,11 +95,11 @@ for grid_cfg in cfg.iter_grids():
         topo_args += ' --stage all'
         # topo_args += ' --force-new-3km-data'
 
-        run_cmd(f'{sbatch}'
-                f' --job-name=gen_topo_{grid_name}'
-                f' {topo_slurm_opts}'
-                f'--nodes=1 --ntasks-per-node=4 --time=0:30:00'
-                f' --wrap="python -m swag.topo {yaml_path} --grid-name {grid_name} {topo_args}"'
-        )
+        cmd = f'python -m swag.topo {yaml_path} --grid-name {grid_name} {topo_args}'
+        if use_batch:
+            topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=0:30:00'
+            run_cmd(f'{sbatch} --job-name=gen_topo_{grid_name} {topo_slurm_opts} --wrap="{cmd}"')
+        else:
+            run_cmd(cmd)
 
 print_line()
