@@ -4,21 +4,13 @@ run_workflow.py — Project-level orchestrator for SWAG workflows.
 
 Edit this script to describe the pipeline for your specific project.
 Submit SLURM jobs or call swag module functions directly as needed.
-
-Usage
------
-    python run_workflow.py
 """
-import os
-import sys
-import pathlib
-
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
-
+import os, sys, pathlib
 from swag import swag_config
 from swag.util import run_cmd, print_line
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 
-# -------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # load config — shared settings (paths, slurm) read once from base config
 
 proj_dir  = pathlib.Path(__file__).parent
@@ -28,15 +20,14 @@ logs_root      = cfg['derived.slurm_log_root']
 slurm_account  = cfg['slurm.account']
 slurm_constraint = cfg.get('slurm.constraint', '')
 
-# -------------------------------------------------------------------
-# select which grids to process
-# set to None to process all grids defined in project.yaml, or list
-# specific grid names to process a subset
+#-------------------------------------------------------------------------------
+# select which grids to process - use None to process all grids in project.yaml,
+# or list specific grid names to process a subset
 
 active_grids = None
 # active_grids = ['ne30']
 
-# -------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # submit one set of jobs per grid
 
 for grid_cfg in cfg.iter_grids():
@@ -57,7 +48,7 @@ for grid_cfg in cfg.iter_grids():
 
     yaml_path = proj_dir / 'project.yaml'
 
-    # --------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # maps
 
     map_args = ''
@@ -70,7 +61,7 @@ for grid_cfg in cfg.iter_grids():
             f' --wrap="python -m swag.maps {proj_dir}/project.yaml {map_args}"'
     )
 
-    # --------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # domain files
 
     run_cmd(f'{sbatch}'
@@ -79,7 +70,7 @@ for grid_cfg in cfg.iter_grids():
             f' --wrap="python -m swag.domain {proj_dir}/project.yaml"'
     )
 
-    # --------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # topography
 
     topo_args = ''
