@@ -12,6 +12,17 @@ Note that the process for creating each individual file type is handled by a sep
 
 --------------------------------------------------------------------------------
 
+## Table of Contents
+
+- [How does this tool work?](#how-does-this-tool-work)
+- [Grid Generation Guidance](#grid-generation-guidance)
+- [Prerequisite Steps](#prerequisite-steps)
+- [Handling Multiple Grids](#handling-multiple-grids)
+- [Multi-User Collaboration](#multi-user-collaboration)
+- [E3SM Source Code Changes](#e3sm-source-code-changes-needed-to-define-a-new-atmosphere-grid)
+
+--------------------------------------------------------------------------------
+
 # How does this tool work?
 
 Each new grid, or set of grids, needs to be associated with a dedicated directory under `projects/`. The template project `projects/template/` can be copied as a starting point.
@@ -28,7 +39,7 @@ Each project also includes utility scripts `show_config.py` and `check_paths.py`
 Below is a list of steps to get started on a new SWAG project.
 
 1. Generate the grid files (see [Grid Generation Guidance](#grid-generation-guidance))
-2. Verify that other [prerequisites](#prerequite-steps) have been satisfied
+2. Verify that other [prerequisites](#prerequisite-steps) have been satisfied
 3. Copy the template project and give it a descriptive name
 4. Edit `project.yaml` to specify the new grids
 5. Verify the project configuration by running `show_config.py` and `check_paths.py`
@@ -82,7 +93,7 @@ ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/$
 
 --------------------------------------------------------------------------------
 
-# Prerequite Steps
+# Prerequisite Steps
 
 There are several things to consider when starting a new project.
 
@@ -184,7 +195,7 @@ A user with no entry in `users:` simply gets the project and machine defaults â€
 
 # E3SM Source Code Changes Needed to Define a New Atmosphere Grid
 
-After the files to support a new grid are generated, the E3SM source code need to be modified to register this new grid and specify where to find the new files. These files will often end up under the `$DIN_LOC_ROOT` path that is used for all E3SM input data. For experimental grids that are not expected to be reused the files can be staged outside of the standard input data path.
+After the files to support a new grid are generated, the E3SM source code needs to be modified to register this new grid and specify where to find the new files. These files will often end up under the `$DIN_LOC_ROOT` path that is used for all E3SM input data. For experimental grids that are not expected to be reused the files can be staged outside of the standard input data path.
 
 When a new grid is meant to be supported across different machines the user must create a github pull request to update the E3SM master branch, and upload the new files to the server where all other input data is housed. More information on staging new input data files can be found here:
 [E3SM Input Data Servers](https://e3sm.atlassian.net/wiki/spaces/ED/pages/707002387/E3SM+Input+Data+Servers)
