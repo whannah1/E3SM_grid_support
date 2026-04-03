@@ -21,9 +21,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from swag.config import (
     _is_blank,
     _expand,
+    _read_cime_mail_user,
     swag_config,
     swag_config_error,
 )
+import copy
 
 
 # ---------------------------------------------------------------------------
@@ -265,9 +267,9 @@ class TestSwagConfigKeyAccess:
             _ = cfg['paths.nonexistent']
 
     def test_getitem_blank_value_raises_key_error(self, cfg):
-        # mail_user is '' in TESTMACH slurm defaults → blank → KeyError
+        # constraint is '' in TESTMACH slurm defaults and is never auto-populated → KeyError
         with pytest.raises(KeyError):
-            _ = cfg['slurm.mail_user']
+            _ = cfg['slurm.constraint']
 
     def test_get_returns_value(self, cfg):
         assert cfg.get('paths.grid_data_root') == '/mach/data'
@@ -531,3 +533,227 @@ class TestAlternateConstructors:
             cfg = swag_config.from_project_dir(tmp_path)
         assert cfg.machine == 'TESTMACH'
         assert cfg.project['name'] == 'myproj'
+
+
+# ===========================================================================
+# TestReadCimeMailUser
+
+class TestReadCimeMailUser:
+
+    def test_returns_mail_user_when_present(self, tmp_path):
+        cime_config = tmp_path / '.cime' / 'config'
+        cime_config.parent.mkdir()
+        cime_config.write_text('[main]\nMAIL_USER=user@example.com\nMAIL_TYPE=end,fail\n')
+        with patch('swag.config.Path.home', return_value=tmp_path):
+            result = _read_cime_mail_user()
+        assert result == 'user@example.com'
+
+    def test_returns_empty_when_file_missing(self, tmp_path):
+        with patch('swag.config.Path.home', return_value=tmp_path):
+            result = _read_cime_mail_user()
+        assert result == ''
+
+    def test_returns_empty_when_mail_user_absent_from_file(self, tmp_path):
+        cime_config = tmp_path / '.cime' / 'config'
+        cime_config.parent.mkdir()
+        cime_config.write_text('[main]\nMAIL_TYPE=end,fail\n')
+        with patch('swag.config.Path.home', return_value=tmp_path):
+            result = _read_cime_mail_user()
+        assert result == ''
+
+    def test_mail_user_populated_in_cfg_when_blank(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cime_config = tmp_path / '.cime' / 'config'
+        cime_config.parent.mkdir()
+        cime_config.write_text('[main]\nMAIL_USER=auto@example.com\n')
+        with patch('swag.config._MACHINES_YAML', machines_path):
+            with patch('swag.config.Path.home', return_value=tmp_path):
+                cfg = make_cfg(tmp_path, machines_path)
+        assert cfg.slurm['mail_user'] == 'auto@example.com'
+
+    def test_project_yaml_mail_user_takes_precedence_over_cime(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cime_config = tmp_path / '.cime' / 'config'
+        cime_config.parent.mkdir()
+        cime_config.write_text('[main]\nMAIL_USER=auto@example.com\n')
+        with patch('swag.config._MACHINES_YAML', machines_path):
+            with patch('swag.config.Path.home', return_value=tmp_path):
+                cfg = make_cfg(tmp_path, machines_path,
+                               project_overrides={'slurm': {'mail_user': 'override@example.com'}})
+        assert cfg.slurm['mail_user'] == 'override@example.com'
+
+
+# ===========================================================================
+# TestIterGrids
+
+def make_multi_grid_cfg(tmp_path, machines_yaml_path, grids, base_grid=None):
+    """Write a project.yaml with a grids: list and load swag_config."""
+    data = {
+        'machine': {'name': 'TESTMACH'},
+        'project': {'name': 'myproj', 'timestamp': '20240101'},
+        'grid':    base_grid or {},
+        'grids':   grids,
+    }
+    proj_yaml = tmp_path / 'project.yaml'
+    proj_yaml.write_text(yaml.dump(data))
+    with patch('swag.config._MACHINES_YAML', machines_yaml_path):
+        return swag_config(proj_yaml)
+
+
+class TestIterGrids:
+
+    def test_no_grids_list_yields_self(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg(tmp_path, machines_path)
+        variants = list(cfg.iter_grids())
+        assert len(variants) == 1
+        assert variants[0] is cfg
+
+    def test_yields_one_variant_per_entry(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  grids=[{'name': 'ne30'}, {'name': 'ne45'}])
+        variants = list(cfg.iter_grids())
+        assert len(variants) == 2
+
+    def test_grid_names_correct(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  grids=[{'name': 'ne30'}, {'name': 'ne45'}])
+        names = [v.grid['name'] for v in cfg.iter_grids()]
+        assert names == ['ne30', 'ne45']
+
+    def test_base_grid_field_inherited_when_not_overridden(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  base_grid={'ocn_name': 'oEC60to30v3'},
+                                  grids=[{'name': 'ne30'}, {'name': 'ne45'}])
+        for variant in cfg.iter_grids():
+            assert variant.grid['ocn_name'] == 'oEC60to30v3'
+
+    def test_per_grid_override_wins_over_base(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  base_grid={'ocn_name': 'oEC60to30v3'},
+                                  grids=[{'name': 'ne30'},
+                                         {'name': 'ne256', 'ocn_name': 'oRRS18to6v3'}])
+        variants = list(cfg.iter_grids())
+        assert variants[0].grid['ocn_name'] == 'oEC60to30v3'
+        assert variants[1].grid['ocn_name'] == 'oRRS18to6v3'
+
+    def test_blank_per_grid_value_defers_to_base(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  base_grid={'ocn_name': 'oEC60to30v3'},
+                                  grids=[{'name': 'ne30', 'ocn_name': ''}])
+        variant = list(cfg.iter_grids())[0]
+        assert variant.grid['ocn_name'] == 'oEC60to30v3'
+
+    def test_variants_do_not_share_grid_dict(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  grids=[{'name': 'ne30'}, {'name': 'ne45'}])
+        v1, v2 = list(cfg.iter_grids())
+        v1.grid['name'] = 'mutated'
+        assert v2.grid['name'] == 'ne45'
+
+    def test_for_grid_returns_matching_variant(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  grids=[{'name': 'ne30'}, {'name': 'ne45'}])
+        variant = cfg.for_grid('ne45')
+        assert variant.grid['name'] == 'ne45'
+
+    def test_for_grid_raises_for_unknown_name(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_multi_grid_cfg(tmp_path, machines_path,
+                                  grids=[{'name': 'ne30'}])
+        with pytest.raises(KeyError, match='ne999'):
+            cfg.for_grid('ne999')
+
+
+# ===========================================================================
+# TestUserOverrides
+
+def make_cfg_with_users(tmp_path, machines_yaml_path, username, users_section,
+                        project_overrides=None):
+    """Write a project.yaml with a users: section and load swag_config as *username*."""
+    base = {
+        'machine': {'name': 'TESTMACH'},
+        'project': {'name': 'myproj', 'timestamp': '20240101'},
+        'grid':    {'name': 'ne30pg2'},
+        'users':   users_section,
+    }
+    if project_overrides:
+        for section, values in project_overrides.items():
+            if section in base and isinstance(base[section], dict):
+                base[section].update(values)
+            else:
+                base[section] = values
+    proj_yaml = tmp_path / 'project.yaml'
+    proj_yaml.write_text(yaml.dump(base))
+    with patch('swag.config._MACHINES_YAML', machines_yaml_path):
+        with patch.dict('os.environ', {'USER': username}):
+            return swag_config(proj_yaml)
+
+
+class TestUserOverrides:
+
+    def test_user_path_override_applied(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
+            'alice': {'paths': {'e3sm_src_root': '/alice/e3sm'}},
+        })
+        assert cfg.paths['e3sm_src_root'] == '/alice/e3sm'
+
+    def test_user_slurm_override_applied(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
+            'alice': {'slurm': {'account': 'alice_alloc'}},
+        })
+        assert cfg.slurm['account'] == 'alice_alloc'
+
+    def test_other_users_entry_ignored(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'bob', {
+            'alice': {'paths': {'e3sm_src_root': '/alice/e3sm'}},
+        })
+        # bob gets machine default, not alice's override
+        assert cfg.paths['e3sm_src_root'] == '/mach/e3sm'
+
+    def test_no_users_section_no_change(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg(tmp_path, machines_path)
+        assert cfg.paths['e3sm_src_root'] == '/mach/e3sm'
+
+    def test_user_override_wins_over_project_paths(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'alice',
+            users_section={'alice': {'paths': {'e3sm_src_root': '/alice/e3sm'}}},
+            project_overrides={'paths': {'e3sm_src_root': '/proj/e3sm'}})
+        assert cfg.paths['e3sm_src_root'] == '/alice/e3sm'
+
+    def test_blank_user_value_defers_to_lower_priority(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
+            'alice': {'paths': {'e3sm_src_root': ''}},
+        })
+        assert cfg.paths['e3sm_src_root'] == '/mach/e3sm'
+
+    def test_user_e3sm_src_feeds_homme_tool_derivation(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
+            'alice': {'paths': {'e3sm_src_root': '/alice/e3sm'}},
+        })
+        assert cfg.paths['homme_tool_root'] == '/alice/e3sm/cmake_homme'
+
+    def test_user_mail_user_prevents_cime_fallback(self, tmp_path):
+        machines_path = write_machines_yaml(tmp_path)
+        cime_config = tmp_path / '.cime' / 'config'
+        cime_config.parent.mkdir()
+        cime_config.write_text('[main]\nMAIL_USER=cime@example.com\n')
+        with patch('swag.config.Path.home', return_value=tmp_path):
+            cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
+                'alice': {'slurm': {'mail_user': 'alice@example.com'}},
+            })
+        assert cfg.slurm['mail_user'] == 'alice@example.com'
