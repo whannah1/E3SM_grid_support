@@ -369,9 +369,13 @@ if __name__ == '__main__':
                         default='all', help='Which stage to run (default: all)')
     parser.add_argument('--force-new-3km-data', action='store_true',
                         help='Force recreation of the 3km topo file')
+    parser.add_argument('--grid-name', default=None,
+                        help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
 
     cfg = swag_config(args.project_yaml)
+    if args.grid_name:
+        cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
 
     if args.stage in ('remap', 'all'):

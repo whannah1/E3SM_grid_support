@@ -195,7 +195,11 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Create grid files for a SWAG project.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
+    parser.add_argument('--grid-name', default=None,
+                        help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
     cfg = swag_config(args.project_yaml)
+    if args.grid_name:
+        cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
     create_grid(cfg)

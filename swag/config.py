@@ -24,6 +24,8 @@ Key design
   grid_data_root and project.name, mirroring set_project_paths.sh.
 """
 
+import configparser
+import copy
 import os
 import yaml
 from pathlib import Path
@@ -52,6 +54,16 @@ def _expand(obj):
     if isinstance(obj, list):
         return [_expand(v) for v in obj]
     return obj
+
+
+def _read_cime_mail_user() -> str:
+    """Return MAIL_USER from ~/.cime/config, or '' if absent or unset."""
+    cime_config = Path.home() / '.cime' / 'config'
+    if not cime_config.exists():
+        return ''
+    parser = configparser.ConfigParser()
+    parser.read(cime_config)
+    return parser.get('main', 'mail_user', fallback='').strip()
 
 
 class swag_config_error(ValueError):
@@ -110,11 +122,28 @@ class swag_config:
         self.project = dict(self._raw.get('project', {}))
         self.grid    = dict(self._raw.get('grid', {}))
 
+        # Apply per-user path/slurm overrides from users: section
+        _current_user = os.environ.get('USER', '')
+        _user_section = (self._raw.get('users') or {}).get(_current_user) or {}
+        if _user_section:
+            for k, v in (_user_section.get('paths') or {}).items():
+                if not _is_blank(v):
+                    self.paths[k] = os.path.expandvars(os.path.expanduser(str(v)))
+            for k, v in (_user_section.get('slurm') or {}).items():
+                if not _is_blank(v):
+                    self.slurm[k] = str(v)
+
         # Post-process: derive homme_tool_root if not explicitly set
         if _is_blank(self.paths.get('homme_tool_root')):
             e3sm = self.paths.get('e3sm_src_root', '')
             if e3sm:
                 self.paths['homme_tool_root'] = f'{e3sm}/cmake_homme'
+
+        # Post-process: derive mail_user from ~/.cime/config if not explicitly set
+        if _is_blank(self.slurm.get('mail_user')):
+            cime_mail = _read_cime_mail_user()
+            if cime_mail:
+                self.slurm['mail_user'] = cime_mail
 
         # Compute derived paths (mirrors set_project_paths.sh)
         self.derived = self._compute_derived()
@@ -130,6 +159,45 @@ class swag_config:
     @classmethod
     def from_project_dir(cls, project_dir) -> 'swag_config':
         return cls(Path(project_dir) / 'project.yaml')
+
+    # ------------------------------------------------------------------
+    # Multi-grid iteration
+    # ------------------------------------------------------------------
+
+    def iter_grids(self):
+        """Yield one swag_config variant per entry in the 'grids:' list.
+
+        Each entry is merged over the base 'grid:' section — a non-blank
+        entry value overrides the base; a blank value defers to it.
+
+        If 'grids:' is absent, yields self unchanged (single-grid fallback
+        so existing single-grid project.yaml files need no changes).
+        """
+        raw_grids = self._raw.get('grids')
+        if not raw_grids:
+            yield self
+            return
+        for entry in raw_grids:
+            merged = dict(self.grid)
+            for k, v in (entry or {}).items():
+                if not _is_blank(v):
+                    merged[k] = v
+            variant = copy.copy(self)
+            variant.grid = merged
+            yield variant
+
+    def for_grid(self, name: str) -> 'swag_config':
+        """Return the config variant whose grid.name matches *name*.
+
+        Raises KeyError if no matching grid is found.
+        """
+        for variant in self.iter_grids():
+            if variant.grid.get('name') == name:
+                return variant
+        raise KeyError(
+            f"Grid '{name}' not found in project config. "
+            f"Check the grids: list in your project.yaml."
+        )
 
     # ------------------------------------------------------------------
     # Key access

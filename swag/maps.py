@@ -149,9 +149,13 @@ if __name__ == '__main__':
     parser.add_argument('--create-maps-ocn', action='store_true', help='Create ocean coupling maps')
     parser.add_argument('--create-maps-lnd', action='store_true', help='Create land coupling maps')
     parser.add_argument('--create-maps-spa', action='store_true', help='Create SPA map (EAMxx)')
+    parser.add_argument('--grid-name', default=None,
+                        help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
 
     cfg = swag_config(args.project_yaml)
+    if args.grid_name:
+        cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
 
     if args.create_maps_ocn:
