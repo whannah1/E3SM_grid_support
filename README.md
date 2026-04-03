@@ -16,8 +16,8 @@ Each new grid, or set of grids, needs to be associated with a dedicated director
 
 Due to the nature of how these files are created, there are many values and paths that need to be defined. To handle all this information, each project must contain a `project.yaml` file that can be referenced throughout the workflow. This approach allows a simple, transparent, and centralized place for the user to provide the neccesary information. Additionally, it helps make modularity of the workflow a priority because the YAML file can be used to run any individual piece of the workflow.
 
-[!CAUTION]
-The supporting files for a new grid can be very large. The user must ensure that the paths specified for output and intermediate files have adequate disk space.
+> [!CAUTION]
+> The supporting files for a new grid can be very large. The user must ensure that the paths specified for output and intermediate files have adequate disk space.
 
 Each project also includes utility scripts `show_config.py` and `check_paths.py` that can help examine the project parameters and paths.
 
