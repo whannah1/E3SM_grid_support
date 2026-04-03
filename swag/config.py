@@ -118,9 +118,18 @@ class swag_config:
         self.paths  = _expand(self._merge_section('paths'))
         self.slurm  = _expand(self._merge_section('slurm'))
 
-        # Project and grid sections come directly from the project YAML
+        # Project and grid sections come directly from the project YAML.
+        # Grid values may reference path vars like ${DIN_LOC_ROOT} that are
+        # not in the system env, so temporarily inject self.paths for expansion.
         self.project = dict(self._raw.get('project', {}))
-        self.grid    = dict(self._raw.get('grid', {}))
+        _saved = {k: os.environ[k] for k in self.paths if k in os.environ}
+        os.environ.update({k: v for k, v in self.paths.items() if v})
+        self.grid = _expand(dict(self._raw.get('grid', {})))
+        for k in self.paths:
+            if k in _saved:
+                os.environ[k] = _saved[k]
+            else:
+                os.environ.pop(k, None)
 
         # Apply per-user path/slurm overrides from users: section
         _current_user = os.environ.get('USER', '')
@@ -179,7 +188,7 @@ class swag_config:
             return
         for entry in raw_grids:
             merged = dict(self.grid)
-            for k, v in (entry or {}).items():
+            for k, v in _expand(entry or {}).items():
                 if not _is_blank(v):
                     merged[k] = v
             variant = copy.copy(self)

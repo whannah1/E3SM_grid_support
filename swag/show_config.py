@@ -10,7 +10,6 @@ Usage
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from swag import swag_config, swag_config_error
 from swag.util import clr, print_line
 

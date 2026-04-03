@@ -52,7 +52,7 @@ def create_domain(cfg, create_domain_map=False):
     timestamp     = cfg['project.timestamp']
     e3sm_src_root = cfg['paths.e3sm_src_root']
     atm_grid_file = f'{cfg["derived.grid_root"]}/{atm_grid_name}_scrip.nc'
-    map_file      = f'{maps_root}/map_{ocn_grid_name}_to_{grid_name}-pg2_traave.{timestamp}.nc'
+    map_file      = f'{maps_root}/map_{ocn_grid_name}_to_{atm_grid_name}_traave.{timestamp}.nc'
     domn_tool     = f'{e3sm_src_root}/tools/generate_domain_files/generate_domain_files_E3SM.py'
     env_prefix    = _unified_env_prefix(cfg)
 

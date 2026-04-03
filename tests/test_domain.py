@@ -13,7 +13,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import call, patch
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from swag.domain import _unified_env_prefix, create_domain
 

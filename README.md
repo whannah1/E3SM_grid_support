@@ -38,13 +38,17 @@ Each project also includes utility scripts `show_config.py` and `check_paths.py`
 
 Below is a list of steps to get started on a new SWAG project.
 
-1. Generate the grid files (see [Grid Generation Guidance](#grid-generation-guidance))
-2. Verify that other [prerequisites](#prerequisite-steps) have been satisfied
-3. Copy the template project and give it a descriptive name
-4. Edit `project.yaml` to specify the new grids
-5. Verify the project configuration by running `show_config.py` and `check_paths.py`
-6. Edit `run_workflow.py` to specify which grids and steps will be handled
-7. Run `run_workflow.py`
+1. Clone the repo and install the `swag` package into your Python environment:
+   ```shell
+   pip install -e /path/to/E3SM_grid_support
+   ```
+2. Generate the grid files (see [Grid Generation Guidance](#grid-generation-guidance))
+3. Verify that other [prerequisites](#prerequisite-steps) have been satisfied
+4. Copy the template project and give it a descriptive name
+5. Edit `project.yaml` to specify the new grids
+6. Verify the project configuration by running `show_config.py` and `check_paths.py`
+7. Edit `run_workflow.py` to specify which grids and steps will be handled
+8. Run `run_workflow.py`
 
 > [!WARNING]
 > The batch job parameters in `run_workflow.py` (number of nodes, tasks per node, wall time) are not tuned for any particular machine or grid resolution. Users should expect some trial and error when finding a configuration that works — especially for larger or regionally refined grids where memory and runtime requirements can vary significantly.

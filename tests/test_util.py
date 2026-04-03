@@ -14,7 +14,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 import subprocess as sp
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from swag.util import get_env_var, print_line, run_cmd
 

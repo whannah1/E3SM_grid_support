@@ -5,8 +5,7 @@ run_workflow.py — Project-level orchestrator for SWAG workflows.
 Edit this script to describe the pipeline for your specific project.
 Submit SLURM jobs or call swag module functions directly as needed.
 """
-import os, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
+import os, pathlib
 from swag import swag_config
 from swag.util import run_cmd, print_line
 
@@ -61,26 +60,21 @@ for grid_cfg in cfg.iter_grids():
     yaml_path = proj_dir / 'project.yaml'
 
     #---------------------------------------------------------------------------
-    # maps
+    # maps and domain (chained: domain depends on map files produced by maps)
 
-    if locals().get('do_maps', False):
-        map_args = ''
-        map_args += ' --create-maps-ocn'
-        map_args += ' --create-maps-lnd'
-
-        cmd = f'python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}'
+    if locals().get('do_maps', False) or locals().get('do_domain', False):
+        cmd = ''
+        if locals().get('do_maps', False):
+            map_args = ''
+            map_args += ' --create-maps-ocn'
+            map_args += ' --create-maps-lnd'
+            cmd += f'python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}'
+        if locals().get('do_domain', False):
+            if cmd:
+                cmd += ' && '
+            cmd += f'python -m swag.domain {yaml_path} --grid-name {grid_name}'
         if use_batch:
-            run_cmd(f'{sbatch} --job-name=gen_maps_{grid_name} --time=48:00:00 --wrap="{cmd}"')
-        else:
-            run_cmd(cmd)
-
-    #---------------------------------------------------------------------------
-    # domain files
-
-    if locals().get('do_domain', False):
-        cmd = f'python -m swag.domain {yaml_path} --grid-name {grid_name}'
-        if use_batch:
-            run_cmd(f'{sbatch} --job-name=gen_domain_{grid_name} --time=6:00:00 --wrap="{cmd}"')
+            run_cmd(f'{sbatch} --job-name=gen_maps_domain_{grid_name} --time=48:00:00 --wrap="{cmd}"')
         else:
             run_cmd(cmd)
 

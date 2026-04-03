@@ -25,10 +25,11 @@ grid:
   name: ""               # set per-grid in grids: list below
 
   # Component grids — shared across all grids unless overridden in grids: list
-  ocn_name: ""
-  ocn_file: ""
-  lnd_name: ""
-  lnd_file: ""
+  # ocn_name: "oEC60to30v3"
+  ocn_name: "IcoswISC30E3r5"
+  ocn_file: "${DIN_LOC_ROOT}/ocn/mpas-o/IcoswISC30E3r5/ocean.IcoswISC30E3r5.mask.scrip.20231120.nc"
+  lnd_name: "r05"
+  lnd_file: "${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.5x0.5_nomask_c110308.nc"
 
   # SPA grid — optional, only needed for EAMxx SPA maps (defaults to <name>pg2)
   spa_name: ""

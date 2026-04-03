@@ -13,7 +13,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import call, MagicMock, patch
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import swag.maps as maps_mod
 from swag.maps import (
