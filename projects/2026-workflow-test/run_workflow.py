@@ -24,6 +24,7 @@ slurm_qos        = cfg.get('slurm.qos', '')
 # step flags — set to False (or comment out) to skip a step
 
 use_batch = False  # set False to run steps directly on the current node
+do_grid   = True
 # do_maps   = True
 # do_domain = True
 do_topo   = True
@@ -60,6 +61,16 @@ for grid_cfg in cfg.iter_grids():
     yaml_path = proj_dir / 'project.yaml'
 
     #---------------------------------------------------------------------------
+    # grid files (np4/pg2/3km SCRIP and MBDA)
+
+    if locals().get('do_grid', False):
+        cmd = f'python -m swag.topo {yaml_path} --grid-name {grid_name} --stage grid'
+        if use_batch:
+            run_cmd(f'{sbatch} --job-name=gen_grid_{grid_name} --nodes=1 --ntasks-per-node=32 --time=0:30:00 --wrap="{cmd}"')
+        else:
+            run_cmd(cmd)
+
+    #---------------------------------------------------------------------------
     # maps and domain (chained: domain depends on map files produced by maps)
 
     if locals().get('do_maps', False) or locals().get('do_domain', False):
@@ -83,6 +94,7 @@ for grid_cfg in cfg.iter_grids():
 
     if locals().get('do_topo', False):
         topo_args = ''
+        # topo_args += ' --stage grid'
         # topo_args += ' --stage remap'
         # topo_args += ' --stage smooth'
         # topo_args += ' --stage sgh'

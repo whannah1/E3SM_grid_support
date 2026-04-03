@@ -2,7 +2,8 @@
 """
 swag.topo — Topography processing workflow.
 
-Three stages:
+Four stages:
+  grid         — create np4/pg2/3km SCRIP and MBDA grid files (calls swag.grid).
   remap_topo   — interpolate high-res RLL source topo to the target grid
                  (np4 and pg2) and to the 3km intermediate grid, using MBDA.
   smooth_topo  — apply homme_tool smoothing to the remapped topo files.
@@ -10,6 +11,7 @@ Three stages:
 
 Usage
 -----
+    python -m swag.topo path/to/project.yaml --stage grid
     python -m swag.topo path/to/project.yaml --stage remap
     python -m swag.topo path/to/project.yaml --stage smooth
     python -m swag.topo path/to/project.yaml --stage sgh
@@ -23,6 +25,7 @@ import numpy as np
 import xarray as xr
 
 from swag.config import swag_config
+from swag.grid import create_grid
 from swag.util import clr, print_line, run_cmd
 
 _GRAVITY = 9.80616
@@ -365,7 +368,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Run a SWAG topography stage.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
-    parser.add_argument('--stage', choices=['remap', 'smooth', 'sgh', 'all'],
+    parser.add_argument('--stage', choices=['grid', 'remap', 'smooth', 'sgh', 'all'],
                         default='all', help='Which stage to run (default: all)')
     parser.add_argument('--force-new-3km-data', action='store_true',
                         help='Force recreation of the 3km topo file')
@@ -378,6 +381,8 @@ if __name__ == '__main__':
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
 
+    if args.stage in ('grid', 'all'):
+        create_grid(cfg)
     if args.stage in ('remap', 'all'):
         remap_topo(cfg, force_new_3km_data=args.force_new_3km_data)
     if args.stage in ('smooth', 'all'):
