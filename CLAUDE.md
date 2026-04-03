@@ -127,3 +127,15 @@ projects/
 - **`code_vert_grid/`** — Standalone scripts for vertical (pressure-hybrid) grid generation; not part of the SWAG package.
 - **`code_grid_plot/`** — Grid visualization scripts (SCRIP format, vertical spacing).
 - **`tests/`** — pytest unit tests for the `swag` package.
+
+
+## Code style
+
+### Python comment separators
+Always separate section dividers from descriptive comments. Use a
+dashed line followed by the description on its own line:
+```python
+#-------------------------------------------------------------------------------
+# section description here
+```
+and make sure section dviders end at column 80
