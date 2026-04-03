@@ -29,25 +29,19 @@ slurm_account  = cfg['slurm.account']
 slurm_constraint = cfg.get('slurm.constraint', '')
 
 # -------------------------------------------------------------------
-# choose which stages to run
+# select which grids to process
+# set to None to process all grids defined in project.yaml, or list
+# specific grid names to process a subset
 
-topo_args = ''
-# topo_args += ' --stage remap'
-# topo_args += ' --stage smooth'
-# topo_args += ' --stage sgh'
-topo_args += ' --stage all'
-# topo_args += ' --force-new-3km-data'
-
-topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=0:30:00'
-
-map_args = ''
-# map_args += ' --create-maps-ocn'
-# map_args += ' --create-maps-lnd'
+active_grids = None
+# active_grids = ['ne30']
 
 # -------------------------------------------------------------------
 # submit one set of jobs per grid
 
 for grid_cfg in cfg.iter_grids():
+    if active_grids is not None and grid_cfg['grid.name'] not in active_grids:
+        continue
     grid_cfg.validate()
     grid_name = grid_cfg['grid.name']
     print_line()
@@ -63,28 +57,42 @@ for grid_cfg in cfg.iter_grids():
 
     yaml_path = proj_dir / 'project.yaml'
 
-    # --- topo pipeline -----------------------------------------------
-    run_cmd(
-        f'{sbatch}'
-        f' --job-name=gen_topo_{grid_name}'
-        f' {topo_slurm_opts}'
-        f' --wrap="python -m swag.topo {yaml_path} --grid-name {grid_name} {topo_args}"'
+    # --------------------------------------------------------------------------
+    # maps
+
+    map_args = ''
+    map_args += ' --create-maps-ocn'
+    map_args += ' --create-maps-lnd'
+
+    run_cmd(f'{sbatch}'
+            f' --job-name=gen_maps_{grid_name}'
+            f' --time=48:00:00'
+            f' --wrap="python -m swag.maps {proj_dir}/project.yaml {map_args}"'
     )
 
-    # --- maps --------------------------------------------------------
-    # run_cmd(
-    #     f'{sbatch}'
-    #     f' --job-name=gen_maps_{grid_name}'
-    #     f' --time=48:00:00'
-    #     f' --wrap="python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}"'
-    # )
+    # --------------------------------------------------------------------------
+    # domain files
 
-    # --- domain files ------------------------------------------------
-    # run_cmd(
-    #     f'{sbatch}'
-    #     f' --job-name=gen_domain_{grid_name}'
-    #     f' --time=6:00:00'
-    #     f' --wrap="python -m swag.domain {yaml_path} --grid-name {grid_name}"'
-    # )
+    run_cmd(f'{sbatch}'
+            f' --job-name=gen_domain_{grid_name}'
+            f' --time=6:00:00'
+            f' --wrap="python -m swag.domain {proj_dir}/project.yaml"'
+    )
+
+    # --------------------------------------------------------------------------
+    # topography
+
+    topo_args = ''
+    # topo_args += ' --stage remap'
+    # topo_args += ' --stage smooth'
+    # topo_args += ' --stage sgh'
+    topo_args += ' --stage all'
+    # topo_args += ' --force-new-3km-data'
+
+    run_cmd(f'{sbatch}'
+            f' --job-name=gen_topo_{grid_name}'
+            f' --nodes=1 --ntasks-per-node=4 --time=0:30:00 '
+            f' --wrap="python -m swag.topo {proj_dir}/project.yaml {topo_args}"'
+    )
 
 print_line()
