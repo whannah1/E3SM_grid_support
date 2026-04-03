@@ -24,16 +24,21 @@ fig_file = 'topo-comparison.png'
 # topo_root1 = '/lcrc/group/e3sm/data/inputdata/atm/cam/topo'
 # topo_root2 = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_topo'
 
-grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_grid'
+# grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_grid'
+grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid'
 topo_root1 = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
-topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_topo/'
+# topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_topo/'
+topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_topo'
 
 # scrip_file = f'{grid_root}/ne30np4_scrip.nc'
 
 scrip_file = f'{grid_root}/ne30pg2_scrip.nc'
-# add_file(f'{topo_root1}/USGS-gtopo30_ne30np4pg2_x6t-SGH.c20210614.nc',name='default ne30 topo')
-add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO SGH workflow')
-add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-py.nc',name='python SGH workflow')
+add_file(f'{topo_root1}/USGS-gtopo30_ne30np4pg2_x6t-SGH.c20210614.nc',name='default ne30 topo')
+# add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO SGH workflow')
+# add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-py.nc',name='python SGH workflow')
+add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260403.nc',name='new workflow')
+
+
 
 # scrip_file = f'{topo_root2}/../files_grid/ne3000pg1_scrip.nc'
 # topo_root1 = f'{topo_root1}/../hrtopo'
@@ -49,7 +54,7 @@ add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-py.nc',name='pyt
 
 #-------------------------------------------------------------------------------
 
-# add_var('PHIS')
+add_var('PHIS')
 add_var('SGH')
 add_var('SGH30')
 
@@ -80,7 +85,7 @@ subplot_kwargs['projection'] = ccrs.Robinson(central_longitude=180)
 # lat_min, lat_max = -90, -60
 # subplot_kwargs['projection'] = ccrs.Orthographic(central_latitude=-85)
 
-fdx,fdy=15,8
+fdx,fdy=20,10
 if add_diff:
    (d1,d2) = (num_var,num_file+1) if var_x_case else (num_file+1,num_var)
    figsize = (fdx*num_file+1,fdy*num_var) if var_x_case else (fdx*num_var,fdy*num_file+1)
