@@ -6,9 +6,9 @@ Edit this script to describe the pipeline for your specific project.
 Submit SLURM jobs or call swag module functions directly as needed.
 """
 import os, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
 from swag import swag_config
 from swag.util import run_cmd, print_line
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 
 #-------------------------------------------------------------------------------
 # load config — shared settings (paths, slurm) read once from base config
@@ -19,13 +19,14 @@ cfg       = swag_config(proj_dir / 'project.yaml')
 logs_root        = cfg['derived.slurm_log_root']
 slurm_account    = cfg['slurm.account']
 slurm_constraint = cfg.get('slurm.constraint', '')
+slurm_qos        = cfg.get('slurm.qos', '')
 
 #-------------------------------------------------------------------------------
 # step flags — set to False (or comment out) to skip a step
 
 do_maps   = True
 do_domain = True
-do_topo   = True
+# do_topo   = True
 
 #-------------------------------------------------------------------------------
 # select which grids to process - use None to process all grids in project.yaml,
@@ -51,6 +52,8 @@ for grid_cfg in cfg.iter_grids():
     sbatch += f' --account={slurm_account}'
     if slurm_constraint:
         sbatch += f' --constraint={slurm_constraint}'
+    if slurm_qos:
+        sbatch += f' --qos={slurm_qos}'
     # sbatch += f' --mail-user={cfg["slurm.mail_user"]}'
     # sbatch += f' --mail-type={cfg["slurm.mail_type"]}'
 
@@ -66,7 +69,8 @@ for grid_cfg in cfg.iter_grids():
 
         run_cmd(f'{sbatch}'
                 f' --job-name=gen_maps_{grid_name}'
-                f' --time=48:00:00'
+                f' --nodes=1 --ntasks-per-node=4'
+                f' --time=04:00:00'
                 f' --wrap="python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}"'
         )
 
@@ -76,7 +80,8 @@ for grid_cfg in cfg.iter_grids():
     if locals().get('do_domain', False):
         run_cmd(f'{sbatch}'
                 f' --job-name=gen_domain_{grid_name}'
-                f' --time=6:00:00'
+                f' --nodes=1 --ntasks-per-node=4'
+                f' --time=4:00:00'
                 f' --wrap="python -m swag.domain {yaml_path} --grid-name {grid_name}"'
         )
 
@@ -91,11 +96,10 @@ for grid_cfg in cfg.iter_grids():
         topo_args += ' --stage all'
         # topo_args += ' --force-new-3km-data'
 
-        topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=0:30:00'
-
         run_cmd(f'{sbatch}'
                 f' --job-name=gen_topo_{grid_name}'
                 f' {topo_slurm_opts}'
+                f'--nodes=1 --ntasks-per-node=4 --time=0:30:00'
                 f' --wrap="python -m swag.topo {yaml_path} --grid-name {grid_name} {topo_args}"'
         )
 

@@ -6,9 +6,9 @@ Edit this script to describe the pipeline for your specific project.
 Submit SLURM jobs or call swag module functions directly as needed.
 """
 import os, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
 from swag import swag_config
 from swag.util import run_cmd, print_line
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 
 #-------------------------------------------------------------------------------
 # load config — shared settings (paths, slurm) read once from base config
@@ -19,6 +19,7 @@ cfg       = swag_config(proj_dir / 'project.yaml')
 logs_root        = cfg['derived.slurm_log_root']
 slurm_account    = cfg['slurm.account']
 slurm_constraint = cfg.get('slurm.constraint', '')
+slurm_qos        = cfg.get('slurm.qos', '')
 
 #-------------------------------------------------------------------------------
 # step flags — set to False (or comment out) to skip a step
@@ -51,6 +52,8 @@ for grid_cfg in cfg.iter_grids():
     sbatch += f' --account={slurm_account}'
     if slurm_constraint:
         sbatch += f' --constraint={slurm_constraint}'
+    if slurm_qos:
+        sbatch += f' --qos={slurm_qos}'
     # sbatch += f' --mail-user={cfg["slurm.mail_user"]}'
     # sbatch += f' --mail-type={cfg["slurm.mail_type"]}'
 
