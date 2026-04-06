@@ -2,7 +2,8 @@ projects/*/logs_slurm
 projects/*/logs_batch
 projects/*/logs_hiccup
 projects/*/logs
-figs*/._*.png
+*/._*.png
+*/*/._*.png
 figs_grid_plot/*.png
 */._*.png
 */*.png
