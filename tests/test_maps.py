@@ -1,5 +1,5 @@
 """
-Unit tests for swag/maps.py.
+Unit tests for taos/maps.py.
 
 These tests cover pure-Python logic (command-string construction, path checks)
 without requiring any HPC tools, SLURM, or real files on disk.
@@ -14,8 +14,8 @@ from pathlib import Path
 from unittest.mock import call, MagicMock, patch
 
 
-import swag.maps as maps_mod
-from swag.maps import (
+import taos.maps as maps_mod
+from taos.maps import (
     _check_map,
     _ncremap_pair,
     _unified_env_prefix,
@@ -28,7 +28,7 @@ from swag.maps import (
 # helpers
 
 class MockConfig:
-    """Minimal stand-in for swag_config with fixed test values."""
+    """Minimal stand-in for taos_config with fixed test values."""
 
     _data = {
         'paths.unified_src':  '/tools/unified.sh',
@@ -85,7 +85,7 @@ class TestCheckMap(unittest.TestCase):
 class TestNcremapPair(unittest.TestCase):
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_command_without_a2o(self, mock_run, _mock_exists):
         _ncremap_pair(
             env_prefix='source /tools/unified.sh',
@@ -103,7 +103,7 @@ class TestNcremapPair(unittest.TestCase):
         mock_run.assert_called_once_with(expected)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_command_with_a2o_flag(self, mock_run, _mock_exists):
         _ncremap_pair(
             env_prefix='source /tools/unified.sh',
@@ -122,7 +122,7 @@ class TestNcremapPair(unittest.TestCase):
         mock_run.assert_called_once_with(expected)
 
     @patch('os.path.exists', return_value=False)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_raises_when_output_missing(self, _mock_run, _mock_exists):
         with self.assertRaises(RuntimeError):
             _ncremap_pair(
@@ -147,14 +147,14 @@ class TestCreateMapsOcn(unittest.TestCase):
     _TS         = '20260101'
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_calls_run_cmd_eight_times(self, mock_run, _mock_exists):
         create_maps_ocn(MockConfig())
         # 4 algorithms × 2 directions = 8 ncremap calls
         self.assertEqual(mock_run.call_count, 8)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_all_algorithms_used(self, mock_run, _mock_exists):
         create_maps_ocn(MockConfig())
         all_cmds = ' '.join(c.args[0] for c in mock_run.call_args_list)
@@ -162,7 +162,7 @@ class TestCreateMapsOcn(unittest.TestCase):
             self.assertIn(f'--alg_typ={alg}', all_cmds)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_forward_map_filenames(self, mock_run, _mock_exists):
         """ocn → atm maps should not have --a2o flag."""
         create_maps_ocn(MockConfig())
@@ -176,7 +176,7 @@ class TestCreateMapsOcn(unittest.TestCase):
             self.assertNotIn('--a2o', matching[0])
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_reverse_map_filenames_have_a2o(self, mock_run, _mock_exists):
         """atm → ocn maps should have --a2o flag."""
         create_maps_ocn(MockConfig())
@@ -190,7 +190,7 @@ class TestCreateMapsOcn(unittest.TestCase):
             self.assertIn('--a2o', matching[0])
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_name_pg2_defaults_to_name_plus_pg2(self, mock_run, _mock_exists):
         """When name_pg2 is not in config, it should default to <name>pg2."""
         cfg = MockConfig()
@@ -211,13 +211,13 @@ class TestCreateMapsLnd(unittest.TestCase):
     _TS   = '20260101'
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_calls_run_cmd_eight_times(self, mock_run, _mock_exists):
         create_maps_lnd(MockConfig())
         self.assertEqual(mock_run.call_count, 8)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_forward_map_filenames(self, mock_run, _mock_exists):
         """lnd → atm maps should not have --a2o flag."""
         create_maps_lnd(MockConfig())
@@ -231,7 +231,7 @@ class TestCreateMapsLnd(unittest.TestCase):
             self.assertNotIn('--a2o', matching[0])
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_reverse_map_filenames_have_a2o(self, mock_run, _mock_exists):
         """atm → lnd maps should have --a2o flag."""
         create_maps_lnd(MockConfig())
@@ -254,20 +254,20 @@ class TestCreateMapsSpa(unittest.TestCase):
     _TS   = '20260101'
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_calls_run_cmd_once(self, mock_run, _mock_exists):
         create_maps_spa(MockConfig())
         self.assertEqual(mock_run.call_count, 1)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_uses_traave_algorithm(self, mock_run, _mock_exists):
         create_maps_spa(MockConfig())
         cmd = mock_run.call_args.args[0]
         self.assertIn('--alg_typ=traave', cmd)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_map_filename(self, mock_run, _mock_exists):
         create_maps_spa(MockConfig())
         cmd = mock_run.call_args.args[0]
@@ -275,7 +275,7 @@ class TestCreateMapsSpa(unittest.TestCase):
         self.assertIn(expected_map, cmd)
 
     @patch('os.path.exists', return_value=True)
-    @patch('swag.maps.run_cmd')
+    @patch('taos.maps.run_cmd')
     def test_spa_name_defaults_to_ne30pg2(self, mock_run, _mock_exists):
         """When spa_name is absent from config, it should default to ne30pg2."""
         cfg = MockConfig()

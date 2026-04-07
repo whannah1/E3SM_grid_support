@@ -1,6 +1,6 @@
-# Streamlined Workflow for Atmosphere Grids (SWAG)
+# Topography for Atmosphere Orchestration System (TAOS)
 
-SWAG is a workflow tool to streamline the creation of files needed to support a new atmosphere grid in E3SM. This tool is focused on producing three types of files needed for any new atmosphere grid in E3SM:
+TAOS is a workflow tool to streamline the creation of files needed to support a new atmosphere grid in E3SM. This tool is focused on producing three types of files needed for any new atmosphere grid in E3SM:
 
 - component coupler mapping files
 - domain files
@@ -36,9 +36,9 @@ Each project also includes utility scripts `show_config.py` and `check_paths.py`
 
 ## Quick Start Guide
 
-Below is a list of steps to get started on a new SWAG project.
+Below is a list of steps to get started on a new TAOS project.
 
-1. Clone the repo and install the `swag` package into your Python environment:
+1. Clone the repo and install the `taos` package into your Python environment:
    ```shell
    pip install -e /path/to/E3SM_grid_support
    ```

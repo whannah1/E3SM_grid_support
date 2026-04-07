@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-check_paths.py — Check whether expected SWAG paths exist on disk.
+check_paths.py — Check whether expected TAOS paths exist on disk.
 
 Prints a color-coded status for each path (green = OK, red = missing).
 Exits with code 1 if any path is missing.
@@ -14,8 +14,8 @@ import os
 import sys
 from pathlib import Path
 
-from swag import swag_config, swag_config_error
-from swag.util import clr, print_line
+from taos import taos_config, taos_config_error
+from taos.util import clr, print_line
 
 # ------------------------------------------------------------------------------
 
@@ -45,8 +45,8 @@ def main():
         cfg_path = Path(__file__).parent / 'project.yaml'
 
     try:
-        cfg = swag_config(cfg_path)
-    except (FileNotFoundError, swag_configError) as e:
+        cfg = taos_config(cfg_path)
+    except (FileNotFoundError, taos_config_error) as e:
         print(f'\n  {clr.RED}ERROR:{clr.END} {e}\n')
         sys.exit(1)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-swag.grid — Grid file creation workflow.
+taos.grid — Grid file creation workflow.
 
 Generates GLL (np4) and physics (pg2) SCRIP grid files for a target
 atmosphere grid, plus the ne3000 (3km) grid files needed for topography
@@ -8,14 +8,14 @@ processing.
 
 Usage
 -----
-    python -m swag.grid path/to/project.yaml
+    python -m taos.grid path/to/project.yaml
 """
 import os
 import textwrap
 from pathlib import Path
 
-from swag.config import swag_config
-from swag.util import clr, print_line, run_cmd
+from taos.config import taos_config
+from taos.util import clr, print_line, run_cmd
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -66,7 +66,7 @@ def create_grid(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
         Loaded and validated project configuration.
     """
     # -------------------------------------------------------------------
@@ -193,12 +193,12 @@ def create_grid(cfg):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Create grid files for a SWAG project.')
+    parser = argparse.ArgumentParser(description='Create grid files for a TAOS project.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
     parser.add_argument('--grid-name', default=None,
                         help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
-    cfg = swag_config(args.project_yaml)
+    cfg = taos_config(args.project_yaml)
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()

@@ -1,5 +1,5 @@
 # =============================================================================
-# SWAG Machine Defaults
+# TAOS Machine Defaults
 # =============================================================================
 # Machine-level default paths and SLURM settings for each supported HPC system.
 #

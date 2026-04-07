@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-SWAG (Streamlined Workflow for Atmosphere Grids) generates the files needed to support a new atmosphere grid in E3SM: topography data files, component coupler mapping files, and domain files.
+TAOS (Topography for Atmosphere Orchestration System) generates the files needed to support a new atmosphere grid in E3SM: topography data files, component coupler mapping files, and domain files.
 
 ## Running Tests
 
@@ -13,7 +13,7 @@ python -m pytest tests/ -v          # all tests
 python -m pytest tests/test_config.py -v    # single file
 ```
 
-Tests use `unittest.mock.patch` to stub `swag.config._MACHINES_YAML` and filesystem probes — no HPC environment needed.
+Tests use `unittest.mock.patch` to stub `taos.config._MACHINES_YAML` and filesystem probes — no HPC environment needed.
 
 ## Running Workflows
 
@@ -26,10 +26,10 @@ python run_workflow.py          # submits configured SLURM jobs
 Individual pipeline stages can also be invoked directly as Python modules (useful for testing or re-running a single stage):
 
 ```shell
-python -m swag.grid   path/to/project.yaml
-python -m swag.topo   path/to/project.yaml --stage all   # or remap|smooth|sgh
-python -m swag.maps   path/to/project.yaml --create-maps-ocn --create-maps-lnd
-python -m swag.domain path/to/project.yaml
+python -m taos.grid   path/to/project.yaml
+python -m taos.topo   path/to/project.yaml --stage all   # or remap|smooth|sgh
+python -m taos.maps   path/to/project.yaml --create-maps-ocn --create-maps-lnd
+python -m taos.domain path/to/project.yaml
 ```
 
 Helper scripts in each project directory:
@@ -63,11 +63,11 @@ make FC=ifort
 
 ## Architecture
 
-### `swag/` Package
+### `taos/` Package
 
 The core Python package. All workflow logic lives here:
 
-- **`config.py`** — `swag_config` class: loads `project.yaml`, merges with `machines.yaml` defaults, validates, and exposes values via dot-notation (`cfg['derived.grid_root']`). Also `swag_config_error`.
+- **`config.py`** — `taos_config` class: loads `project.yaml`, merges with `machines.yaml` defaults, validates, and exposes values via dot-notation (`cfg['derived.grid_root']`). Also `taos_config_error`.
 - **`grid.py`** — `create_grid()`: runs `homme_tool` + `HOMME2SCRIP.py` + `GenerateVolumetricMesh` + `ConvertMeshToSCRIP` to produce np4 and pg2 SCRIP/MBDA grid files.
 - **`topo.py`** — `remap_topo()`, `smooth_topo()`, `calc_topo_sgh()`: the three-stage topography pipeline using MBDA, `homme_tool` smoothing, and SGH variance calculation.
 - **`maps.py`** — `create_maps_ocn()`, `create_maps_lnd()`, `create_maps_spa()`: atmosphere↔ocean/land/SPA coupling maps via `ncremap`/TempestRemap.
@@ -75,13 +75,13 @@ The core Python package. All workflow logic lives here:
 - **`util.py`** — `clr` (terminal colors), `print_line()`, `run_cmd()`, `get_env_var()` (deprecated).
 - **`machines.yaml`** — Per-machine path and SLURM defaults (NERSC, LCRC, ALCF, OLCF). Auto-detected by probing known filesystem paths; last match wins.
 
-### `swag_config` Key Details
+### `taos_config` Key Details
 
 ```python
-from swag import swag_config, swag_config_error
+from taos import taos_config, taos_config_error
 
-cfg = swag_config('path/to/project.yaml')   # or swag_config.from_project_dir(dir)
-cfg.validate()                              # raises swag_config_error listing all missing fields
+cfg = taos_config('path/to/project.yaml')   # or taos_config.from_project_dir(dir)
+cfg.validate()                              # raises taos_config_error listing all missing fields
 cfg['derived.grid_root']                    # dot-notation; raises KeyError if blank
 cfg.get('paths.mbda_path', '')              # dot-notation with default
 cfg.to_env_dict()                           # flat dict of legacy bash variable names
@@ -91,12 +91,12 @@ Merge rule: project.yaml values win over machine defaults only if non-blank (not
 
 ### Workflow Pipeline Sequence
 
-1. **Create grid** (`swag.grid`) — np4 GLL and pg2 physics SCRIP/MBDA grid files, plus ne3000 (3km) files for topography processing.
-2. **Remap topo** (`swag.topo --stage remap`) — MBDA interpolates high-res RLL source topography to target np4, pg2, and 3km grids.
-3. **Smooth topo** (`swag.topo --stage smooth`) — `homme_tool` applies smoothing.
-4. **Calc SGH** (`swag.topo --stage sgh`) — subgrid-scale orography variance computed from the 3km intermediate files.
-5. **Maps** (`swag.maps`) — atmosphere↔ocean, atmosphere↔land, SPA coupling maps.
-6. **Domain** (`swag.domain`) — E3SM domain files.
+1. **Create grid** (`taos.grid`) — np4 GLL and pg2 physics SCRIP/MBDA grid files, plus ne3000 (3km) files for topography processing.
+2. **Remap topo** (`taos.topo --stage remap`) — MBDA interpolates high-res RLL source topography to target np4, pg2, and 3km grids.
+3. **Smooth topo** (`taos.topo --stage smooth`) — `homme_tool` applies smoothing.
+4. **Calc SGH** (`taos.topo --stage sgh`) — subgrid-scale orography variance computed from the 3km intermediate files.
+5. **Maps** (`taos.maps`) — atmosphere↔ocean, atmosphere↔land, SPA coupling maps.
+6. **Domain** (`taos.domain`) — E3SM domain files.
 
 ### Grid Types
 
@@ -124,9 +124,9 @@ projects/
 
 ### Other Directories
 
-- **`code_vert_grid/`** — Standalone scripts for vertical (pressure-hybrid) grid generation; not part of the SWAG package.
+- **`code_vert_grid/`** — Standalone scripts for vertical (pressure-hybrid) grid generation; not part of the TAOS package.
 - **`code_grid_plot/`** — Grid visualization scripts (SCRIP format, vertical spacing).
-- **`tests/`** — pytest unit tests for the `swag` package.
+- **`tests/`** — pytest unit tests for the `taos` package.
 
 
 ## Code style

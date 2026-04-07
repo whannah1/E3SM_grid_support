@@ -1,9 +1,9 @@
 # =============================================================================
-# SWAG Project Configuration
+# TAOS Project Configuration
 # =============================================================================
 # Copy this file into your project directory and fill in the fields marked
 # REQUIRED. Everything else can be left blank to inherit the machine default
-# from swag/machines.yaml.
+# from taos/machines.yaml.
 #
 # Override rule: a blank value ("") defers to the machine default. Set a
 # non-blank value here only when you need project-specific behavior.
@@ -46,7 +46,7 @@ machine:
   name: ""
 
 # --- Path overrides (optional) -----------------------------------------------
-# All values below default to "" (use machine default from swag/machines.yaml).
+# All values below default to "" (use machine default from taos/machines.yaml).
 
 paths:
   grid_code_root:  ""

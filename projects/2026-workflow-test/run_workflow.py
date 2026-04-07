@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-run_workflow.py — Project-level orchestrator for SWAG workflows.
+run_workflow.py — Project-level orchestrator for TAOS workflows.
 
 Edit this script to describe the pipeline for your specific project.
-Submit SLURM jobs or call swag module functions directly as needed.
+Submit SLURM jobs or call taos module functions directly as needed.
 """
 import os, pathlib
-from swag import swag_config
-from swag.util import run_cmd, print_line
+from taos import taos_config
+from taos.util import run_cmd, print_line
 
 #-------------------------------------------------------------------------------
 # load config — shared settings (paths, slurm) read once from base config
 
 proj_dir  = pathlib.Path(__file__).parent
-cfg       = swag_config(proj_dir / 'project.yaml')
+cfg       = taos_config(proj_dir / 'project.yaml')
 
 logs_root        = cfg['derived.slurm_log_root']
 slurm_account    = cfg['slurm.account']
@@ -64,7 +64,7 @@ for grid_cfg in cfg.iter_grids():
     # grid files (np4/pg2/3km SCRIP and MBDA)
 
     if locals().get('do_grid', False):
-        cmd = f'python -m swag.topo {yaml_path} --grid-name {grid_name} --stage grid'
+        cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} --stage grid'
         if use_batch:
             run_cmd(f'{sbatch} --job-name=gen_grid_{grid_name} --nodes=1 --ntasks-per-node=32 --time=0:30:00 --wrap="{cmd}"')
         else:
@@ -79,11 +79,11 @@ for grid_cfg in cfg.iter_grids():
             map_args = ''
             map_args += ' --create-maps-ocn'
             map_args += ' --create-maps-lnd'
-            cmd += f'python -m swag.maps {yaml_path} --grid-name {grid_name} {map_args}'
+            cmd += f'python -m taos.maps {yaml_path} --grid-name {grid_name} {map_args}'
         if locals().get('do_domain', False):
             if cmd:
                 cmd += ' && '
-            cmd += f'python -m swag.domain {yaml_path} --grid-name {grid_name}'
+            cmd += f'python -m taos.domain {yaml_path} --grid-name {grid_name}'
         if use_batch:
             run_cmd(f'{sbatch} --job-name=gen_maps_domain_{grid_name} --nodes=1 --ntasks-per-node=4 --time=04:00:00 --wrap="{cmd}"')
         else:
@@ -101,7 +101,7 @@ for grid_cfg in cfg.iter_grids():
         topo_args += ' --stage all'
         # topo_args += ' --force-new-3km-data'
 
-        cmd = f'python -m swag.topo {yaml_path} --grid-name {grid_name} {topo_args}'
+        cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} {topo_args}'
         if use_batch:
             topo_slurm_opts = '--nodes=1 --ntasks-per-node=4 --time=0:30:00'
             run_cmd(f'{sbatch} --job-name=gen_topo_{grid_name} {topo_slurm_opts} --wrap="{cmd}"')

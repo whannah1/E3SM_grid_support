@@ -1,5 +1,5 @@
 """
-Unit tests for swag/domain.py.
+Unit tests for taos/domain.py.
 
 Tests cover _unified_env_prefix() and create_domain() without touching
 the filesystem or running real shell commands. run_cmd and os.path.exists
@@ -14,14 +14,14 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 
-from swag.domain import _unified_env_prefix, create_domain
+from taos.domain import _unified_env_prefix, create_domain
 
 
 # ---------------------------------------------------------------------------
 # helpers
 
 class MockConfig:
-    """Minimal stand-in for swag_config with fixed test values."""
+    """Minimal stand-in for taos_config with fixed test values."""
 
     _data = {
         'paths.unified_src':   '/tools/unified.sh',
@@ -59,8 +59,8 @@ class TestUnifiedEnvPrefix(unittest.TestCase):
 
 class TestCreateDomainMapMissing(unittest.TestCase):
 
-    @patch('swag.domain.os.path.exists', return_value=False)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=False)
+    @patch('taos.domain.run_cmd')
     def test_raises_runtime_error_with_map_path(self, _mock_run, _mock_exists):
         cfg = MockConfig()
         expected_map = (
@@ -70,8 +70,8 @@ class TestCreateDomainMapMissing(unittest.TestCase):
             create_domain(cfg, create_domain_map=False)
         self.assertIn(expected_map, str(ctx.exception))
 
-    @patch('swag.domain.os.path.exists', return_value=False)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=False)
+    @patch('taos.domain.run_cmd')
     def test_run_cmd_not_called_when_no_map(self, mock_run, _mock_exists):
         with self.assertRaises(RuntimeError):
             create_domain(MockConfig(), create_domain_map=False)
@@ -83,14 +83,14 @@ class TestCreateDomainMapMissing(unittest.TestCase):
 
 class TestCreateDomainMapExists(unittest.TestCase):
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_run_cmd_called_once(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=False)
         self.assertEqual(mock_run.call_count, 1)
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_generate_domain_command_contents(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=False)
         cmd = mock_run.call_args.args[0]
@@ -108,14 +108,14 @@ class TestCreateDomainMapExists(unittest.TestCase):
 
 class TestCreateDomainWithMapCreation(unittest.TestCase):
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_run_cmd_called_twice(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=True)
         self.assertEqual(mock_run.call_count, 2)
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_first_call_is_ncremap(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=True)
         first_cmd = mock_run.call_args_list[0].args[0]
@@ -124,8 +124,8 @@ class TestCreateDomainWithMapCreation(unittest.TestCase):
         self.assertIn('--dst_grd=', first_cmd)
         self.assertIn('--map_file=', first_cmd)
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_second_call_is_generate_domain(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=True)
         second_cmd = mock_run.call_args_list[1].args[0]
@@ -137,8 +137,8 @@ class TestCreateDomainWithMapCreation(unittest.TestCase):
 
 class TestCreateDomainNamePg2Default(unittest.TestCase):
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_name_pg2_defaults_to_name_plus_pg2(self, mock_run, _mock_exists):
         cfg = MockConfig()
         cfg._data = dict(cfg._data)
@@ -156,8 +156,8 @@ class TestCreateDomainNamePg2Default(unittest.TestCase):
 
 class TestCreateDomainMapFilename(unittest.TestCase):
 
-    @patch('swag.domain.os.path.exists', return_value=True)
-    @patch('swag.domain.run_cmd')
+    @patch('taos.domain.os.path.exists', return_value=True)
+    @patch('taos.domain.run_cmd')
     def test_map_filename_pattern(self, mock_run, _mock_exists):
         create_domain(MockConfig(), create_domain_map=False)
         cmd = mock_run.call_args.args[0]

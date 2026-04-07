@@ -4,14 +4,14 @@ This directory is scaffolded for future unit and integration tests.
 
 ## Strategy
 
-Tests are deferred until the `swag/` module design stabilizes. Once it does,
+Tests are deferred until the `taos/` module design stabilizes. Once it does,
 the priority areas for coverage are:
 
-- `swag/config.py` — `swag_config` loading, machine detection, merging, validation,
+- `taos/config.py` — `taos_config` loading, machine detection, merging, validation,
   derived path computation, and `to_env_dict()` output.
-- `swag/grid.py`, `swag/topo.py`, `swag/maps.py`, `swag/domain.py` — path-helper
+- `taos/grid.py`, `taos/topo.py`, `taos/maps.py`, `taos/domain.py` — path-helper
   functions (pure Python, no HPC dependencies) and command-string construction.
-- `swag/util.py` — `run_cmd()` error handling.
+- `taos/util.py` — `run_cmd()` error handling.
 
 ## Running Tests
 

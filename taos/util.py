@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-swag.util — Shared utilities for SWAG workflow scripts.
+taos.util — Shared utilities for TAOS workflow scripts.
 """
 import os
 import subprocess as sp
@@ -33,7 +33,7 @@ def run_cmd(cmd: str) -> None:
 def get_env_var(project_config_path, var):
     """Source a bash config script and return the value of an env var.
 
-    Deprecated: use swag_config instead. Kept for backward compatibility
+    Deprecated: use taos_config instead. Kept for backward compatibility
     with projects that haven't yet migrated to project.yaml.
     """
     if not os.path.exists(project_config_path):

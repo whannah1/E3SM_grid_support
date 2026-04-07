@@ -12,4 +12,4 @@ __pycache__/
 */*/__pycache__/
 *.pyc
 *.pyo
-swag.egg-info/
+taos.egg-info/

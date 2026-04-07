@@ -1,12 +1,12 @@
 """
-swag.config — YAML-based configuration loader for SWAG workflows.
+taos.config — YAML-based configuration loader for TAOS workflows.
 
 Usage
 -----
-    from swag import swag_config, swag_config_error
+    from taos import taos_config, taos_config_error
 
-    cfg = swag_config('path/to/project.yaml')
-    cfg.validate()                          # raises swag_configError if anything is missing
+    cfg = taos_config('path/to/project.yaml')
+    cfg.validate()                          # raises taos_config_error if anything is missing
 
     grid_root = cfg['derived.grid_root']
     mbda_path = cfg['paths.mbda_path']
@@ -16,7 +16,7 @@ Key design
 ----------
 - A single project.yaml holds all project-specific settings plus optional
   machine-level overrides.
-- Machine defaults are loaded from swag/machines.yaml (auto-detected by probing
+- Machine defaults are loaded from taos/machines.yaml (auto-detected by probing
   known HPC paths; last match wins, mirroring the bash if-chain behavior).
 - Merge rule: a project value takes precedence over the machine default ONLY if
   it is non-empty (not None, not "", not a placeholder like "UNSET").
@@ -66,14 +66,14 @@ def _read_cime_mail_user() -> str:
     return parser.get('main', 'mail_user', fallback='').strip()
 
 
-class swag_config_error(ValueError):
-    """Raised when the SWAG configuration is invalid or incomplete."""
+class taos_config_error(ValueError):
+    """Raised when the TAOS configuration is invalid or incomplete."""
     pass
 
 
-class swag_config:
+class taos_config:
     """
-    Loads, merges, and validates a SWAG project configuration.
+    Loads, merges, and validates a TAOS project configuration.
 
     Parameters
     ----------
@@ -162,11 +162,11 @@ class swag_config:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_project_yaml(cls, path) -> 'swag_config':
+    def from_project_yaml(cls, path) -> 'taos_config':
         return cls(path)
 
     @classmethod
-    def from_project_dir(cls, project_dir) -> 'swag_config':
+    def from_project_dir(cls, project_dir) -> 'taos_config':
         return cls(Path(project_dir) / 'project.yaml')
 
     # ------------------------------------------------------------------
@@ -174,7 +174,7 @@ class swag_config:
     # ------------------------------------------------------------------
 
     def iter_grids(self):
-        """Yield one swag_config variant per entry in the 'grids:' list.
+        """Yield one taos_config variant per entry in the 'grids:' list.
 
         Each entry is merged over the base 'grid:' section — a non-blank
         entry value overrides the base; a blank value defers to it.
@@ -195,7 +195,7 @@ class swag_config:
             variant.grid = merged
             yield variant
 
-    def for_grid(self, name: str) -> 'swag_config':
+    def for_grid(self, name: str) -> 'taos_config':
         """Return the config variant whose grid.name matches *name*.
 
         Raises KeyError if no matching grid is found.
@@ -264,7 +264,7 @@ class swag_config:
 
         Raises
         ------
-        swag_configError
+        taos_config_error
             Lists every missing key. Never raises multiple exceptions.
         """
         if required_keys is None:
@@ -275,7 +275,7 @@ class swag_config:
         if missing:
             lines = '\n'.join(f'  - {k}' for k in missing)
             n = len(missing)
-            raise swag_config_error(
+            raise taos_config_error(
                 f"{n} required config value{'s are' if n != 1 else ' is'} missing or unset:\n{lines}"
             )
 
@@ -313,17 +313,17 @@ class swag_config:
         Variable naming conventions mirror set_machine_paths.sh and
         set_project_paths.sh exactly:
           paths.grid_data_root  -> grid_data_root
-          slurm.mail_user       -> swag_slurm_mail_user
+          slurm.mail_user       -> taos_slurm_mail_user
           project.name          -> proj  (and also 'name')
           project.timestamp     -> timestamp
-          machine.name          -> swag_host
+          machine.name          -> taos_host
         """
         env = {}
         env.update({k: v for k, v in self.paths.items()   if v})
         env.update({k: v for k, v in self.derived.items() if v})
         env.update({k: v for k, v in self.project.items() if v})
-        env.update({f'swag_slurm_{k}': v for k, v in self.slurm.items() if v})
-        env['swag_host'] = self.machine
+        env.update({f'taos_slurm_{k}': v for k, v in self.slurm.items() if v})
+        env['taos_host'] = self.machine
         if 'name' in self.project:
             env['proj'] = self.project['name']
         if 'name' in self.grid:
@@ -340,7 +340,7 @@ class swag_config:
         if not _is_blank(override):
             valid = [k for k in self._machines if not k.startswith('_')]
             if override not in valid:
-                raise swag_config_error(
+                raise taos_config_error(
                     f"Unknown machine '{override}' in project.yaml. "
                     f"Valid options: {valid}"
                 )
@@ -362,7 +362,7 @@ class swag_config:
                 detected = name
 
         if detected is None:
-            raise swag_config_error(
+            raise taos_config_error(
                 "Could not auto-detect HPC machine. "
                 "Set 'machine: {name: NERSC}' (or LCRC/ALCF/OLCF) in project.yaml."
             )

@@ -1,7 +1,7 @@
 """
-Unit tests for swag/config.py.
+Unit tests for taos/config.py.
 
-Tests cover _is_blank(), _expand(), swag_config loading, key access,
+Tests cover _is_blank(), _expand(), taos_config loading, key access,
 derived paths, validation, export helpers, machine detection, and
 alternate constructors.
 
@@ -17,12 +17,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-from swag.config import (
+from taos.config import (
     _is_blank,
     _expand,
     _read_cime_mail_user,
-    swag_config,
-    swag_config_error,
+    taos_config,
+    taos_config_error,
 )
 import copy
 
@@ -91,7 +91,7 @@ def write_machines_yaml(tmp_path) -> Path:
 def make_cfg(tmp_path, machines_yaml_path, project_overrides=None):
     """
     Write a minimal project.yaml with machine=TESTMACH into tmp_path, optionally
-    deep-merging project_overrides, then load swag_config with _MACHINES_YAML patched.
+    deep-merging project_overrides, then load taos_config with _MACHINES_YAML patched.
     """
     base = {
         'machine': {'name': 'TESTMACH'},
@@ -108,8 +108,8 @@ def make_cfg(tmp_path, machines_yaml_path, project_overrides=None):
     proj_yaml = tmp_path / 'project.yaml'
     proj_yaml.write_text(yaml.dump(base))
 
-    with patch('swag.config._MACHINES_YAML', machines_yaml_path):
-        return swag_config(proj_yaml)
+    with patch('taos.config._MACHINES_YAML', machines_yaml_path):
+        return taos_config(proj_yaml)
 
 
 # ===========================================================================
@@ -163,19 +163,19 @@ class TestIsBlank:
 class TestExpand:
 
     def test_expands_env_var_in_string(self):
-        os.environ['_SWAG_TEST_VAR'] = '/some/test/path'
-        result = _expand('$_SWAG_TEST_VAR/sub')
+        os.environ['_TAOS_TEST_VAR'] = '/some/test/path'
+        result = _expand('$_TAOS_TEST_VAR/sub')
         assert result == '/some/test/path/sub'
 
     def test_nested_dict_values_expanded(self):
-        os.environ['_SWAG_TEST_VAR'] = '/root'
-        result = _expand({'key1': '$_SWAG_TEST_VAR/a', 'nested': {'key2': '$_SWAG_TEST_VAR/b'}})
+        os.environ['_TAOS_TEST_VAR'] = '/root'
+        result = _expand({'key1': '$_TAOS_TEST_VAR/a', 'nested': {'key2': '$_TAOS_TEST_VAR/b'}})
         assert result['key1'] == '/root/a'
         assert result['nested']['key2'] == '/root/b'
 
     def test_list_values_expanded(self):
-        os.environ['_SWAG_TEST_VAR'] = '/base'
-        result = _expand(['$_SWAG_TEST_VAR/x', '$_SWAG_TEST_VAR/y'])
+        os.environ['_TAOS_TEST_VAR'] = '/base'
+        result = _expand(['$_TAOS_TEST_VAR/x', '$_TAOS_TEST_VAR/y'])
         assert result == ['/base/x', '/base/y']
 
     def test_non_string_int_passed_through(self):
@@ -188,16 +188,16 @@ class TestExpand:
 
 
 # ===========================================================================
-# TestSwagConfigLoading
+# TestTaosConfigLoading
 
-class TestSwagConfigLoading:
+class TestTaosConfigLoading:
 
     def test_file_not_found_raises(self, tmp_path):
         machines_path = write_machines_yaml(tmp_path)
         nonexistent = tmp_path / 'project.yaml'
-        with patch('swag.config._MACHINES_YAML', machines_path):
+        with patch('taos.config._MACHINES_YAML', machines_path):
             with pytest.raises(FileNotFoundError):
-                swag_config(nonexistent)
+                taos_config(nonexistent)
 
     def test_loads_successfully(self, tmp_path):
         machines_path = write_machines_yaml(tmp_path)
@@ -249,9 +249,9 @@ class TestSwagConfigLoading:
 
 
 # ===========================================================================
-# TestSwagConfigKeyAccess
+# TestTaosConfigKeyAccess
 
-class TestSwagConfigKeyAccess:
+class TestTaosConfigKeyAccess:
 
     @pytest.fixture
     def cfg(self, tmp_path):
@@ -281,9 +281,9 @@ class TestSwagConfigKeyAccess:
 
 
 # ===========================================================================
-# TestSwagConfigDerived
+# TestTaosConfigDerived
 
-class TestSwagConfigDerived:
+class TestTaosConfigDerived:
 
     @pytest.fixture
     def cfg(self, tmp_path):
@@ -328,9 +328,9 @@ class TestSwagConfigDerived:
 
 
 # ===========================================================================
-# TestSwagConfigValidate
+# TestTaosConfigValidate
 
-class TestSwagConfigValidate:
+class TestTaosConfigValidate:
 
     def test_validate_passes_when_all_required_set(self, tmp_path):
         machines_path = write_machines_yaml(tmp_path)
@@ -348,9 +348,9 @@ class TestSwagConfigValidate:
             'project': {'name': 'UNSET', 'timestamp': 'UNSET'},
             'grid':    {'name': 'UNSET'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            cfg = swag_config(proj_yaml)
-        with pytest.raises(swag_config_error) as exc_info:
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            cfg = taos_config(proj_yaml)
+        with pytest.raises(taos_config_error) as exc_info:
             cfg.validate(required_keys=['project.name', 'project.timestamp', 'grid.name'])
         msg = str(exc_info.value)
         assert 'project.name' in msg
@@ -365,9 +365,9 @@ class TestSwagConfigValidate:
             'project': {'name': 'UNSET', 'timestamp': 'UNSET'},
             'grid':    {'name': 'UNSET'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            cfg = swag_config(proj_yaml)
-        with pytest.raises(swag_config_error) as exc_info:
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            cfg = taos_config(proj_yaml)
+        with pytest.raises(taos_config_error) as exc_info:
             cfg.validate(required_keys=['project.name', 'project.timestamp', 'grid.name'])
         msg = str(exc_info.value)
         assert '3' in msg
@@ -386,16 +386,16 @@ class TestSwagConfigValidate:
             'project': {'name': 'UNSET'},
             'grid':    {'name': 'ne30pg2'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            cfg = swag_config(proj_yaml)
-        with pytest.raises(swag_config_error):
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            cfg = taos_config(proj_yaml)
+        with pytest.raises(taos_config_error):
             cfg.validate(required_keys=['project.name'])
 
 
 # ===========================================================================
-# TestSwagConfigExport
+# TestTaosConfigExport
 
-class TestSwagConfigExport:
+class TestTaosConfigExport:
 
     @pytest.fixture
     def cfg(self, tmp_path):
@@ -421,15 +421,15 @@ class TestSwagConfigExport:
         assert 'grid_name' in env
         assert env['grid_name'] == 'ne30pg2'
 
-    def test_to_env_dict_contains_swag_host(self, cfg):
+    def test_to_env_dict_contains_taos_host(self, cfg):
         env = cfg.to_env_dict()
-        assert 'swag_host' in env
-        assert env['swag_host'] == 'TESTMACH'
+        assert 'taos_host' in env
+        assert env['taos_host'] == 'TESTMACH'
 
-    def test_to_env_dict_contains_swag_slurm_account(self, cfg):
+    def test_to_env_dict_contains_taos_slurm_account(self, cfg):
         env = cfg.to_env_dict()
-        assert 'swag_slurm_account' in env
-        assert env['swag_slurm_account'] == 'e3sm'
+        assert 'taos_slurm_account' in env
+        assert env['taos_slurm_account'] == 'e3sm'
 
     def test_as_dict_contains_dot_notation_path_key(self, cfg):
         d = cfg.as_dict()
@@ -465,9 +465,9 @@ class TestMachineDetection:
             'project': {'name': 'myproj'},
             'grid':    {'name': 'ne30pg2'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            with pytest.raises(swag_config_error) as exc_info:
-                swag_config(proj_yaml)
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            with pytest.raises(taos_config_error) as exc_info:
+                taos_config(proj_yaml)
         assert 'UNKNOWNMACH' in str(exc_info.value)
 
     def test_auto_detect_othermach(self, tmp_path):
@@ -482,9 +482,9 @@ class TestMachineDetection:
         def fake_exists(path):
             return path == '/exists/othermach'
 
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            with patch('swag.config.os.path.exists', side_effect=fake_exists):
-                cfg = swag_config(proj_yaml)
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            with patch('taos.config.os.path.exists', side_effect=fake_exists):
+                cfg = taos_config(proj_yaml)
 
         assert cfg.machine == 'OTHERMACH'
 
@@ -496,10 +496,10 @@ class TestMachineDetection:
             'grid':    {'name': 'ne30pg2'},
         }))
 
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            with patch('swag.config.os.path.exists', return_value=False):
-                with pytest.raises(swag_config_error) as exc_info:
-                    swag_config(proj_yaml)
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            with patch('taos.config.os.path.exists', return_value=False):
+                with pytest.raises(taos_config_error) as exc_info:
+                    taos_config(proj_yaml)
         assert 'auto-detect' in str(exc_info.value).lower() or 'machine' in str(exc_info.value).lower()
 
 
@@ -516,8 +516,8 @@ class TestAlternateConstructors:
             'project': {'name': 'myproj', 'timestamp': '20240101'},
             'grid':    {'name': 'ne30pg2'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            cfg = swag_config.from_project_yaml(proj_yaml)
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            cfg = taos_config.from_project_yaml(proj_yaml)
         assert cfg.machine == 'TESTMACH'
 
     def test_from_project_dir(self, tmp_path):
@@ -528,8 +528,8 @@ class TestAlternateConstructors:
             'project': {'name': 'myproj', 'timestamp': '20240101'},
             'grid':    {'name': 'ne30pg2'},
         }))
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            cfg = swag_config.from_project_dir(tmp_path)
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            cfg = taos_config.from_project_dir(tmp_path)
         assert cfg.machine == 'TESTMACH'
         assert cfg.project['name'] == 'myproj'
 
@@ -543,12 +543,12 @@ class TestReadCimeMailUser:
         cime_config = tmp_path / '.cime' / 'config'
         cime_config.parent.mkdir()
         cime_config.write_text('[main]\nMAIL_USER=user@example.com\nMAIL_TYPE=end,fail\n')
-        with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config.Path.home', return_value=tmp_path):
             result = _read_cime_mail_user()
         assert result == 'user@example.com'
 
     def test_returns_empty_when_file_missing(self, tmp_path):
-        with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config.Path.home', return_value=tmp_path):
             result = _read_cime_mail_user()
         assert result == ''
 
@@ -556,7 +556,7 @@ class TestReadCimeMailUser:
         cime_config = tmp_path / '.cime' / 'config'
         cime_config.parent.mkdir()
         cime_config.write_text('[main]\nMAIL_TYPE=end,fail\n')
-        with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config.Path.home', return_value=tmp_path):
             result = _read_cime_mail_user()
         assert result == ''
 
@@ -565,8 +565,8 @@ class TestReadCimeMailUser:
         cime_config = tmp_path / '.cime' / 'config'
         cime_config.parent.mkdir()
         cime_config.write_text('[main]\nMAIL_USER=auto@example.com\n')
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            with patch('taos.config.Path.home', return_value=tmp_path):
                 cfg = make_cfg(tmp_path, machines_path)
         assert cfg.slurm['mail_user'] == 'auto@example.com'
 
@@ -575,8 +575,8 @@ class TestReadCimeMailUser:
         cime_config = tmp_path / '.cime' / 'config'
         cime_config.parent.mkdir()
         cime_config.write_text('[main]\nMAIL_USER=auto@example.com\n')
-        with patch('swag.config._MACHINES_YAML', machines_path):
-            with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config._MACHINES_YAML', machines_path):
+            with patch('taos.config.Path.home', return_value=tmp_path):
                 cfg = make_cfg(tmp_path, machines_path,
                                project_overrides={'slurm': {'mail_user': 'override@example.com'}})
         assert cfg.slurm['mail_user'] == 'override@example.com'
@@ -586,7 +586,7 @@ class TestReadCimeMailUser:
 # TestIterGrids
 
 def make_multi_grid_cfg(tmp_path, machines_yaml_path, grids, base_grid=None):
-    """Write a project.yaml with a grids: list and load swag_config."""
+    """Write a project.yaml with a grids: list and load taos_config."""
     data = {
         'machine': {'name': 'TESTMACH'},
         'project': {'name': 'myproj', 'timestamp': '20240101'},
@@ -595,8 +595,8 @@ def make_multi_grid_cfg(tmp_path, machines_yaml_path, grids, base_grid=None):
     }
     proj_yaml = tmp_path / 'project.yaml'
     proj_yaml.write_text(yaml.dump(data))
-    with patch('swag.config._MACHINES_YAML', machines_yaml_path):
-        return swag_config(proj_yaml)
+    with patch('taos.config._MACHINES_YAML', machines_yaml_path):
+        return taos_config(proj_yaml)
 
 
 class TestIterGrids:
@@ -676,7 +676,7 @@ class TestIterGrids:
 
 def make_cfg_with_users(tmp_path, machines_yaml_path, username, users_section,
                         project_overrides=None):
-    """Write a project.yaml with a users: section and load swag_config as *username*."""
+    """Write a project.yaml with a users: section and load taos_config as *username*."""
     base = {
         'machine': {'name': 'TESTMACH'},
         'project': {'name': 'myproj', 'timestamp': '20240101'},
@@ -691,9 +691,9 @@ def make_cfg_with_users(tmp_path, machines_yaml_path, username, users_section,
                 base[section] = values
     proj_yaml = tmp_path / 'project.yaml'
     proj_yaml.write_text(yaml.dump(base))
-    with patch('swag.config._MACHINES_YAML', machines_yaml_path):
+    with patch('taos.config._MACHINES_YAML', machines_yaml_path):
         with patch.dict('os.environ', {'USER': username}):
-            return swag_config(proj_yaml)
+            return taos_config(proj_yaml)
 
 
 class TestUserOverrides:
@@ -751,7 +751,7 @@ class TestUserOverrides:
         cime_config = tmp_path / '.cime' / 'config'
         cime_config.parent.mkdir()
         cime_config.write_text('[main]\nMAIL_USER=cime@example.com\n')
-        with patch('swag.config.Path.home', return_value=tmp_path):
+        with patch('taos.config.Path.home', return_value=tmp_path):
             cfg = make_cfg_with_users(tmp_path, machines_path, 'alice', {
                 'alice': {'slurm': {'mail_user': 'alice@example.com'}},
             })

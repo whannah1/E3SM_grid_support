@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-swag.maps — Coupling map generation workflow.
+taos.maps — Coupling map generation workflow.
 
 Creates atmosphere↔ocean, atmosphere↔land, and SPA interpolation maps
 using TempestRemap (via ncremap).
@@ -14,12 +14,12 @@ from the project.yaml grid section:
 
 Usage
 -----
-    python -m swag.maps path/to/project.yaml --create-maps-ocn --create-maps-lnd
+    python -m taos.maps path/to/project.yaml --create-maps-ocn --create-maps-lnd
 """
 import os
 
-from swag.config import swag_config
-from swag.util import clr, print_line, run_cmd
+from taos.config import taos_config
+from taos.util import clr, print_line, run_cmd
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -58,7 +58,7 @@ def create_maps_ocn(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     """
     grid_name     = cfg['grid.name']
     atm_grid_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
@@ -90,7 +90,7 @@ def create_maps_lnd(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     """
     grid_name     = cfg['grid.name']
     atm_grid_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
@@ -120,7 +120,7 @@ def create_maps_spa(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     """
     grid_name     = cfg['grid.name']
     atm_grid_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
@@ -144,7 +144,7 @@ def create_maps_spa(cfg):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Create coupling map files for a SWAG project.')
+    parser = argparse.ArgumentParser(description='Create coupling map files for a TAOS project.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
     parser.add_argument('--create-maps-ocn', action='store_true', help='Create ocean coupling maps')
     parser.add_argument('--create-maps-lnd', action='store_true', help='Create land coupling maps')
@@ -153,7 +153,7 @@ if __name__ == '__main__':
                         help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
 
-    cfg = swag_config(args.project_yaml)
+    cfg = taos_config(args.project_yaml)
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()

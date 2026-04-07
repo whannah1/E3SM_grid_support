@@ -1,5 +1,5 @@
 """
-Unit tests for swag/util.py.
+Unit tests for taos/util.py.
 
 Tests cover print_line(), run_cmd(), and get_env_var() without touching
 the filesystem or spawning real subprocesses. subprocess.run and
@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 import subprocess as sp
 
 
-from swag.util import get_env_var, print_line, run_cmd
+from taos.util import get_env_var, print_line, run_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ class TestPrintLine(unittest.TestCase):
 
 class TestRunCmd(unittest.TestCase):
 
-    @patch('swag.util.sp.run')
+    @patch('taos.util.sp.run')
     def test_calls_subprocess_with_correct_args(self, mock_run):
         run_cmd('echo hello')
         mock_run.assert_called_once_with(
@@ -49,7 +49,7 @@ class TestRunCmd(unittest.TestCase):
             executable='/bin/bash',
         )
 
-    @patch('swag.util.sp.run', side_effect=sp.CalledProcessError(1, 'bad_cmd'))
+    @patch('taos.util.sp.run', side_effect=sp.CalledProcessError(1, 'bad_cmd'))
     def test_propagates_called_process_error(self, _mock_run):
         with self.assertRaises(sp.CalledProcessError):
             run_cmd('bad_cmd')
@@ -60,14 +60,14 @@ class TestRunCmd(unittest.TestCase):
 
 class TestGetEnvVar(unittest.TestCase):
 
-    @patch('swag.util.os.path.exists', return_value=False)
+    @patch('taos.util.os.path.exists', return_value=False)
     def test_raises_file_not_found_when_config_missing(self, _mock_exists):
         with self.assertRaises(FileNotFoundError) as ctx:
             get_env_var('/nonexistent/config.sh', 'MY_VAR')
         self.assertIn('/nonexistent/config.sh', str(ctx.exception))
 
-    @patch('swag.util.sp.run')
-    @patch('swag.util.os.path.exists', return_value=True)
+    @patch('taos.util.sp.run')
+    @patch('taos.util.os.path.exists', return_value=True)
     def test_raises_value_error_when_stdout_empty(self, _mock_exists, mock_run):
         mock_result = MagicMock()
         mock_result.stdout = '\n'
@@ -76,8 +76,8 @@ class TestGetEnvVar(unittest.TestCase):
             get_env_var('/some/config.sh', 'EMPTY_VAR')
         self.assertIn('EMPTY_VAR', str(ctx.exception))
 
-    @patch('swag.util.sp.run')
-    @patch('swag.util.os.path.exists', return_value=True)
+    @patch('taos.util.sp.run')
+    @patch('taos.util.os.path.exists', return_value=True)
     def test_returns_value_when_stdout_nonempty(self, _mock_exists, mock_run):
         mock_result = MagicMock()
         mock_result.stdout = '/some/path/value\n'

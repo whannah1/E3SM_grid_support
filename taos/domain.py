@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-swag.domain — Domain file generation workflow.
+taos.domain — Domain file generation workflow.
 
 Creates E3SM domain files for a new atmosphere grid using the
 generate_domain_files_E3SM.py tool from the E3SM source tree.
@@ -9,13 +9,13 @@ Optionally creates the ocean→atmosphere coupling map if it doesn't exist.
 
 Usage
 -----
-    python -m swag.domain path/to/project.yaml
-    python -m swag.domain path/to/project.yaml --create-domain-map
+    python -m taos.domain path/to/project.yaml
+    python -m taos.domain path/to/project.yaml --create-domain-map
 """
 import os
 
-from swag.config import swag_config
-from swag.util import clr, print_line, run_cmd
+from taos.config import taos_config
+from taos.util import clr, print_line, run_cmd
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -36,7 +36,7 @@ def create_domain(cfg, create_domain_map=False):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     create_domain_map : bool
         If True, generate the ocean→atmosphere coupling map before creating
         the domain files. Requires that the grid files already exist.
@@ -82,7 +82,7 @@ def create_domain(cfg, create_domain_map=False):
     if not os.path.exists(map_file):
         raise RuntimeError(
             f'Map file does not exist: {map_file}\n'
-            f'Run with --create-domain-map or create it via swag.maps first.'
+            f'Run with --create-domain-map or create it via taos.maps first.'
         )
 
     # -------------------------------------------------------------------
@@ -105,7 +105,7 @@ def create_domain(cfg, create_domain_map=False):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Create domain files for a SWAG project.')
+    parser = argparse.ArgumentParser(description='Create domain files for a TAOS project.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
     parser.add_argument('--create-domain-map', action='store_true',
                         help='Generate the ocean→atmosphere coupling map before creating domain files')
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                         help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
 
-    cfg = swag_config(args.project_yaml)
+    cfg = taos_config(args.project_yaml)
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()

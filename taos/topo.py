@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-swag.topo — Topography processing workflow.
+taos.topo — Topography processing workflow.
 
 Four stages:
-  grid         — create np4/pg2/3km SCRIP and MBDA grid files (calls swag.grid).
+  grid         — create np4/pg2/3km SCRIP and MBDA grid files (calls taos.grid).
   remap_topo   — interpolate high-res RLL source topo to the target grid
                  (np4 and pg2) and to the 3km intermediate grid, using MBDA.
   smooth_topo  — apply homme_tool smoothing to the remapped topo files.
@@ -11,11 +11,11 @@ Four stages:
 
 Usage
 -----
-    python -m swag.topo path/to/project.yaml --stage grid
-    python -m swag.topo path/to/project.yaml --stage remap
-    python -m swag.topo path/to/project.yaml --stage smooth
-    python -m swag.topo path/to/project.yaml --stage sgh
-    python -m swag.topo path/to/project.yaml --stage all
+    python -m taos.topo path/to/project.yaml --stage grid
+    python -m taos.topo path/to/project.yaml --stage remap
+    python -m taos.topo path/to/project.yaml --stage smooth
+    python -m taos.topo path/to/project.yaml --stage sgh
+    python -m taos.topo path/to/project.yaml --stage all
 """
 import os
 import textwrap
@@ -24,9 +24,9 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from swag.config import swag_config
-from swag.grid import create_grid
-from swag.util import clr, print_line, run_cmd
+from taos.config import taos_config
+from taos.grid import create_grid
+from taos.util import clr, print_line, run_cmd
 
 _GRAVITY = 9.80616
 
@@ -48,7 +48,7 @@ def _topo_paths(cfg):
     timestamp  = cfg['project.timestamp']
     homme_tool_root = cfg['paths.homme_tool_root']
     return {
-        # grid files (inputs, created by swag.grid)
+        # grid files (inputs, created by taos.grid)
         'grid_file_np4_mbda':    f'{grid_root}/{grid_name}np4_mbda.nc',
         'grid_file_pg2_mbda':    f'{grid_root}/{grid_name}pg2_mbda.nc',
         'grid_file_3km_mbda':    f'{grid_root}/ne3000pg1_mbda.nc',
@@ -81,7 +81,7 @@ def remap_topo(cfg, force_new_3km_data=False):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     force_new_3km_data : bool
         If True, delete and recreate the 3km topo file even if it exists.
     """
@@ -198,7 +198,7 @@ def smooth_topo(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     """
     # -------------------------------------------------------------------
     # resolve paths
@@ -269,7 +269,7 @@ def calc_topo_sgh(cfg):
 
     Parameters
     ----------
-    cfg : swag_config
+    cfg : taos_config
     """
     p = _topo_paths(cfg)
 
@@ -366,7 +366,7 @@ def calc_topo_sgh(cfg):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Run a SWAG topography stage.')
+    parser = argparse.ArgumentParser(description='Run a TAOS topography stage.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
     parser.add_argument('--stage', choices=['grid', 'remap', 'smooth', 'sgh', 'all'],
                         default='all', help='Which stage to run (default: all)')
@@ -376,7 +376,7 @@ if __name__ == '__main__':
                         help='Grid name to process (selects from grids: list; default: base grid:)')
     args = parser.parse_args()
 
-    cfg = swag_config(args.project_yaml)
+    cfg = taos_config(args.project_yaml)
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()

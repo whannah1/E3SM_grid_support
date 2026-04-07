@@ -1,5 +1,5 @@
 """
-Unit tests for swag/grid.py.
+Unit tests for taos/grid.py.
 
 These tests cover pure-Python logic (command-string construction, path checks)
 without requiring any HPC tools, SLURM, or real files on disk.
@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import call, MagicMock, patch
 
 
-from swag.grid import (
+from taos.grid import (
     _e3sm_env_prefix,
     _grid_paths,
     create_grid,
@@ -24,7 +24,7 @@ from swag.grid import (
 # helpers
 
 class MockConfig:
-    """Minimal stand-in for swag_config with fixed test values."""
+    """Minimal stand-in for taos_config with fixed test values."""
 
     _data = {
         'grid.name':              'ne30',
@@ -111,8 +111,8 @@ class TestCreateGridCommands(unittest.TestCase):
         """Execute create_grid with mocked run_cmd and os.path.exists."""
         if exists_side_effect is None:
             exists_side_effect = list(self._DEFAULT_EXISTS)
-        with patch('swag.grid.run_cmd') as mock_run, \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd') as mock_run, \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             create_grid(MockConfig())
         return mock_run
@@ -195,8 +195,8 @@ class TestCreateGridCommands(unittest.TestCase):
     def test_stale_template_removed(self):
         # First call for grid_template_file → True (stale file present)
         exists_side_effect = [True, True, True, True, True]
-        with patch('swag.grid.run_cmd') as mock_run, \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd') as mock_run, \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             create_grid(MockConfig())
         cmds = [c.args[0] for c in mock_run.call_args_list]
@@ -210,8 +210,8 @@ class TestCreateGridCommands(unittest.TestCase):
     def test_raises_when_homme_tool_fails(self):
         # exists[1] (grid_template_file success check) → False
         exists_side_effect = [False, False, True, True, True]
-        with patch('swag.grid.run_cmd'), \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd'), \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             with self.assertRaises(RuntimeError) as ctx:
                 create_grid(MockConfig())
@@ -223,8 +223,8 @@ class TestCreateGridCommands(unittest.TestCase):
     def test_raises_when_np4_mbda_missing(self):
         # exists[2] (np4_mbda success check) → False
         exists_side_effect = [False, True, False, True, True]
-        with patch('swag.grid.run_cmd'), \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd'), \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             with self.assertRaises(RuntimeError) as ctx:
                 create_grid(MockConfig())
@@ -236,8 +236,8 @@ class TestCreateGridCommands(unittest.TestCase):
     def test_raises_when_pg2_mbda_missing(self):
         # exists[3] (pg2_mbda success check) → False
         exists_side_effect = [False, True, True, False, True]
-        with patch('swag.grid.run_cmd'), \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd'), \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             with self.assertRaises(RuntimeError) as ctx:
                 create_grid(MockConfig())
@@ -256,8 +256,8 @@ class TestCreateGridCommands(unittest.TestCase):
 
     def test_3km_created_when_missing(self):
         exists_side_effect = [False, True, True, True, False, True, True]
-        with patch('swag.grid.run_cmd') as mock_run, \
-             patch('swag.grid.os.path.exists', side_effect=exists_side_effect), \
+        with patch('taos.grid.run_cmd') as mock_run, \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect), \
              patch('pathlib.Path.write_text'):
             create_grid(MockConfig())
         cmds = [c.args[0] for c in mock_run.call_args_list]
@@ -272,8 +272,8 @@ class TestCreateGridCommands(unittest.TestCase):
         def fake_write_text(self_path, content):
             captured['content'] = content
 
-        with patch('swag.grid.run_cmd'), \
-             patch('swag.grid.os.path.exists', side_effect=list(self._DEFAULT_EXISTS)), \
+        with patch('taos.grid.run_cmd'), \
+             patch('taos.grid.os.path.exists', side_effect=list(self._DEFAULT_EXISTS)), \
              patch('pathlib.Path.write_text', fake_write_text):
             create_grid(MockConfig())
 
