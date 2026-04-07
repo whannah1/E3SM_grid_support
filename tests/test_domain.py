@@ -64,7 +64,7 @@ class TestCreateDomainMapMissing(unittest.TestCase):
     def test_raises_runtime_error_with_map_path(self, _mock_run, _mock_exists):
         cfg = MockConfig()
         expected_map = (
-            '/data/maps/map_oEC60to30v3_to_ne30-pg2_traave.20260101.nc'
+            '/data/maps/map_oEC60to30v3_to_ne30pg2_traave.20260101.nc'
         )
         with self.assertRaises(RuntimeError) as ctx:
             create_domain(cfg, create_domain_map=False)
@@ -162,7 +162,7 @@ class TestCreateDomainMapFilename(unittest.TestCase):
         create_domain(MockConfig(), create_domain_map=False)
         cmd = mock_run.call_args.args[0]
         expected_map = (
-            'map_oEC60to30v3_to_ne30-pg2_traave.20260101.nc'
+            'map_oEC60to30v3_to_ne30pg2_traave.20260101.nc'
         )
         self.assertIn(expected_map, cmd)
 
