@@ -1,1 +1,1 @@
-../../swag/show_config.py
+../../taos/show_config.py

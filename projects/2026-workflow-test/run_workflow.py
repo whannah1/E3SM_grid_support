@@ -28,6 +28,7 @@ slurm_qos        = cfg.get('slurm.qos', '')
 # step flags — set to False (or comment out) to skip a step
 
 use_batch = False  # set False to run steps directly on the current node
+
 do_grid   = True
 # do_maps   = True
 # do_domain = True
