@@ -15,7 +15,7 @@ Usage
 import os
 
 from taos.config import taos_config
-from taos.util import clr, print_line, run_cmd
+from taos.util import clr, print_line, run_cmd, timer
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -69,34 +69,37 @@ def create_domain(cfg, create_domain_map=False):
     print(f'    domn_root     = {domn_root}')
     print_line()
 
-    # -------------------------------------------------------------------
-    # optionally create the coupling map first
-    if create_domain_map:
+    with timer.time('create_domain'):
+        # -------------------------------------------------------------------
+        # optionally create the coupling map first
+        if create_domain_map:
+            cmd = (f'{env_prefix} &&'
+                   f' ncremap -a traave'
+                   f' --src_grd={ocn_grid_file}'
+                   f' --dst_grd={atm_grid_file}'
+                   f' --map_file={map_file}')
+            with timer.time('domain: ncremap ocn→atm map'):
+                run_cmd(cmd)
+
+        if not os.path.exists(map_file):
+            raise RuntimeError(
+                f'Map file does not exist: {map_file}\n'
+                f'Run with --create-domain-map or create it via taos.maps first.'
+            )
+
+        # -------------------------------------------------------------------
+        # generate domain files
         cmd = (f'{env_prefix} &&'
-               f' ncremap -a traave'
-               f' --src_grd={ocn_grid_file}'
-               f' --dst_grd={atm_grid_file}'
-               f' --map_file={map_file}')
-        run_cmd(cmd)
+               f' python {domn_tool}'
+               f' -m {map_file}'
+               f' -o {ocn_grid_name}'
+               f' -l {grid_name}'
+               f' --date-stamp={timestamp}'
+               f' --output-root={domn_root}')
+        with timer.time('domain: generate_domain_files_E3SM.py'):
+            run_cmd(cmd)
 
-    if not os.path.exists(map_file):
-        raise RuntimeError(
-            f'Map file does not exist: {map_file}\n'
-            f'Run with --create-domain-map or create it via taos.maps first.'
-        )
-
-    # -------------------------------------------------------------------
-    # generate domain files
-    cmd = (f'{env_prefix} &&'
-           f' python {domn_tool}'
-           f' -m {map_file}'
-           f' -o {ocn_grid_name}'
-           f' -l {grid_name}'
-           f' --date-stamp={timestamp}'
-           f' --output-root={domn_root}')
-    run_cmd(cmd)
-
-    print(f'\n  {clr.GREEN}Domain file generation SUCCESSFUL{clr.END}')
+        print(f'\n  {clr.GREEN}Domain file generation SUCCESSFUL{clr.END}')
 
 
 # -------------------------------------------------------------------
@@ -117,4 +120,6 @@ if __name__ == '__main__':
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
+    timer.start_total()
     create_domain(cfg, create_domain_map=args.create_domain_map)
+    timer.summary()

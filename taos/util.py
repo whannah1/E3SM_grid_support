@@ -4,6 +4,13 @@ taos.util — Shared utilities for TAOS workflow scripts.
 """
 import os
 import subprocess as sp
+import sys
+from contextlib import contextmanager
+from time import perf_counter
+
+# Ensure stdout is line-buffered so print output appears before stderr
+# (tracebacks) when both are redirected to the same file (e.g. SLURM logs).
+sys.stdout.reconfigure(line_buffering=True)
 
 # -------------------------------------------------------------------
 # terminal color codes
@@ -27,6 +34,81 @@ def run_cmd(cmd: str) -> None:
     """Execute a shell command, printing it first and raising on failure."""
     print(f'\n  {clr.GREEN}{cmd}{clr.END}')
     sp.run(cmd, shell=True, check=True, executable='/bin/bash')
+
+# -------------------------------------------------------------------
+# timing
+
+class TaosTimer:
+    """
+    Lightweight stage/sub-stage timer for TAOS workflow scripts.
+
+    Usage
+    -----
+    Import the module-level singleton and wrap any block you want timed:
+
+        from taos.util import timer
+
+        timer.start_total()            # call once at the top of __main__
+
+        with timer.time('my label'):
+            run_cmd(some_cmd)
+
+        timer.summary()                # call once at the bottom of __main__
+
+    Each timer prints its result immediately on exit (visible in batch logs
+    even if the job is killed before summary() is reached), and summary()
+    prints a consolidated recap plus the total elapsed time.
+    """
+
+    _LABEL_WIDTH = 55
+
+    def __init__(self):
+        self._entries = []
+        self._total_start = None
+
+    def start_total(self):
+        """Record the start time for the overall total."""
+        self._total_start = perf_counter()
+
+    @contextmanager
+    def time(self, label):
+        """Context manager: time a block, print result immediately, record for summary."""
+        t0 = perf_counter()
+        yield
+        self._record(label, perf_counter() - t0)
+
+    def _format_elapsed(self, elapsed):
+        s = f'{elapsed:10.1f} sec'
+        if elapsed > 60:
+            s += f'  ({elapsed / 60:5.1f} min)'
+        return s
+
+    def _record(self, label, elapsed, print_msg=True):
+        msg = f'{label:{self._LABEL_WIDTH}}  elapsed time: {self._format_elapsed(elapsed)}'
+        if print_msg:
+            print(f'\n  {clr.YELLOW}{msg}{clr.END}')
+        self._entries.append(msg)
+        return msg
+
+    def summary(self):
+        """Print all accumulated timer results plus the overall total."""
+        if not self._entries and self._total_start is None:
+            return
+        print(f'\n  {"─" * 80}')
+        print(f'  TAOS timer summary:')
+        for msg in self._entries:
+            print(f'    {msg}')
+        if self._total_start is not None:
+            total_elapsed = perf_counter() - self._total_start
+            total_msg = (f'{"Total":{self._LABEL_WIDTH}}'
+                         f'  elapsed time: {self._format_elapsed(total_elapsed)}')
+            print(f'    {clr.YELLOW}{total_msg}{clr.END}')
+        print(f'  {"─" * 80}\n')
+
+
+# Module-level singleton — shared across all taos modules in a single process.
+timer = TaosTimer()
+
 
 # -------------------------------------------------------------------
 # legacy: read env var from a bash config script

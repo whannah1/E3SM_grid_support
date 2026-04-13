@@ -17,9 +17,10 @@ Usage
     python -m taos.maps path/to/project.yaml --create-maps-ocn --create-maps-lnd
 """
 import os
+import re
 
 from taos.config import taos_config
-from taos.util import clr, print_line, run_cmd
+from taos.util import clr, print_line, run_cmd, timer
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -42,7 +43,10 @@ def _ncremap_pair(env_prefix, alg, src_file, dst_file, map_file, a2o=False):
            f' ncremap{a2o_flag} --alg_typ={alg}'
            f' --grd_src="{src_file}" --grd_dst="{dst_file}"'
            f' --map_fl="{map_file}"')
-    run_cmd(cmd)
+    # Label: map filename without the trailing timestamp (.YYYYMMDD.nc)
+    label = 'ncremap: ' + re.sub(r'\.\d{8}\.nc$', '', os.path.basename(map_file))
+    with timer.time(label):
+        run_cmd(cmd)
     _check_map(map_file)
 
 
@@ -69,17 +73,18 @@ def create_maps_ocn(cfg):
     atm_grid_file = f'{cfg["derived.grid_root"]}/{atm_grid_name}_scrip.nc'
     env_prefix    = _unified_env_prefix(cfg)
 
-    print_line()
-    print(f'\n  {clr.GREEN}Creating ocean map files with TempestRemap{clr.END}')
+    with timer.time('create_maps_ocn'):
+        print_line()
+        print(f'\n  {clr.GREEN}Creating ocean map files with TempestRemap{clr.END}')
 
-    algorithms = ['traave', 'trbilin', 'trfv2', 'trintbilin']
-    for alg in algorithms:
-        map_file = f'{maps_root}/map_{ocn_grid_name}_to_{atm_grid_name}_{alg}.{timestamp}.nc'
-        _ncremap_pair(env_prefix, alg, ocn_grid_file, atm_grid_file, map_file)
-        map_file = f'{maps_root}/map_{atm_grid_name}_to_{ocn_grid_name}_{alg}.{timestamp}.nc'
-        _ncremap_pair(env_prefix, alg, atm_grid_file, ocn_grid_file, map_file, a2o=True)
+        algorithms = ['traave', 'trbilin', 'trfv2', 'trintbilin']
+        for alg in algorithms:
+            map_file = f'{maps_root}/map_{ocn_grid_name}_to_{atm_grid_name}_{alg}.{timestamp}.nc'
+            _ncremap_pair(env_prefix, alg, ocn_grid_file, atm_grid_file, map_file)
+            map_file = f'{maps_root}/map_{atm_grid_name}_to_{ocn_grid_name}_{alg}.{timestamp}.nc'
+            _ncremap_pair(env_prefix, alg, atm_grid_file, ocn_grid_file, map_file, a2o=True)
 
-    print(f'\n  {clr.GREEN}Ocean map file creation SUCCESSFUL{clr.END}')
+        print(f'\n  {clr.GREEN}Ocean map file creation SUCCESSFUL{clr.END}')
 
 
 def create_maps_lnd(cfg):
@@ -101,17 +106,18 @@ def create_maps_lnd(cfg):
     atm_grid_file = f'{cfg["derived.grid_root"]}/{atm_grid_name}_scrip.nc'
     env_prefix    = _unified_env_prefix(cfg)
 
-    print_line()
-    print(f'\n  {clr.GREEN}Creating land map files with TempestRemap{clr.END}')
+    with timer.time('create_maps_lnd'):
+        print_line()
+        print(f'\n  {clr.GREEN}Creating land map files with TempestRemap{clr.END}')
 
-    algorithms = ['traave', 'trbilin', 'trfv2', 'trintbilin']
-    for alg in algorithms:
-        map_file = f'{maps_root}/map_{lnd_grid_name}_to_{atm_grid_name}_{alg}.{timestamp}.nc'
-        _ncremap_pair(env_prefix, alg, lnd_grid_file, atm_grid_file, map_file)
-        map_file = f'{maps_root}/map_{atm_grid_name}_to_{lnd_grid_name}_{alg}.{timestamp}.nc'
-        _ncremap_pair(env_prefix, alg, atm_grid_file, lnd_grid_file, map_file, a2o=True)
+        algorithms = ['traave', 'trbilin', 'trfv2', 'trintbilin']
+        for alg in algorithms:
+            map_file = f'{maps_root}/map_{lnd_grid_name}_to_{atm_grid_name}_{alg}.{timestamp}.nc'
+            _ncremap_pair(env_prefix, alg, lnd_grid_file, atm_grid_file, map_file)
+            map_file = f'{maps_root}/map_{atm_grid_name}_to_{lnd_grid_name}_{alg}.{timestamp}.nc'
+            _ncremap_pair(env_prefix, alg, atm_grid_file, lnd_grid_file, map_file, a2o=True)
 
-    print(f'\n  {clr.GREEN}Land map file creation SUCCESSFUL{clr.END}')
+        print(f'\n  {clr.GREEN}Land map file creation SUCCESSFUL{clr.END}')
 
 
 def create_maps_spa(cfg):
@@ -131,11 +137,12 @@ def create_maps_spa(cfg):
     atm_grid_file = f'{cfg["derived.grid_root"]}/{atm_grid_name}_scrip.nc'
     env_prefix    = _unified_env_prefix(cfg)
 
-    print_line()
-    print(f'\n  {clr.GREEN}Creating SPA map file with TempestRemap{clr.END}')
-    map_file = f'{maps_root}/map_{spa_grid_name}_to_{atm_grid_name}_traave.{timestamp}.nc'
-    _ncremap_pair(env_prefix, 'traave', spa_grid_file, atm_grid_file, map_file)
-    print(f'\n  {clr.GREEN}SPA map file creation SUCCESSFUL{clr.END}')
+    with timer.time('create_maps_spa'):
+        print_line()
+        print(f'\n  {clr.GREEN}Creating SPA map file with TempestRemap{clr.END}')
+        map_file = f'{maps_root}/map_{spa_grid_name}_to_{atm_grid_name}_traave.{timestamp}.nc'
+        _ncremap_pair(env_prefix, 'traave', spa_grid_file, atm_grid_file, map_file)
+        print(f'\n  {clr.GREEN}SPA map file creation SUCCESSFUL{clr.END}')
 
 
 # -------------------------------------------------------------------
@@ -158,9 +165,11 @@ if __name__ == '__main__':
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
 
+    timer.start_total()
     if args.create_maps_ocn:
         create_maps_ocn(cfg)
     if args.create_maps_lnd:
         create_maps_lnd(cfg)
     if args.create_maps_spa:
         create_maps_spa(cfg)
+    timer.summary()

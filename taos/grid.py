@@ -15,7 +15,7 @@ import textwrap
 from pathlib import Path
 
 from taos.config import taos_config
-from taos.util import clr, print_line, run_cmd
+from taos.util import clr, print_line, run_cmd, timer
 
 # -------------------------------------------------------------------
 # internal helpers
@@ -32,12 +32,14 @@ def _grid_paths(cfg):
     grid_name = cfg['grid.name']
     grid_root = cfg['derived.grid_root']
     homme_tool_root = cfg['paths.homme_tool_root']
+    np4_name = cfg.get('grid.name_np4', grid_name + 'np4')
+    pg2_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
     return {
         'grid_file_exodus':     f'{grid_root}/{grid_name}.g',
-        'grid_file_np4_scrip':  f'{grid_root}/{grid_name}np4_scrip.nc',
-        'grid_file_np4_mbda':   f'{grid_root}/{grid_name}np4_mbda.nc',
-        'grid_file_pg2_scrip':  f'{grid_root}/{grid_name}pg2_scrip.nc',
-        'grid_file_pg2_mbda':   f'{grid_root}/{grid_name}pg2_mbda.nc',
+        'grid_file_np4_scrip':  f'{grid_root}/{np4_name}_scrip.nc',
+        'grid_file_np4_mbda':   f'{grid_root}/{np4_name}_mbda.nc',
+        'grid_file_pg2_scrip':  f'{grid_root}/{pg2_name}_scrip.nc',
+        'grid_file_pg2_mbda':   f'{grid_root}/{pg2_name}_mbda.nc',
         'grid_file_3km_exodus': f'{grid_root}/ne3000.g',
         'grid_file_3km_scrip':  f'{grid_root}/ne3000pg1_scrip.nc',
         'grid_file_3km_mbda':   f'{grid_root}/ne3000pg1_mbda.nc',
@@ -78,113 +80,125 @@ def create_grid(cfg):
     env_prefix      = _e3sm_env_prefix(cfg)
     p               = _grid_paths(cfg)
 
-    # -------------------------------------------------------------------
-    # clear any stale homme_tool grid template file
-    if os.path.exists(p['grid_template_file']):
-        run_cmd(f'rm {p["grid_template_file"]}')
+    with timer.time('create_grid'):
+        # -------------------------------------------------------------------
+        # clear any stale homme_tool grid template file
+        if os.path.exists(p['grid_template_file']):
+            run_cmd(f'rm {p["grid_template_file"]}')
 
-    # -------------------------------------------------------------------
-    # write namelist for homme_tool grid template generation
-    nl_content = textwrap.dedent(f"""\
-        &ctl_nl
-        ne = 0
-        mesh_file = "{p['grid_file_exodus']}"
-        /
-        &vert_nl
-        /
-        &analysis_nl
-        output_dir = "{homme_tool_root}/"
-        output_prefix="{grid_name}_"
-        tool = 'grid_template_tool'
-        output_timeunits=1
-        output_frequency=1
-        output_varnames1='area','corners','cv_lat','cv_lon'
-        output_type='netcdf4p'
-        io_stride = 1
-        /
-        """)
-    Path(p['nl_file']).write_text(nl_content)
+        # -------------------------------------------------------------------
+        # write namelist for homme_tool grid template generation
+        nl_content = textwrap.dedent(f"""\
+            &ctl_nl
+            ne = 0
+            mesh_file = "{p['grid_file_exodus']}"
+            /
+            &vert_nl
+            /
+            &analysis_nl
+            output_dir = "{homme_tool_root}/"
+            output_prefix="{grid_name}_"
+            tool = 'grid_template_tool'
+            output_timeunits=1
+            output_frequency=1
+            output_varnames1='area','corners','cv_lat','cv_lon'
+            output_type='netcdf4p'
+            io_stride = 1
+            /
+            """)
+        Path(p['nl_file']).write_text(nl_content)
 
-    # -------------------------------------------------------------------
-    # run homme_tool to create np4 grid template
-    cmd = (f'cd {homme_tool_root} && {env_prefix} &&'
-           f' srun -c 32 -N $SLURM_NNODES {homme_tool_root}/src/tool/homme_tool < {p["nl_file"]}')
-    run_cmd(cmd)
+        # -------------------------------------------------------------------
+        # run homme_tool to create np4 grid template
+        cmd = (f'cd {homme_tool_root} && {env_prefix} &&'
+               f' srun -c 32 -N $SLURM_NNODES {homme_tool_root}/src/tool/homme_tool < {p["nl_file"]}')
+        with timer.time('grid: homme_tool np4 template'):
+            run_cmd(cmd)
 
-    if not os.path.exists(p['grid_template_file']):
-        raise RuntimeError(f'homme_tool grid file creation FAILED: {p["grid_template_file"]}')
-    print(f'\n  {clr.GREEN}homme_tool grid file creation SUCCESSFUL:{clr.END} {p["grid_template_file"]}')
+        if not os.path.exists(p['grid_template_file']):
+            raise RuntimeError(f'homme_tool grid file creation FAILED: {p["grid_template_file"]}')
+        print(f'\n  {clr.GREEN}homme_tool grid file creation SUCCESSFUL:{clr.END} {p["grid_template_file"]}')
 
-    # -------------------------------------------------------------------
-    # convert np4 template to SCRIP format
-    homme2scrip = f'{e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py'
-    cmd = (f'{env_prefix} &&'
-           f' {unified_bin}/python {homme2scrip}'
-           f' --src_file {p["grid_template_file"]}'
-           f' --dst_file {p["grid_file_np4_scrip"]}')
-    run_cmd(cmd)
-
-    # -------------------------------------------------------------------
-    # create MBDA-format np4 grid file (reduced SCRIP, cdf5)
-    cmd = (f'{unified_bin}/ncap2 -v -5 -O'
-           f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
-           f' {p["grid_file_np4_scrip"]} {p["grid_file_np4_mbda"]}')
-    run_cmd(cmd)
-    run_cmd(f'{unified_bin}/ncrename -d grid_size,ncol {p["grid_file_np4_mbda"]}')
-
-    if not os.path.exists(p['grid_file_np4_mbda']):
-        raise RuntimeError(f'MBDA np4 grid file creation FAILED: {p["grid_file_np4_mbda"]}')
-    print(f'\n  {clr.GREEN}MBDA np4 grid file creation SUCCESSFUL:{clr.END} {p["grid_file_np4_mbda"]}')
-
-    # -------------------------------------------------------------------
-    # create PG2 exodus file
-    cmd = (f'{env_prefix} &&'
-           f' {unified_bin}/GenerateVolumetricMesh'
-           f' --in {p["grid_file_exodus"]} --out {p["grid_file_pg2_mbda"]} --np 2 --uniform')
-    run_cmd(cmd)
-
-    # convert PG2 exodus to SCRIP
-    cmd = (f'{env_prefix} &&'
-           f' {unified_bin}/ConvertMeshToSCRIP'
-           f' --in {p["grid_file_pg2_mbda"]} --out {p["grid_file_pg2_scrip"]}')
-    run_cmd(cmd)
-
-    # create MBDA-format pg2 grid file
-    cmd = (f'{unified_bin}/ncap2 -v -5 -O'
-           f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
-           f' {p["grid_file_pg2_scrip"]} {p["grid_file_pg2_mbda"]}')
-    run_cmd(cmd)
-    run_cmd(f'{unified_bin}/ncrename -d grid_size,ncol {p["grid_file_pg2_mbda"]}')
-
-    if not os.path.exists(p['grid_file_pg2_mbda']):
-        raise RuntimeError(f'MBDA pg2 grid file creation FAILED: {p["grid_file_pg2_mbda"]}')
-    print(f'\n  {clr.GREEN}MBDA pg2 grid file creation SUCCESSFUL:{clr.END} {p["grid_file_pg2_mbda"]}')
-
-    # -------------------------------------------------------------------
-    # create 3km (ne3000) grid files if they don't already exist
-    if not os.path.exists(p['grid_file_3km_mbda']):
-        print_line()
-        print(f'\n  {clr.CYAN}Creating 3km (ne3000) grid files{clr.END}')
-
+        # -------------------------------------------------------------------
+        # convert np4 template to SCRIP format
+        homme2scrip = f'{e3sm_src_root}/components/homme/test/tool/python/HOMME2SCRIP.py'
         cmd = (f'{env_prefix} &&'
-               f' {unified_bin}/GenerateCSMesh --alt --res 3000 --file {p["grid_file_3km_exodus"]}')
-        run_cmd(cmd)
-        if not os.path.exists(p['grid_file_3km_exodus']):
-            raise RuntimeError(f'3km exodus file creation FAILED: {p["grid_file_3km_exodus"]}')
+               f' {unified_bin}/python {homme2scrip}'
+               f' --src_file {p["grid_template_file"]}'
+               f' --dst_file {p["grid_file_np4_scrip"]}')
+        with timer.time('grid: HOMME2SCRIP np4'):
+            run_cmd(cmd)
 
-        cmd = (f'{env_prefix} &&'
-               f' {unified_bin}/ConvertMeshToSCRIP'
-               f' --in {p["grid_file_3km_exodus"]} --out {p["grid_file_3km_scrip"]}')
-        run_cmd(cmd)
-        if not os.path.exists(p['grid_file_3km_scrip']):
-            raise RuntimeError(f'3km SCRIP file creation FAILED: {p["grid_file_3km_scrip"]}')
-
+        # -------------------------------------------------------------------
+        # create MBDA-format np4 grid file (reduced SCRIP, cdf5)
         cmd = (f'{unified_bin}/ncap2 -v -5 -O'
                f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
-               f' {p["grid_file_3km_scrip"]} {p["grid_file_3km_mbda"]}')
-        run_cmd(cmd)
-    else:
-        print(f'\n  {clr.CYAN}Skipping 3km grid file creation (already exists){clr.END}')
+               f' {p["grid_file_np4_scrip"]} {p["grid_file_np4_mbda"]}')
+        with timer.time('grid: ncap2 np4 SCRIP→MBDA'):
+            run_cmd(cmd)
+        with timer.time('grid: ncrename np4 grid_size→ncol'):
+            run_cmd(f'{unified_bin}/ncrename -d grid_size,ncol {p["grid_file_np4_mbda"]}')
+
+        if not os.path.exists(p['grid_file_np4_mbda']):
+            raise RuntimeError(f'MBDA np4 grid file creation FAILED: {p["grid_file_np4_mbda"]}')
+        print(f'\n  {clr.GREEN}MBDA np4 grid file creation SUCCESSFUL:{clr.END} {p["grid_file_np4_mbda"]}')
+
+        # -------------------------------------------------------------------
+        # create PG2 exodus file
+        cmd = (f'{env_prefix} &&'
+               f' {unified_bin}/GenerateVolumetricMesh'
+               f' --in {p["grid_file_exodus"]} --out {p["grid_file_pg2_mbda"]} --np 2 --uniform')
+        with timer.time('grid: GenerateVolumetricMesh pg2'):
+            run_cmd(cmd)
+
+        # convert PG2 exodus to SCRIP
+        cmd = (f'{env_prefix} &&'
+               f' {unified_bin}/ConvertMeshToSCRIP'
+               f' --in {p["grid_file_pg2_mbda"]} --out {p["grid_file_pg2_scrip"]}')
+        with timer.time('grid: ConvertMeshToSCRIP pg2'):
+            run_cmd(cmd)
+
+        # create MBDA-format pg2 grid file
+        cmd = (f'{unified_bin}/ncap2 -v -5 -O'
+               f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
+               f' {p["grid_file_pg2_scrip"]} {p["grid_file_pg2_mbda"]}')
+        with timer.time('grid: ncap2 pg2 SCRIP→MBDA'):
+            run_cmd(cmd)
+        with timer.time('grid: ncrename pg2 grid_size→ncol'):
+            run_cmd(f'{unified_bin}/ncrename -d grid_size,ncol {p["grid_file_pg2_mbda"]}')
+
+        if not os.path.exists(p['grid_file_pg2_mbda']):
+            raise RuntimeError(f'MBDA pg2 grid file creation FAILED: {p["grid_file_pg2_mbda"]}')
+        print(f'\n  {clr.GREEN}MBDA pg2 grid file creation SUCCESSFUL:{clr.END} {p["grid_file_pg2_mbda"]}')
+
+        # -------------------------------------------------------------------
+        # create 3km (ne3000) grid files if they don't already exist
+        if not os.path.exists(p['grid_file_3km_mbda']):
+            print_line()
+            print(f'\n  {clr.CYAN}Creating 3km (ne3000) grid files{clr.END}')
+
+            cmd = (f'{env_prefix} &&'
+                   f' {unified_bin}/GenerateCSMesh --alt --res 3000 --file {p["grid_file_3km_exodus"]}')
+            with timer.time('grid: GenerateCSMesh 3km'):
+                run_cmd(cmd)
+            if not os.path.exists(p['grid_file_3km_exodus']):
+                raise RuntimeError(f'3km exodus file creation FAILED: {p["grid_file_3km_exodus"]}')
+
+            cmd = (f'{env_prefix} &&'
+                   f' {unified_bin}/ConvertMeshToSCRIP'
+                   f' --in {p["grid_file_3km_exodus"]} --out {p["grid_file_3km_scrip"]}')
+            with timer.time('grid: ConvertMeshToSCRIP 3km'):
+                run_cmd(cmd)
+            if not os.path.exists(p['grid_file_3km_scrip']):
+                raise RuntimeError(f'3km SCRIP file creation FAILED: {p["grid_file_3km_scrip"]}')
+
+            cmd = (f'{unified_bin}/ncap2 -v -5 -O'
+                   f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
+                   f' {p["grid_file_3km_scrip"]} {p["grid_file_3km_mbda"]}')
+            with timer.time('grid: ncap2 3km SCRIP→MBDA'):
+                run_cmd(cmd)
+        else:
+            print(f'\n  {clr.CYAN}Skipping 3km grid file creation (already exists){clr.END}')
 
 
 # -------------------------------------------------------------------
@@ -202,4 +216,6 @@ if __name__ == '__main__':
     if args.grid_name:
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
+    timer.start_total()
     create_grid(cfg)
+    timer.summary()
