@@ -4,6 +4,10 @@ run_workflow.py — Project-level orchestrator for TAOS workflows.
 
 Edit this script to describe the pipeline for your specific project.
 Submit SLURM jobs or call taos module functions directly as needed.
+
+for interactive workflow at NERSC:
+    salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+    python run_workflow.py
 """
 import os, pathlib
 from taos import taos_config
