@@ -1,0 +1,1 @@
+../../taos/show_config.py
