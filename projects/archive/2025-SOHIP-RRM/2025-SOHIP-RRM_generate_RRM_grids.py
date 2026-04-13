@@ -25,7 +25,7 @@ def add_grid( **kwargs ):
 # add_grid(region='eq-ind-v2', base_res=256, dy=10, dx=18, lat_ref= -5,  lon_ref=75 ) # v2
 
 
-# add_grid(region='ptgnia-v1',base_res=256, lat_ref=-50, lon_ref=-60, rlat1=-55, rlat2=-42, rlon1=-92,  rlon2=-48 )
+add_grid(region='ptgnia-v1',base_res=256, lat_ref=-50, lon_ref=-60, rlat1=-55, rlat2=-42, rlon1=-92,  rlon2=-48 )
 add_grid(region='sw-ind-v1',base_res=256, dy=10, dx=20, lat_ref=-50, lon_ref=40 )
 add_grid(region='se-pac-v1',base_res=256, dy=10, dx=20, lat_ref=-50, lon_ref=-100 )
 add_grid(region='sc-pac-v1',base_res=256, dy=10, dx=20, lat_ref=-35, lon_ref=-135 )
@@ -68,23 +68,24 @@ def main(opts):
   GRID_NAME = f'2025-sohip-{BASE_RES}x{REFINE_LVL}-{REFINE_NAME}'
 
   #-----------------------------------------------------------------------------
+  # print()
+  # print('-'*120)
   print()
-  print('-'*120)
-  print()
-  print(f'  GRID_ROOT : {GRID_ROOT}')
+  # print(f'  GRID_ROOT : {GRID_ROOT}')
   print(f'  GRID_NAME : {GRID_NAME}')
-  print(f'  BASE_RES  : {BASE_RES}')
-  print(f'  REFINE_LVL: {REFINE_LVL}')
-  print(f'  SDIST     : {SDIST}')
-  print(f'  SITER     : {SITER}')
-  print(f'  LAT_REF   : {LAT_REF}')
-  print(f'  LON_REF   : {LON_REF}')
+  # print(f'  BASE_RES  : {BASE_RES}')
+  # print(f'  REFINE_LVL: {REFINE_LVL}')
+  # print(f'  SDIST     : {SDIST}')
+  # print(f'  SITER     : {SITER}')
+  # print(f'  LAT_REF   : {LAT_REF}')
+  # print(f'  LON_REF   : {LON_REF}')
   print(f'  RLAT1     : {RLAT1}')
   print(f'  RLAT2     : {RLAT2}')
   print(f'  RLON1     : {RLON1}')
   print(f'  RLON2     : {RLON2}')
-  print()
+  # print()
   # exit()
+  return
   #-----------------------------------------------------------------------------
 
   cmd = f'SQuadGen'
