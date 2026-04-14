@@ -125,9 +125,9 @@ for grid_cfg in cfg.iter_grids():
         topo_args = ''
         # topo_args += ' --stage grid'
         # topo_args += ' --stage remap'
-        # topo_args += ' --stage smooth'
-        # topo_args += ' --stage sgh'
-        topo_args += ' --stage all'
+        topo_args += ' --stage smooth'
+        topo_args += ' --stage sgh'
+        # topo_args += ' --stage all'
         topo_args += ' --force-new-3km-data'
 
         cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} {topo_args}'
