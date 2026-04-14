@@ -5,26 +5,203 @@ These tests cover pure-Python logic (command-string construction, path checks)
 without requiring any HPC tools, SLURM, or real files on disk.
 run_cmd() and os.path.exists() are mocked throughout.
 
+The np4 SCRIP generation tests use the same synthetic ne=1 cube-sphere mesh
+as tests/test_sem.py — 6 elements, 8 nodes, 56 unique GLL nodes.
+
 Run with:
     python -m pytest tests/test_grid.py
 """
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import call, MagicMock, patch
 
+import netCDF4
+import numpy as np
 
 from taos.grid import (
+    _compute_np4_scrip_fields,
+    _create_np4_scrip,
     _e3sm_env_prefix,
     _grid_paths,
+    _write_mbda,
+    _write_scrip,
     create_grid,
 )
+
+# ---------------------------------------------------------------------------
+# synthetic ne=1 cube-sphere mesh fixture (shared with test_sem.py)
+
+_S3 = 1.0 / np.sqrt(3.0)
+
+_NE1_COORDS = _S3 * np.array([
+    [-1, -1, -1],  # 0
+    [ 1, -1, -1],  # 1
+    [ 1,  1, -1],  # 2
+    [-1,  1, -1],  # 3
+    [-1, -1,  1],  # 4
+    [ 1, -1,  1],  # 5
+    [ 1,  1,  1],  # 6
+    [-1,  1,  1],  # 7
+], dtype=float)
+
+_NE1_CONNECT = np.array([
+    [0, 1, 2, 3],  # −z face
+    [4, 5, 6, 7],  # +z face
+    [0, 1, 5, 4],  # −y face
+    [3, 2, 6, 7],  # +y face
+    [0, 3, 7, 4],  # −x face
+    [1, 2, 6, 5],  # +x face
+])
+
+# ---------------------------------------------------------------------------
+# _compute_np4_scrip_fields
+
+
+class TestComputeNp4ScripFields(unittest.TestCase):
+
+    def setUp(self):
+        self.lon, self.lat, self.area, self.corner_lon, self.corner_lat = \
+            _compute_np4_scrip_fields(_NE1_COORDS, _NE1_CONNECT)
+
+    def test_ncol(self):
+        # ne=1, np=4: ncol = 6*1^2*(4-1)^2 + 2 = 56
+        self.assertEqual(len(self.lon), 56)
+
+    def test_shapes(self):
+        self.assertEqual(self.lon.shape,        (56,))
+        self.assertEqual(self.lat.shape,        (56,))
+        self.assertEqual(self.area.shape,       (56,))
+        self.assertEqual(self.corner_lon.shape, (56, 8))
+        self.assertEqual(self.corner_lat.shape, (56, 8))
+
+    def test_lon_range(self):
+        self.assertTrue(np.all(self.lon >= 0.0))
+        self.assertTrue(np.all(self.lon < 360.0))
+
+    def test_lat_range(self):
+        self.assertTrue(np.all(self.lat >= -90.0))
+        self.assertTrue(np.all(self.lat <=  90.0))
+
+    def test_corner_lon_range(self):
+        self.assertTrue(np.all(self.corner_lon >= 0.0))
+        self.assertTrue(np.all(self.corner_lon < 360.0))
+
+    def test_corner_lat_range(self):
+        self.assertTrue(np.all(self.corner_lat >= -90.0))
+        self.assertTrue(np.all(self.corner_lat <=  90.0))
+
+    def test_area_positive(self):
+        self.assertTrue(np.all(self.area > 0))
+
+    def test_total_area_near_4pi(self):
+        np.testing.assert_allclose(np.sum(self.area), 4 * np.pi, rtol=0.05)
+
+
+# ---------------------------------------------------------------------------
+# _write_scrip
+
+
+class TestWriteScrip(unittest.TestCase):
+
+    def setUp(self):
+        self.lon        = np.array([10.0, 90.0])
+        self.lat        = np.array([-30.0, 45.0])
+        self.area       = np.array([0.5, 1.5])
+        self.corner_lon = np.zeros((2, 4))
+        self.corner_lat = np.zeros((2, 4))
+
+    def test_scrip_variables_present(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/scrip.nc'
+            _write_scrip(path, self.lon, self.lat, self.area,
+                         self.corner_lon, self.corner_lat)
+            with netCDF4.Dataset(path) as nc:
+                for var in ('grid_dims', 'grid_center_lat', 'grid_center_lon',
+                            'grid_imask', 'grid_area',
+                            'grid_corner_lat', 'grid_corner_lon'):
+                    self.assertIn(var, nc.variables, f'{var} missing from SCRIP file')
+
+    def test_scrip_dimensions(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/scrip.nc'
+            _write_scrip(path, self.lon, self.lat, self.area,
+                         self.corner_lon, self.corner_lat)
+            with netCDF4.Dataset(path) as nc:
+                self.assertEqual(len(nc.dimensions['grid_size']),    2)
+                self.assertEqual(len(nc.dimensions['grid_corners']), 4)  # driven by input shape
+                self.assertEqual(len(nc.dimensions['grid_rank']),    1)
+                np.testing.assert_array_equal(nc.variables['grid_dims'][:], [2])
+
+    def test_scrip_center_values(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/scrip.nc'
+            _write_scrip(path, self.lon, self.lat, self.area,
+                         self.corner_lon, self.corner_lat)
+            with netCDF4.Dataset(path) as nc:
+                np.testing.assert_allclose(nc.variables['grid_center_lon'][:], self.lon)
+                np.testing.assert_allclose(nc.variables['grid_center_lat'][:], self.lat)
+                np.testing.assert_allclose(nc.variables['grid_area'][:],       self.area)
+
+    def test_scrip_imask_all_ones(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/scrip.nc'
+            _write_scrip(path, self.lon, self.lat, self.area,
+                         self.corner_lon, self.corner_lat)
+            with netCDF4.Dataset(path) as nc:
+                np.testing.assert_array_equal(nc.variables['grid_imask'][:], [1, 1])
+
+
+# ---------------------------------------------------------------------------
+# _write_mbda
+
+
+class TestWriteMbda(unittest.TestCase):
+
+    def setUp(self):
+        self.lon  = np.array([10.0, 90.0])
+        self.lat  = np.array([-30.0, 45.0])
+        self.area = np.array([0.5, 1.5])
+
+    def test_mbda_variables_present(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/mbda.nc'
+            _write_mbda(path, self.lon, self.lat, self.area)
+            with netCDF4.Dataset(path) as nc:
+                for var in ('lon', 'lat', 'area'):
+                    self.assertIn(var, nc.variables, f'{var} missing from MBDA file')
+                self.assertIn('ncol', nc.dimensions)
+
+    def test_mbda_dimension_size(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/mbda.nc'
+            _write_mbda(path, self.lon, self.lat, self.area)
+            with netCDF4.Dataset(path) as nc:
+                self.assertEqual(len(nc.dimensions['ncol']), 2)
+
+    def test_mbda_values(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/mbda.nc'
+            _write_mbda(path, self.lon, self.lat, self.area)
+            with netCDF4.Dataset(path) as nc:
+                np.testing.assert_allclose(nc.variables['lon'][:],  self.lon)
+                np.testing.assert_allclose(nc.variables['lat'][:],  self.lat)
+                np.testing.assert_allclose(nc.variables['area'][:], self.area)
+
+    def test_mbda_format_is_cdf5(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = f'{d}/mbda.nc'
+            _write_mbda(path, self.lon, self.lat, self.area)
+            with netCDF4.Dataset(path) as nc:
+                self.assertEqual(nc.data_model, 'NETCDF3_64BIT_DATA')
+
 
 # ---------------------------------------------------------------------------
 # helpers
 
 class MockConfig:
-    """Minimal stand-in for taos_config with fixed test values."""
+    """Stand-in for taos_config that uses the legacy homme_tool np4 path."""
 
     _data = {
         'grid.name':              'ne30',
@@ -32,6 +209,26 @@ class MockConfig:
         'paths.homme_tool_root':  '/homme',
         'paths.unified_bin':      '/unified/bin',
         'paths.e3sm_src_root':    '/e3sm',
+        'grid.homme_np4_scrip':   True,     # exercise the legacy homme path
+    }
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+
+class MockConfigPython:
+    """Stand-in for taos_config that uses the default Python np4 path."""
+
+    _data = {
+        'grid.name':            'ne30',
+        'derived.grid_root':    '/data/grids',
+        'paths.unified_bin':    '/unified/bin',
+        'paths.e3sm_src_root':  '/e3sm',
+        # no 'paths.homme_tool_root' — not needed for Python path
+        # no 'grid.homme_np4_scrip' — defaults to False (Python path)
     }
 
     def __getitem__(self, key):
@@ -282,6 +479,85 @@ class TestCreateGridCommands(unittest.TestCase):
         self.assertIn('mesh_file', nl)
         self.assertIn('grid_template_tool', nl)
         self.assertIn('ne30_', nl)
+
+
+# ---------------------------------------------------------------------------
+# create_grid — Python np4 path (default)
+#
+# With no 'grid.homme_np4_scrip' key (or set to False), create_grid calls
+# _create_np4_scrip instead of homme_tool.  _create_np4_scrip is mocked so
+# no real Exodus file is needed.
+#
+# os.path.exists call order (Python path):
+#   [0] grid_file_np4_mbda  — success check       → True
+#   [1] grid_file_pg2_mbda  — success check       → True
+#   [2] grid_file_3km_mbda  — already-exists check → True (skip)
+
+class TestCreateGridPythonPath(unittest.TestCase):
+
+    _DEFAULT_EXISTS = [True, True, True]
+
+    def _run(self, exists_side_effect=None):
+        if exists_side_effect is None:
+            exists_side_effect = list(self._DEFAULT_EXISTS)
+        with patch('taos.grid._create_np4_scrip') as mock_scrip, \
+             patch('taos.grid.run_cmd') as mock_run, \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect):
+            create_grid(MockConfigPython())
+        return mock_scrip, mock_run
+
+    def _all_cmds(self, mock_run):
+        return [c.args[0] for c in mock_run.call_args_list]
+
+    # ------------------------------------------------------------------
+    # _create_np4_scrip is called with the correct paths
+
+    def test_create_np4_scrip_called(self):
+        mock_scrip, _ = self._run()
+        mock_scrip.assert_called_once()
+        args = mock_scrip.call_args.args
+        p = _grid_paths(MockConfigPython())
+        self.assertEqual(args[0], p['grid_file_exodus'])
+        self.assertEqual(args[1], p['grid_file_np4_scrip'])
+        self.assertEqual(args[2], p['grid_file_np4_mbda'])
+
+    # ------------------------------------------------------------------
+    # homme_tool and HOMME2SCRIP are not invoked
+
+    def test_no_homme_tool(self):
+        _, mock_run = self._run()
+        cmds = self._all_cmds(mock_run)
+        self.assertFalse(any('homme_tool' in c for c in cmds))
+
+    def test_no_homme2scrip(self):
+        _, mock_run = self._run()
+        cmds = self._all_cmds(mock_run)
+        self.assertFalse(any('HOMME2SCRIP' in c for c in cmds))
+
+    def test_no_ncap2_for_np4(self):
+        _, mock_run = self._run()
+        cmds = self._all_cmds(mock_run)
+        p = _grid_paths(MockConfigPython())
+        np4_ncap2 = [c for c in cmds if 'ncap2' in c and p['grid_file_np4_scrip'] in c]
+        self.assertEqual(len(np4_ncap2), 0)
+
+    # ------------------------------------------------------------------
+    # PG2 and 3km steps are unchanged
+
+    def test_pg2_commands_present(self):
+        _, mock_run = self._run()
+        cmds = self._all_cmds(mock_run)
+        self.assertTrue(any('GenerateVolumetricMesh' in c for c in cmds))
+        self.assertTrue(any('ConvertMeshToSCRIP'      in c for c in cmds))
+
+    def test_raises_when_np4_mbda_missing(self):
+        exists_side_effect = [False, True, True]
+        with patch('taos.grid._create_np4_scrip'), \
+             patch('taos.grid.run_cmd'), \
+             patch('taos.grid.os.path.exists', side_effect=exists_side_effect):
+            with self.assertRaises(RuntimeError) as ctx:
+                create_grid(MockConfigPython())
+        self.assertIn('np4', str(ctx.exception))
 
 
 # ---------------------------------------------------------------------------

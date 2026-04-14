@@ -18,7 +18,6 @@ Usage
     python -m taos.topo path/to/project.yaml --stage all
 """
 import os
-import textwrap
 from pathlib import Path
 
 import numpy as np
@@ -26,6 +25,7 @@ import xarray as xr
 
 from taos.config import taos_config
 from taos.grid import create_grid
+from taos import sem
 from taos.util import clr, print_line, run_cmd, timer
 
 _GRAVITY = 9.80616
@@ -42,31 +42,28 @@ def _e3sm_env_prefix(cfg):
 
 def _topo_paths(cfg):
     """Return a dict of all topo (and grid) file paths derived from cfg."""
-    grid_name  = cfg['grid.name']
-    grid_root  = cfg['derived.grid_root']
-    topo_root  = cfg['derived.topo_root']
-    timestamp  = cfg['project.timestamp']
-    homme_tool_root = cfg['paths.homme_tool_root']
-    np4_name = cfg.get('grid.name_np4', grid_name + 'np4')
-    pg2_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
+    grid_name = cfg['grid.name']
+    grid_root = cfg['derived.grid_root']
+    topo_root = cfg['derived.topo_root']
+    timestamp = cfg['project.timestamp']
+    np4_name  = cfg.get('grid.name_np4', grid_name + 'np4')
+    pg2_name  = cfg.get('grid.name_pg2', grid_name + 'pg2')
     return {
         # grid files (inputs, created by taos.grid)
-        'grid_file_np4_mbda':    f'{grid_root}/{np4_name}_mbda.nc',
-        'grid_file_pg2_mbda':    f'{grid_root}/{pg2_name}_mbda.nc',
-        'grid_file_3km_mbda':    f'{grid_root}/ne3000pg1_mbda.nc',
-        'grid_file_exodus':      f'{grid_root}/{grid_name}.g',
+        'grid_file_np4_mbda': f'{grid_root}/{np4_name}_mbda.nc',
+        'grid_file_pg2_mbda': f'{grid_root}/{pg2_name}_mbda.nc',
+        'grid_file_3km_mbda': f'{grid_root}/ne3000pg1_mbda.nc',
+        'grid_file_exodus':   f'{grid_root}/{grid_name}.g',
         # intermediate topo files
-        'topo_file_3km':         f'{topo_root}/tmp_USGS-topo_ne3000.nc',
-        'topo_file_1_np4':       f'{topo_root}/tmp_USGS-topo_{grid_name}-np4.nc',
-        'topo_file_1_pg2':       f'{topo_root}/tmp_USGS-topo_{grid_name}-pg2.nc',
-        'topo_file_2':           f'{topo_root}/tmp_USGS-topo_{grid_name}-np4_smoothedx6t.nc',
-        'topo_file_3km_1':       f'{topo_root}/tmp_3km-topo_{grid_name}-np4.nc',
-        'topo_file_3km_2':       f'{topo_root}/tmp_3km-topo_{grid_name}-np4_smoothedx6t.nc',
-        'topo_file_3km_pg2':     f'{topo_root}/tmp_3km-topo_{grid_name}-pg2.nc',
+        'topo_file_3km':      f'{topo_root}/tmp_USGS-topo_ne3000.nc',
+        'topo_file_1_np4':    f'{topo_root}/tmp_USGS-topo_{grid_name}-np4.nc',
+        'topo_file_1_pg2':    f'{topo_root}/tmp_USGS-topo_{grid_name}-pg2.nc',
+        'topo_file_2':        f'{topo_root}/tmp_USGS-topo_{grid_name}-np4_smoothedx6t.nc',
+        'topo_file_3km_1':    f'{topo_root}/tmp_3km-topo_{grid_name}-np4.nc',
+        'topo_file_3km_2':    f'{topo_root}/tmp_3km-topo_{grid_name}-np4_smoothedx6t.nc',
+        'topo_file_3km_pg2':  f'{topo_root}/tmp_3km-topo_{grid_name}-pg2.nc',
         # final output topo file
-        'topo_file_final':       f'{topo_root}/USGS-topo_{grid_name}-np4_smoothedx6t_{timestamp}.nc',
-        # homme_tool namelist files
-        'nl_file_smooth':        f'{homme_tool_root}/input.grd.{grid_name}.nl',
+        'topo_file_final':    f'{topo_root}/USGS-topo_{grid_name}-np4_smoothedx6t_{timestamp}.nc',
     }
 
 
@@ -203,9 +200,10 @@ def remap_topo(cfg, force_new_3km_data=False):
 
 def smooth_topo(cfg):
     """
-    Apply homme_tool smoothing to the remapped topography files.
+    Apply Python SEM tensor hyperviscosity smoothing to the remapped topo files.
 
-    Runs homme_tool twice:
+    Replaces homme_tool topo_pgn_to_smoothed (hypervis_scaling=2, numcycle=6,
+    nudt=4e-16).  Reads the Exodus mesh once, then smooths:
       1. Source topo (topo_file_1_np4)  → topo_file_2
       2. 3km topo   (topo_file_3km_1)   → topo_file_3km_2
 
@@ -214,55 +212,46 @@ def smooth_topo(cfg):
     cfg : taos_config
     """
     with timer.time('smooth_topo'):
+        p = _topo_paths(cfg)
+
         # -------------------------------------------------------------------
-        # resolve paths
-        homme_tool_root = cfg['paths.homme_tool_root']
-        env_prefix      = _e3sm_env_prefix(cfg)
-        p               = _topo_paths(cfg)
+        # precompute SEM geometry from the Exodus mesh (shared by both runs)
+        print_line()
+        print(f'\n  {clr.CYAN}Loading Exodus mesh for SEM geometry{clr.END}')
+        with timer.time('smooth: load Exodus geometry'):
+            coords, connect = sem.read_exodus(p['grid_file_exodus'])
+            g_det, _        = sem.element_metric(coords, connect)
+            _, inverse_idx, _ = sem.unique_gll_nodes(coords, connect)
+            ncol = int(np.max(inverse_idx)) + 1
 
-        def _run_smooth(input_file, output_file, label):
-            nl_content = textwrap.dedent(f"""\
-                &ctl_nl
-                mesh_file = "{p['grid_file_exodus']}"
-                smooth_phis_p2filt = 0
-                smooth_phis_numcycle = 6
-                smooth_phis_nudt = 4e-16
-                hypervis_scaling = 2
-                se_ftype = 2
-                /
-                &vert_nl
-                /
-                &analysis_nl
-                tool = 'topo_pgn_to_smoothed'
-                infilenames = '{input_file}', '{output_file}'
-                output_type='netcdf4p'
-                /
-                """)
-            Path(p['nl_file_smooth']).write_text(nl_content)
-
-            cmd = (f'cd {homme_tool_root} && {env_prefix} &&'
-                   f' srun -n 8 {homme_tool_root}/src/tool/homme_tool < {p["nl_file_smooth"]}')
+        def _smooth_file(input_path, output_path, label):
             with timer.time(label):
-                run_cmd(cmd)
+                ds_in      = xr.open_dataset(input_path)
+                phis       = ds_in['PHIS'].values.flatten()
+                ds_in.close()
 
-            # homme_tool appends "1.nc" to the output prefix
-            produced = f'{output_file}1.nc'
-            if not os.path.exists(produced):
-                raise RuntimeError(f'homme_tool smoothing FAILED: {produced}')
-            run_cmd(f'mv {produced} {output_file}')
-            print(f'\n  {clr.GREEN}Smoothing SUCCESSFUL:{clr.END} {output_file}')
+                phis_smooth = sem.smooth_phis(phis, g_det, inverse_idx, ncol)
+
+                ds_out = xr.Dataset({
+                    'PHIS':   xr.DataArray(phis_smooth, dims=['ncol'],
+                                           attrs={'units': 'm2 s-2'}),
+                    'PHIS_d': xr.DataArray(phis_smooth, dims=['ncol'],
+                                           attrs={'units': 'm2 s-2'}),
+                })
+                ds_out.to_netcdf(output_path)
+            print(f'\n  {clr.GREEN}Smoothing SUCCESSFUL:{clr.END} {output_path}')
 
         # -------------------------------------------------------------------
         # smooth source topo
         print_line()
         print(f'\n  {clr.CYAN}Smoothing source topo (np4){clr.END}')
-        _run_smooth(p['topo_file_1_np4'], p['topo_file_2'], 'smooth: homme_tool source np4')
+        _smooth_file(p['topo_file_1_np4'], p['topo_file_2'], 'smooth: Python source np4')
 
         # -------------------------------------------------------------------
         # smooth 3km topo
         print_line()
         print(f'\n  {clr.CYAN}Smoothing 3km topo (np4){clr.END}')
-        _run_smooth(p['topo_file_3km_1'], p['topo_file_3km_2'], 'smooth: homme_tool 3km np4')
+        _smooth_file(p['topo_file_3km_1'], p['topo_file_3km_2'], 'smooth: Python 3km np4')
 
 
 # -------------------------------------------------------------------
