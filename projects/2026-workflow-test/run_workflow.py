@@ -7,6 +7,7 @@ Submit SLURM jobs or call taos module functions directly as needed.
 
 for interactive workflow at NERSC:
     salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+    salloc --nodes 1 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
     python run_workflow.py
 """
 import os, pathlib
@@ -69,7 +70,7 @@ for grid_cfg in cfg.iter_grids():
     # grid files (np4/pg2/3km SCRIP and MBDA)
 
     if locals().get('do_grid', False):
-        cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} --stage grid'
+        cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name}'
         if use_batch:
             run_cmd(f'{sbatch} --job-name=gen_grid_{grid_name} --nodes=1 --ntasks-per-node=32 --time=0:30:00 --wrap="{cmd}"')
         else:

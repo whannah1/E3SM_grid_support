@@ -36,8 +36,14 @@ grid:
   spa_file: ""
 
 grids:
+  - name: "ne4"
   - name: "ne30"
   - name: "ne45"
+  - name: "ne120"
+  - name: "ne256"
+  - name: "ne512"
+  - name: "ne1024"
+  - name: "ne2048"
 
 # --- Machine override (optional) ---------------------------------------------
 # Set name only if auto-detection fails or you need to force a specific machine.
