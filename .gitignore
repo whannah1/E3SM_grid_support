@@ -10,6 +10,9 @@ figs_grid_plot/*.png
 __pycache__/
 */__pycache__/
 */*/__pycache__/
+refine_map.dat
+*/refine_map.dat
+*/*/refine_map.dat
 *.pyc
 *.pyo
 build/
