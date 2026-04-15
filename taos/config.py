@@ -233,6 +233,7 @@ class taos_config:
             'grid':    self.grid,
             'derived': self.derived,
             'machine': {'name': self.machine},
+            'topo':    self._raw.get('topo', {}),
         }
         if section not in store:
             return None

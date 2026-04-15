@@ -693,10 +693,11 @@ def smooth_phis(phis, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16):
 
         # -------------------------------------------------------------------
         # DSS: scatter-add at shared nodes, then apply update
+        # (pstens < 0 at local maxima, so += gives diffusion, matching HOMME)
         pstens_asm = np.zeros(ncol)
         np.add.at(pstens_asm, inverse_idx, pstens.reshape(-1))
 
-        phi -= nudt_u * pstens_asm / M_asm
+        phi += nudt_u * pstens_asm / M_asm
 
     return phi
 

@@ -6,8 +6,11 @@ Four stages:
   grid         — create np4/pg2/3km SCRIP and MBDA grid files (calls taos.grid).
   remap_topo   — interpolate high-res RLL source topo to the target grid
                  (np4 and pg2) and to the 3km intermediate grid, using MBDA.
-  smooth_topo  — apply homme_tool smoothing to the remapped topo files.
+  smooth_topo  — apply smoothing to the remapped topo files.
   calc_topo_sgh — compute SGH30 and SGH subgrid-scale orography variance.
+
+Smoothing backend is selected by ``topo.use_python_smooth`` in project.yaml
+(default: true).  Set to false to use the original homme_tool path.
 
 Usage
 -----
@@ -18,6 +21,7 @@ Usage
     python -m taos.topo path/to/project.yaml --stage all
 """
 import os
+import textwrap
 from pathlib import Path
 
 import numpy as np
@@ -26,18 +30,12 @@ import xarray as xr
 from taos.config import taos_config
 from taos.grid import create_grid
 from taos import sem
-from taos.util import clr, print_line, run_cmd, timer
+from taos.util import clr, e3sm_env_prefix, print_line, run_cmd, timer
 
 _GRAVITY = 9.80616
 
 # -------------------------------------------------------------------
 # internal helpers
-
-
-def _e3sm_env_prefix(cfg):
-    """Return a bash one-liner that loads the E3SM module environment."""
-    e3sm_src = cfg['paths.e3sm_src_root']
-    return f'eval $({e3sm_src}/cime/CIME/Tools/get_case_env)'
 
 
 def _topo_paths(cfg):
@@ -48,12 +46,13 @@ def _topo_paths(cfg):
     timestamp = cfg['project.timestamp']
     np4_name  = cfg.get('grid.name_np4', grid_name + 'np4')
     pg2_name  = cfg.get('grid.name_pg2', grid_name + 'pg2')
-    return {
+    exodus_override = cfg.get('grid.grid_file_exodus', '')
+    paths = {
         # grid files (inputs, created by taos.grid)
         'grid_file_np4_mbda': f'{grid_root}/{np4_name}_mbda.nc',
         'grid_file_pg2_mbda': f'{grid_root}/{pg2_name}_mbda.nc',
         'grid_file_3km_mbda': f'{grid_root}/ne3000pg1_mbda.nc',
-        'grid_file_exodus':   f'{grid_root}/{grid_name}.g',
+        'grid_file_exodus':   exodus_override or f'{grid_root}/{grid_name}.g',
         # intermediate topo files
         'topo_file_3km':      f'{topo_root}/tmp_USGS-topo_ne3000.nc',
         'topo_file_1_np4':    f'{topo_root}/tmp_USGS-topo_{grid_name}-np4.nc',
@@ -65,6 +64,10 @@ def _topo_paths(cfg):
         # final output topo file
         'topo_file_final':    f'{topo_root}/USGS-topo_{grid_name}-np4_smoothedx6t_{timestamp}.nc',
     }
+    homme_tool_root = cfg.get('paths.homme_tool_root', '')
+    if homme_tool_root:
+        paths['nl_file_smooth'] = f'{homme_tool_root}/input.grd.{grid_name}.nl'
+    return paths
 
 
 # -------------------------------------------------------------------
@@ -90,7 +93,7 @@ def remap_topo(cfg, force_new_3km_data=False):
         mbda_path    = cfg['paths.mbda_path']
         unified_bin  = cfg['paths.unified_bin']
         topo_file_src = cfg['paths.topo_file_src']
-        env_prefix   = _e3sm_env_prefix(cfg)
+        env_prefix   = e3sm_env_prefix(cfg)
         p            = _topo_paths(cfg)
 
         if force_new_3km_data and os.path.exists(p['topo_file_3km']):
@@ -200,17 +203,36 @@ def remap_topo(cfg, force_new_3km_data=False):
 
 def smooth_topo(cfg):
     """
-    Apply Python SEM tensor hyperviscosity smoothing to the remapped topo files.
+    Apply smoothing to the remapped topography files.
 
-    Replaces homme_tool topo_pgn_to_smoothed (hypervis_scaling=2, numcycle=6,
-    nudt=4e-16).  Reads the Exodus mesh once, then smooths:
-      1. Source topo (topo_file_1_np4)  → topo_file_2
-      2. 3km topo   (topo_file_3km_1)   → topo_file_3km_2
+    The backend is chosen by ``topo.use_python_smooth`` in project.yaml
+    (default: true):
+
+    - true  — pure Python SEM tensor hyperviscosity (no homme_tool required)
+    - false — original homme_tool topo_pgn_to_smoothed via srun
+
+    Both produce identical output files for the next stage.  The homme_tool
+    path requires ``paths.homme_tool_root`` to be set and an active E3SM
+    module environment.
 
     Parameters
     ----------
     cfg : taos_config
     """
+    # per-grid override takes precedence over project-wide topo: setting
+    use_python = cfg.get('grid.use_python_smooth',
+                         cfg.get('topo.use_python_smooth', True))
+    if isinstance(use_python, str):
+        use_python = use_python.lower() not in ('false', '0', 'no')
+
+    if use_python:
+        _smooth_topo_python(cfg)
+    else:
+        _smooth_topo_homme(cfg)
+
+
+def _smooth_topo_python(cfg):
+    """Python SEM tensor hyperviscosity smoothing (no homme_tool required)."""
     with timer.time('smooth_topo'):
         p = _topo_paths(cfg)
 
@@ -226,12 +248,10 @@ def smooth_topo(cfg):
 
         def _smooth_file(input_path, output_path, label):
             with timer.time(label):
-                ds_in      = xr.open_dataset(input_path)
-                phis       = ds_in['PHIS'].values.flatten()
+                ds_in  = xr.open_dataset(input_path)
+                phis   = ds_in['PHIS'].values.flatten()
                 ds_in.close()
-
                 phis_smooth = sem.smooth_phis(phis, g_det, inverse_idx, ncol)
-
                 ds_out = xr.Dataset({
                     'PHIS':   xr.DataArray(phis_smooth, dims=['ncol'],
                                            attrs={'units': 'm2 s-2'}),
@@ -244,14 +264,68 @@ def smooth_topo(cfg):
         # -------------------------------------------------------------------
         # smooth source topo
         print_line()
-        print(f'\n  {clr.CYAN}Smoothing source topo (np4){clr.END}')
+        print(f'\n  {clr.CYAN}Smoothing source topo (np4) — Python{clr.END}')
         _smooth_file(p['topo_file_1_np4'], p['topo_file_2'], 'smooth: Python source np4')
 
         # -------------------------------------------------------------------
         # smooth 3km topo
         print_line()
-        print(f'\n  {clr.CYAN}Smoothing 3km topo (np4){clr.END}')
+        print(f'\n  {clr.CYAN}Smoothing 3km topo (np4) — Python{clr.END}')
         _smooth_file(p['topo_file_3km_1'], p['topo_file_3km_2'], 'smooth: Python 3km np4')
+
+
+def _smooth_topo_homme(cfg):
+    """homme_tool topo_pgn_to_smoothed smoothing (requires homme_tool_root + srun)."""
+    with timer.time('smooth_topo'):
+        # -------------------------------------------------------------------
+        # resolve paths
+        homme_tool_root = cfg['paths.homme_tool_root']
+        env_prefix      = e3sm_env_prefix(cfg)
+        p               = _topo_paths(cfg)
+
+        def _run_smooth(input_file, output_file, label):
+            nl_content = textwrap.dedent(f"""\
+                &ctl_nl
+                mesh_file = "{p['grid_file_exodus']}"
+                smooth_phis_p2filt = 0
+                smooth_phis_numcycle = 6
+                smooth_phis_nudt = 4e-16
+                hypervis_scaling = 2
+                se_ftype = 2
+                /
+                &vert_nl
+                /
+                &analysis_nl
+                tool = 'topo_pgn_to_smoothed'
+                infilenames = '{input_file}', '{output_file}'
+                output_type='netcdf4p'
+                /
+                """)
+            Path(p['nl_file_smooth']).write_text(nl_content)
+
+            cmd = (f'cd {homme_tool_root} && {env_prefix} &&'
+                   f' srun -n 8 {homme_tool_root}/src/tool/homme_tool < {p["nl_file_smooth"]}')
+            with timer.time(label):
+                run_cmd(cmd)
+
+            # homme_tool appends "1.nc" to the output prefix
+            produced = f'{output_file}1.nc'
+            if not os.path.exists(produced):
+                raise RuntimeError(f'homme_tool smoothing FAILED: {produced}')
+            run_cmd(f'mv {produced} {output_file}')
+            print(f'\n  {clr.GREEN}Smoothing SUCCESSFUL:{clr.END} {output_file}')
+
+        # -------------------------------------------------------------------
+        # smooth source topo
+        print_line()
+        print(f'\n  {clr.CYAN}Smoothing source topo (np4) — homme_tool{clr.END}')
+        _run_smooth(p['topo_file_1_np4'], p['topo_file_2'], 'smooth: homme_tool source np4')
+
+        # -------------------------------------------------------------------
+        # smooth 3km topo
+        print_line()
+        print(f'\n  {clr.CYAN}Smoothing 3km topo (np4) — homme_tool{clr.END}')
+        _run_smooth(p['topo_file_3km_1'], p['topo_file_3km_2'], 'smooth: homme_tool 3km np4')
 
 
 # -------------------------------------------------------------------

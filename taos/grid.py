@@ -19,16 +19,10 @@ import numpy as np
 
 from taos import sem
 from taos.config import taos_config
-from taos.util import clr, print_line, run_cmd, timer
+from taos.util import clr, e3sm_env_prefix, print_line, run_cmd, timer
 
 # -------------------------------------------------------------------
 # internal helpers
-
-
-def _e3sm_env_prefix(cfg):
-    """Return a bash one-liner that loads the E3SM module environment."""
-    e3sm_src = cfg['paths.e3sm_src_root']
-    return f'eval $({e3sm_src}/cime/CIME/Tools/get_case_env)'
 
 
 def _grid_paths(cfg):
@@ -38,8 +32,9 @@ def _grid_paths(cfg):
     homme_tool_root = cfg.get('paths.homme_tool_root', '')
     np4_name = cfg.get('grid.name_np4', grid_name + 'np4')
     pg2_name = cfg.get('grid.name_pg2', grid_name + 'pg2')
+    exodus_override = cfg.get('grid.grid_file_exodus', '')
     return {
-        'grid_file_exodus':     f'{grid_root}/{grid_name}.g',
+        'grid_file_exodus':     exodus_override or f'{grid_root}/{grid_name}.g',
         'grid_file_np4_scrip':  f'{grid_root}/{np4_name}_scrip.nc',
         'grid_file_np4_mbda':   f'{grid_root}/{np4_name}_mbda.nc',
         'grid_file_pg2_scrip':  f'{grid_root}/{pg2_name}_scrip.nc',
@@ -191,13 +186,23 @@ def create_grid(cfg):
     Set ``grid.homme_np4_scrip: true`` in project.yaml to revert to the legacy
     homme_tool grid_template_tool + HOMME2SCRIP.py path.
 
+    Prerequisites
+    -------------
+    The target grid Exodus II file (``<grid_root>/<grid_name>.g``, or the path
+    set by ``grid.grid_file_exodus``) must already exist before calling this
+    function.  For uniform grids it can be generated with GenerateCSMesh; for
+    RRM grids it is produced by SQuadGen.
+
     Steps
     -----
-    1. Generate np4 SCRIP and MBDA grid files (Python or homme_tool path).
-    2. Create PG2 exodus file via GenerateVolumetricMesh.
-    3. Convert PG2 exodus to SCRIP format via ConvertMeshToSCRIP.
-    4. Create MBDA-format pg2 grid file.
-    5. Create ne3000 (3km) grid files if they do not already exist.
+    1. Generate np4 SCRIP and MBDA grid files (pure-Python path by default;
+       homme_tool grid_template_tool + HOMME2SCRIP.py if
+       ``grid.homme_np4_scrip: true``).
+    2. Create pg2 exodus file from the target exodus via GenerateVolumetricMesh.
+    3. Convert pg2 exodus to SCRIP format via ConvertMeshToSCRIP.
+    4. Convert pg2 SCRIP to MBDA format via ncap2 + ncrename.
+    5. Create ne3000 (3km) grid files if they do not already exist:
+       GenerateCSMesh → ConvertMeshToSCRIP → ncap2.
 
     Parameters
     ----------
@@ -209,7 +214,7 @@ def create_grid(cfg):
     grid_name     = cfg['grid.name']
     unified_bin   = cfg['paths.unified_bin']
     e3sm_src_root = cfg['paths.e3sm_src_root']
-    env_prefix    = _e3sm_env_prefix(cfg)
+    env_prefix    = e3sm_env_prefix(cfg)
     p             = _grid_paths(cfg)
 
     use_homme_np4 = cfg.get('grid.homme_np4_scrip', False)

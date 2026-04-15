@@ -30,6 +30,13 @@ def print_line(width=80):
 
 # -------------------------------------------------------------------
 # command execution
+
+def e3sm_env_prefix(cfg):
+    """Return a bash one-liner that loads the E3SM module environment."""
+    e3sm_src = cfg['paths.e3sm_src_root']
+    return f'eval $({e3sm_src}/cime/CIME/Tools/get_case_env 2>/dev/null)'
+
+
 def run_cmd(cmd: str) -> None:
     """Execute a shell command, printing it first and raising on failure."""
     print(f'\n  {clr.GREEN}{cmd}{clr.END}')
