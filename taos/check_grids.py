@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-show_grids.py — Print expected file paths for each grid in a TAOS project.
+check_grids.py — Print expected file paths for each grid in a TAOS project.
 
 Prints grid, topo, and map file paths for each configured grid, with a
 color-coded indicator showing whether each file currently exists on disk.

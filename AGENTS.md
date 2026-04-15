@@ -35,8 +35,9 @@ python -m taos.domain path/to/project.yaml
 Helper scripts in each project directory:
 
 ```shell
-python show_config.py    # print all resolved config values
+python check_config.py   # print all resolved config values
 python check_paths.py    # color-coded check of which paths exist on disk
+python check_grids.py    # color-coded check of grid/topo/map file existence
 ```
 
 ## Building Required Tools
@@ -116,8 +117,9 @@ projects/
   template/          ← copy this to start a new project
     project.yaml     ← all configuration (machine auto-detected)
     run_workflow.py  ← edit to select which stages/grids to run
-    show_config.py
+    check_config.py
     check_paths.py
+    check_grids.py
   <year>-<name>/     ← active projects
   archive/           ← completed/old projects (bash-based set_project.sh style)
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-show_config.py — Print all resolved TAOS configuration values.
+check_config.py — Print all resolved TAOS configuration values.
 
 Usage
 -----
