@@ -1,0 +1,1 @@
+../../swag/check_paths.py
