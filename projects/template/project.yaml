@@ -59,6 +59,13 @@ paths:
   mbda_path:       ""
   topo_file_src:   ""
 
+# --- Topo options (optional) -------------------------------------------------
+
+topo:
+  # Set to false to use the original homme_tool topo_pgn_to_smoothed instead of
+  # the Python SEM smoother. Requires paths.homme_tool_root to be set.
+  use_python_smooth: true
+
 # --- SLURM overrides (optional) ----------------------------------------------
 
 slurm:

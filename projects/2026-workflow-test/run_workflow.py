@@ -8,6 +8,7 @@ Submit SLURM jobs or call taos module functions directly as needed.
 for interactive workflow at NERSC:
     salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
     salloc --nodes 1 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
+    source activate ux_env
     python run_workflow.py
 """
 import os, pathlib
@@ -30,7 +31,6 @@ slurm_qos        = cfg.get('slurm.qos', '')
 
 use_batch = False  # set False to run steps directly on the current node
 
-do_grid   = True
 # do_maps   = True
 # do_domain = True
 do_topo   = True
@@ -40,7 +40,12 @@ do_topo   = True
 # or list specific grid names to process a subset
 
 active_grids = None
-active_grids = ['ne30']
+# active_grids = ['ne4']
+# active_grids = ['ne4-hm']
+active_grids = ['ne4-py']
+# active_grids = ['ne30']
+# active_grids = ['ne30-hm']
+# active_grids = ['ne30-py']
 
 #-------------------------------------------------------------------------------
 # submit one set of jobs per grid
@@ -65,16 +70,6 @@ for grid_cfg in cfg.iter_grids():
     # sbatch += f' --mail-type={cfg["slurm.mail_type"]}'
 
     yaml_path = proj_dir / 'project.yaml'
-
-    #---------------------------------------------------------------------------
-    # grid files (np4/pg2/3km SCRIP and MBDA)
-
-    if locals().get('do_grid', False):
-        cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name}'
-        if use_batch:
-            run_cmd(f'{sbatch} --job-name=gen_grid_{grid_name} --nodes=1 --ntasks-per-node=32 --time=0:30:00 --wrap="{cmd}"')
-        else:
-            run_cmd(cmd)
 
     #---------------------------------------------------------------------------
     # maps and domain (chained: domain depends on map files produced by maps)
