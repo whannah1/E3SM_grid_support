@@ -14,16 +14,14 @@ Edit the "User configuration" section below, then run:
 # --------------------------------------------------------------------------------------------------
 # Imports
 # --------------------------------------------------------------------------------------------------
-import os
-import numpy as np
-import xarray as xr
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+import os, numpy as np, xarray as xr
+import matplotlib as mpl, matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
+import cartopy.crs as ccrs, cartopy.feature as cfeature
 import cmocean
+# --------------------------------------------------------------------------------------------------
+class tclr: END,RED,GRN,MGN,CYN,YLW = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m','\033[33m'
 # --------------------------------------------------------------------------------------------------
 # User configuration — edit this section
 # --------------------------------------------------------------------------------------------------
@@ -50,12 +48,19 @@ def add_grid(file, name, clat=0, clon=0, topo_file=None, markers=None):
 # Add grids here
 grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
 topo_root = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
-add_grid(f'{grid_root}/ne30pg2_scrip.nc',  'ne30',  clat=38, clon=-120, topo_file=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc')
-add_grid(f'{grid_root}/scrip_ne120pg2.nc', 'ne120', clat=38, clon=-120, topo_file=f'{topo_root}/USGS-gtopo30_ne120np4pg2_x6t_20230404.nc')
+# add_grid(f'{grid_root}/ne30pg2_scrip.nc',  'ne30',  clat=38, clon=-120)#, topo_file=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc')
+# add_grid(f'{grid_root}/scrip_ne120pg2.nc', 'ne120', clat=38, clon=-120)#, topo_file=f'{topo_root}/USGS-gtopo30_ne120np4pg2_x6t_20230404.nc')
+
+grid_root = '/global/cfs/cdirs/m5277/whannah/files_grid'
+# add_grid(f'{grid_root}/STRONG-CA-32x5-v1-pg2_scrip.nc', 'CA-32x5 v1', clat=38, clon=-120)
+add_grid(f'{grid_root}/STRONG-CA-32x5-v2-pg2_scrip.nc', 'CA-32x5 v2', clat=38, clon=-120)
+
+# add_grid(f'{grid_root}/STRONG-CA-128x3-v1-pg2_scrip.nc', 'CA-128x3 v1', clat=38, clon=-120)
+# add_grid(f'{grid_root}/STRONG-CA-128x3-v2-pg2_scrip.nc', 'CA-128x3 v2', clat=38, clon=-120)
 
 # ------------------------------------------------------------------------------
 # Shade mode: 'area', 'topo', or 'lines'
-shade_mode = 'topo'
+shade_mode = 'lines'
 
 # Color scale for 'area' mode — approximate grid spacing [km]
 dx_min = 3.0
@@ -67,11 +72,11 @@ topo_min = -500
 topo_max = 4800
 
 # Half-width/height of the zoomed view [degrees]
-half_w = 10
-half_h = 10
+half_w = 50
+half_h = 30
 
 # Panel layout and figure size [inches per panel]
-num_plot_col = len(grids)
+num_plot_col = 1#len(grids)
 panel_w      = 5.5
 panel_h      = 5.5
 
@@ -146,6 +151,10 @@ fig = plt.figure(figsize=(panel_w * num_plot_col, panel_h * num_rows))
 
 for idx, g in enumerate(grids):
 
+    print(f'  {tclr.GRN}{g["name"]:20}{tclr.END}  {tclr.YLW}{g["file"]}{tclr.END}')
+
+    # --------------------------------------------------------------------------
+
     proj = ccrs.PlateCarree()
     ax   = fig.add_subplot(num_rows, num_plot_col, idx + 1, projection=proj)
 
@@ -160,7 +169,10 @@ for idx, g in enumerate(grids):
     sc     = load_scrip(g['file'])
     ncells = sc['ncells']
     dx     = approx_dx(sc['area'])
-
+    # --------------------------------------------------------------------------
+    print(f'    ncells : {ncells}')
+    print(f'    dx     : {np.min(dx):6.2f} - {np.max(dx):6.2f} km')
+    # --------------------------------------------------------------------------
     if shade_mode == 'topo':
         if g['topo_file'] is None:
             raise ValueError(f"shade_mode='topo' requires topo_file for grid '{g['name']}'")
