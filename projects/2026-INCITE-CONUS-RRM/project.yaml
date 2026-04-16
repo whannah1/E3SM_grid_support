@@ -34,6 +34,11 @@ grid:
   spa_name: ""
   spa_file: ""
 
+  # Use homme_tool for np4 SCRIP generation (instead of pure-Python path)
+  homme_np4_scrip:  true
+  # Use homme_tool for topo smoothing (instead of pure-Python SEM path)
+  use_python_smooth: false
+
 grids:
   - name: "2026-incite-conus-128x2"
     name_np4: "2026-incite-conus-128x2-np4"

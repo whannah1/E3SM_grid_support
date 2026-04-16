@@ -34,6 +34,9 @@ grid:
   spa_name: ""
   spa_file: ""
 
+  # Use homme_tool for np4 SCRIP generation (instead of pure-Python path)
+  homme_np4_scrip:  true
+
 grids:
   - name: "ne30"
   - name: "ne45"

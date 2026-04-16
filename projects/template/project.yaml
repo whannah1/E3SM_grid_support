@@ -34,6 +34,11 @@ grid:
   spa_name: ""
   spa_file: ""
 
+  # Set to true to use homme_tool grid_template_tool + HOMME2SCRIP.py for np4
+  # SCRIP generation instead of the default pure-Python path.
+  # Requires paths.homme_tool_root to be set.
+  homme_np4_scrip: false
+
 grids:
   - name: "ne30"
   - name: "ne45"
