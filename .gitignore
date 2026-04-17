@@ -5,6 +5,7 @@ projects/*/logs
 */._*.png
 */*/._*.png
 figs_grid_plot/*.png
+projects/*/*.png
 */._*.png
 */*.png
 __pycache__/
@@ -17,3 +18,4 @@ refine_map.dat
 *.pyo
 build/
 taos.egg-info/
+plans/
