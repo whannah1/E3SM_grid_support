@@ -11,11 +11,32 @@ GRID_ROOT=/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/fi
 unified_bin=/global/common/software/e3sm/anaconda_envs/e3smu_1_12_0/pm-cpu/conda/envs/e3sm_unified_1.12.0_login/bin
 
 # for NE in 30 120 256; do
-for NE in 512 1024 2048; do
+# for NE in 512 1024 2048; do
+for NE in 16; do
     ${unified_bin}/GenerateCSMesh --alt --res ${NE} --file ${GRID_ROOT}/ne${NE}.g
     ${unified_bin}/GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2.g --np 2 --uniform
     ${unified_bin}/ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
 done
+```
+
+An RRM is useful for testing the smoothing and SGH calculations
+
+```shell
+# us rectangular region for refinement
+GRID_ROOT=/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid
+# BASE_RES=16; REFINE_LVL=2
+# BASE_RES=32; REFINE_LVL=2
+BASE_RES=32; REFINE_LVL=2
+GRID_NAME=RRM-test-${BASE_RES}x${REFINE_LVL}
+RLAT1=20; RLAT2=50; RLON1=-130; RLON2=-50
+SQuadGen --refine_rect ${RLON1},${RLAT1},${RLON2},${RLAT2},${REFINE_LVL} --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist 10 --smooth_iter 20 --lon_ref 260 --lat_ref 40 --output ${GRID_ROOT}/${GRID_NAME}.g
+cd ${GRID_ROOT}
+# GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform
+# ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc
+GenerateVolumetricMesh --in ${GRID_NAME}.g     --out ${GRID_NAME}-pg2.g --np 2 --uniform
+ConvertMeshToSCRIP     --in ${GRID_NAME}-pg2.g --out ${GRID_NAME}-pg2_scrip.nc
+ls -l ${GRID_ROOT}/${GRID_NAME}*
+cd ~/E3SM_grid_support/projects/workflow-test
 ```
 
 --------------------------------------------------------------------------------

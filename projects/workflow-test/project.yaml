@@ -36,15 +36,15 @@ grid:
   spa_file: ""
 
 grids:
-  - name: "ne4"
-  - name: "ne4-hm"
-    grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne4.g
-    homme_np4_scrip: True
-    use_python_smooth: False
-  - name: "ne4-py"
-    grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne4.g
-    homme_np4_scrip: False
-    use_python_smooth: True
+  # - name: "ne4"
+  # - name: "ne4-hm"
+  #   grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne4.g
+  #   homme_np4_scrip: True
+  #   use_python_smooth: False
+  # - name: "ne4-py"
+  #   grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne4.g
+  #   homme_np4_scrip: False
+  #   use_python_smooth: True
   - name: "ne30"
   - name: "ne30-hm"
     grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne30.g
@@ -52,6 +52,16 @@ grids:
     use_python_smooth: False
   - name: "ne30-py"
     grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne30.g
+    homme_np4_scrip: False
+    use_python_smooth: True
+  - name: "RRM-test-32x1-hm"
+    grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/RRM-test-32x1.g
+    # grid_file_pg2_scrip:/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/RRM-test-32x1
+    # grid_file_pg2_mbda:
+    homme_np4_scrip: True
+    use_python_smooth: False
+  - name: "RRM-test-32x1-py"
+    grid_file_exodus: /global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/RRM-test-32x1.g
     homme_np4_scrip: False
     use_python_smooth: True
   # - name: "ne45"
