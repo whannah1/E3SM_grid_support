@@ -177,7 +177,7 @@ def remap_topo(cfg, force_new_3km_data=False):
                f' --target {p["grid_file_np4_mbda"]}'
                f' --source {p["topo_file_3km"]}'
                f' --output {p["topo_file_3km_1"]}'
-               f' --fields PHIS')
+               f' --fields PHIS --square-fields PHIS')
         with timer.time('remap: MBDA 3km → np4'):
             run_cmd(cmd)
         if not os.path.exists(p['topo_file_3km_1']):
@@ -286,6 +286,7 @@ def _smooth_topo_homme(cfg):
         def _run_smooth(input_file, output_file, label):
             nl_content = textwrap.dedent(f"""\
                 &ctl_nl
+                ne = 0
                 mesh_file = "{p['grid_file_exodus']}"
                 smooth_phis_p2filt = 0
                 smooth_phis_numcycle = 6
@@ -360,6 +361,7 @@ def calc_topo_sgh(cfg):
         ds_3km    = xr.open_dataset(p['topo_file_3km_pg2'])
         ds_1_pg2  = xr.open_dataset(p['topo_file_1_pg2'])
         ds_2      = xr.open_dataset(p['topo_file_2'])
+        ds_3km_1  = xr.open_dataset(p['topo_file_3km_1'])
         ds_3km_2  = xr.open_dataset(p['topo_file_3km_2'])
         ds_1_np4  = xr.open_dataset(p['topo_file_1_np4'])
 
@@ -394,10 +396,12 @@ def calc_topo_sgh(cfg):
             ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
 
             # SGH_dycore (debug: use homme_tool smoothed phi)
-            phis_3km_smooth  = ds_3km_2['PHIS']
-            var_3km_d        = _compute_variance(phis_3km, phis_3km_smooth, phis_3km_squared)
+            phis_3km_np4         = ds_3km_1['PHIS']
+            phis_3km_np4_squared = ds_3km_1['PHIS_squared']
+            phis_3km_smooth      = ds_3km_2['PHIS']
+            var_3km_d            = _compute_variance(phis_3km_np4, phis_3km_smooth, phis_3km_np4_squared)
             var_3km_d        = xr.where(var_3km_d > 0, var_3km_d, 0)
-            sgh_dycore       = np.sqrt(var_3km_d) / _GRAVITY
+            sgh_dycore       = (np.sqrt(var_3km_d) / _GRAVITY).rename({'ncol': 'ncol_d'})
 
             ds_out['SGH_dycore'] = sgh_dycore
             ds_out['SGH_dycore'].attrs['units']     = 'm'
@@ -419,9 +423,9 @@ def calc_topo_sgh(cfg):
                 ds_out[f'{coord}_d'] = var
 
         if 'PHIS' in ds_2:
-            ds_out['PHIS'] = ds_2['PHIS']
+            ds_out['PHIS'] = ds_2['PHIS'].rename({'ncol': 'ncol_d'})
         if 'PHIS_d' in ds_2:
-            ds_out['PHIS_d'] = ds_2['PHIS_d']
+            ds_out['PHIS_d'] = ds_2['PHIS_d'].rename({'ncol': 'ncol_d'})
 
         # -------------------------------------------------------------------
         # close inputs and write output
