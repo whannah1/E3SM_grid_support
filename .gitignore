@@ -6,6 +6,7 @@ projects/*/logs
 */*/._*.png
 figs_grid_plot/*.png
 projects/*/*.png
+projects/*/figs/*.png
 */._*.png
 */*.png
 __pycache__/
