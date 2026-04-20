@@ -24,17 +24,19 @@ An RRM is useful for testing the smoothing and SGH calculations
 ```shell
 # us rectangular region for refinement
 GRID_ROOT=/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid
+unified_bin=/global/common/software/e3sm/anaconda_envs/e3smu_1_12_0/pm-cpu/conda/envs/e3sm_unified_1.12.0_login/bin
 # BASE_RES=16; REFINE_LVL=2
 # BASE_RES=32; REFINE_LVL=2
-BASE_RES=32; REFINE_LVL=2
+BASE_RES=32; REFINE_LVL=1
 GRID_NAME=RRM-test-${BASE_RES}x${REFINE_LVL}
-RLAT1=20; RLAT2=50; RLON1=-130; RLON2=-50
-SQuadGen --refine_rect ${RLON1},${RLAT1},${RLON2},${RLAT2},${REFINE_LVL} --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist 10 --smooth_iter 20 --lon_ref 260 --lat_ref 40 --output ${GRID_ROOT}/${GRID_NAME}.g
+# RLAT1=20; RLAT2=50; RLON1=-130; RLON2=-50 # cover entire conus region
+RLAT1=38; RLAT2=39; RLON1=-108; RLON2=-107 # smaller region just for testing
+${unified_bin}/SQuadGen --refine_rect ${RLON1},${RLAT1},${RLON2},${RLAT2},${REFINE_LVL} --resolution ${BASE_RES} --refine_level ${REFINE_LVL} --refine_type LOWCONN --smooth_type SPRING --smooth_dist 10 --smooth_iter 20 --lon_ref -107.5 --lat_ref 38.5 --output ${GRID_ROOT}/${GRID_NAME}.g
 cd ${GRID_ROOT}
-# GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform
-# ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc
-GenerateVolumetricMesh --in ${GRID_NAME}.g     --out ${GRID_NAME}-pg2.g --np 2 --uniform
-ConvertMeshToSCRIP     --in ${GRID_NAME}-pg2.g --out ${GRID_NAME}-pg2_scrip.nc
+# ${unified_bin}/GenerateVolumetricMesh --in ${GRID_ROOT}/${GRID_NAME}.g     --out ${GRID_ROOT}/${GRID_NAME}-pg2.g --np 2 --uniform
+# ${unified_bin}/ConvertMeshToSCRIP     --in ${GRID_ROOT}/${GRID_NAME}-pg2.g --out ${GRID_ROOT}/${GRID_NAME}-pg2_scrip.nc
+${unified_bin}/GenerateVolumetricMesh --in ${GRID_NAME}.g     --out ${GRID_NAME}-pg2.g --np 2 --uniform
+${unified_bin}/ConvertMeshToSCRIP     --in ${GRID_NAME}-pg2.g --out ${GRID_NAME}-pg2_scrip.nc
 ls -l ${GRID_ROOT}/${GRID_NAME}*
 cd ~/E3SM_grid_support/projects/workflow-test
 ```
