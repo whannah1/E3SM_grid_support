@@ -43,7 +43,9 @@ def add_grid(file, name, clat=0, clon=0, topo_file=None, markers=None):
     """
     grids.append(dict(file=file, name=name, clat=clat, clon=clon,
                       topo_file=topo_file, markers=markers or []))
-
+# ------------------------------------------------------------------------------
+# Output path
+fig_file = 'figs/grid.png'
 # ------------------------------------------------------------------------------
 # Add grids here
 grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
@@ -79,10 +81,6 @@ half_h = 30
 num_plot_col = 1#len(grids)
 panel_w      = 5.5
 panel_h      = 5.5
-
-# Output path (file extension sets format: png, pdf, svg)
-fig_file = 'figs_grid_plot/grid.png'
-# fig_file = f'{home}/E3SM_grid_support/figs_grid_plot/grid.png'
 
 # --------------------------------------------------------------------------------------------------
 # Colormaps
