@@ -37,10 +37,10 @@ def e3sm_env_prefix(cfg):
     return f'eval $({e3sm_src}/cime/CIME/Tools/get_case_env) 2>/dev/null'
 
 
-def run_cmd(cmd: str) -> None:
+def run_cmd(cmd: str, cwd: str = None) -> None:
     """Execute a shell command, printing it first and raising on failure."""
     print(f'\n  {clr.GREEN}{cmd}{clr.END}')
-    sp.run(cmd, shell=True, check=True, executable='/bin/bash')
+    sp.run(cmd, shell=True, check=True, executable='/bin/bash', cwd=cwd)
 
 # -------------------------------------------------------------------
 # timing
