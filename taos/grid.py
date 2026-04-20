@@ -288,20 +288,30 @@ def create_grid(cfg):
         print(f'\n  {clr.GREEN}MBDA np4 grid file creation SUCCESSFUL:{clr.END} {p["grid_file_np4_mbda"]}')
 
         # -------------------------------------------------------------------
+        # TempestRemap command will throw an error with long absolute paths,
+        # so these two commands use relative paths via cwd=grid_root.
+
+        grid_root = cfg['derived.grid_root']
+
+        grid_file_exodus_rel    = p['grid_file_exodus'].replace(f'{grid_root}/','')
+        grid_file_pg2_mbda_rel  = p['grid_file_pg2_mbda'].replace(f'{grid_root}/','')
+        grid_file_pg2_scrip_rel = p['grid_file_pg2_scrip'].replace(f'{grid_root}/','')
+
         # create PG2 exodus file
         cmd = (f'{env_prefix} &&'
                f' {unified_bin}/GenerateVolumetricMesh'
-               f' --in {p["grid_file_exodus"]} --out {p["grid_file_pg2_mbda"]} --np 2 --uniform')
+               f' --in {grid_file_exodus_rel} --out {grid_file_pg2_mbda_rel} --np 2 --uniform')
         with timer.time('grid: GenerateVolumetricMesh pg2'):
-            run_cmd(cmd)
+            run_cmd(cmd, cwd=grid_root)
 
         # convert PG2 exodus to SCRIP
         cmd = (f'{env_prefix} &&'
                f' {unified_bin}/ConvertMeshToSCRIP'
-               f' --in {p["grid_file_pg2_mbda"]} --out {p["grid_file_pg2_scrip"]}')
+               f' --in {grid_file_pg2_mbda_rel} --out {grid_file_pg2_scrip_rel}')
         with timer.time('grid: ConvertMeshToSCRIP pg2'):
-            run_cmd(cmd)
+            run_cmd(cmd, cwd=grid_root)
 
+        # -------------------------------------------------------------------
         # create MBDA-format pg2 grid file
         cmd = (f'{unified_bin}/ncap2 -v -5 -O'
                f' -s "lon=grid_center_lon;lat=grid_center_lat;area=grid_area"'
