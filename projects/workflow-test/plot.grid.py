@@ -45,6 +45,9 @@ def add_grid(file, name, clat=0, clon=0, topo_file=None, markers=None):
                       topo_file=topo_file, markers=markers or []))
 
 # ------------------------------------------------------------------------------
+# Output path
+fig_file = 'figs/grid.png'
+# ------------------------------------------------------------------------------
 # Add grids here
 grid_root = '/global/cfs/cdirs/m4310/whannah/files_grid'
 topo_root = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
@@ -56,7 +59,9 @@ grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test
 # add_grid(f'{grid_root}/RRM-test-16x2-pg2_scrip.nc', 'RRM-test-16x2')#, clat=40, clon=260)
 
 add_grid(f'{grid_root}/RRM-test-32x1-pg2_scrip.nc', 'RRM-test-32x1')#, clat=40, clon=260)
-add_grid(f'{grid_root}/RRM-test-32x2-pg2_scrip.nc', 'RRM-test-32x2')#, clat=40, clon=260)
+add_grid(f'{grid_root}/RRM-test-32x1-hmpg2_scrip.nc', 'RRM-test-32x1-hm')#, clat=40, clon=260)
+# add_grid(f'{grid_root}/RRM-test-32x1-pypg2_scrip.nc', 'RRM-test-32x1-py')#, clat=40, clon=260)
+# add_grid(f'{grid_root}/RRM-test-32x2-pg2_scrip.nc', 'RRM-test-32x2')#, clat=40, clon=260)
 
 # ------------------------------------------------------------------------------
 # Shade mode: 'area', 'topo', or 'lines'
@@ -79,10 +84,6 @@ half_h = 30
 num_plot_col = 1#len(grids)
 panel_w      = 5.5
 panel_h      = 5.5
-
-# Output path (file extension sets format: png, pdf, svg)
-fig_file = 'grid.png'
-# fig_file = f'{home}/E3SM_grid_support/figs_grid_plot/grid.png'
 
 # --------------------------------------------------------------------------------------------------
 # Colormaps
