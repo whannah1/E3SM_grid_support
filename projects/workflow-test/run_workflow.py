@@ -38,6 +38,14 @@ use_batch = False  # set False to run steps directly on the current node
 # do_domain = True
 do_topo   = True
 
+topo_args = ''
+# topo_args += ' --stage grid'
+topo_args += ' --stage remap'
+# topo_args += ' --stage smooth'
+# topo_args += ' --stage sgh'
+# topo_args += ' --stage all'
+# topo_args += ' --force-new-3km-data'
+
 #-------------------------------------------------------------------------------
 # select which grids to process - use None to process all grids in project.yaml,
 # or list specific grid names to process a subset
@@ -49,8 +57,8 @@ active_grids = None
 # active_grids = ['ne30']
 # active_grids = ['ne30-hm']
 # active_grids = ['ne30-py']
-active_grids = ['RRM-test-32x1-hm']
-# active_grids = ['RRM-test-32x1-py']
+# active_grids = ['RRM-test-32x1-hm']
+active_grids = ['RRM-test-32x1-py']
 
 #-------------------------------------------------------------------------------
 # submit one set of jobs per grid
@@ -99,13 +107,6 @@ for grid_cfg in cfg.iter_grids():
     # topography
 
     if locals().get('do_topo', False):
-        topo_args = ''
-        # topo_args += ' --stage grid'
-        # topo_args += ' --stage remap'
-        # topo_args += ' --stage smooth'
-        # topo_args += ' --stage sgh'
-        topo_args += ' --stage all'
-        # topo_args += ' --force-new-3km-data'
 
         cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} {topo_args}'
         if use_batch:
