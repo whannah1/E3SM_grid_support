@@ -40,7 +40,22 @@ def e3sm_env_prefix(cfg):
 def run_cmd(cmd: str, cwd: str = None) -> None:
     """Execute a shell command, printing it first and raising on failure."""
     print(f'\n  {clr.GREEN}{cmd}{clr.END}')
-    sp.run(cmd, shell=True, check=True, executable='/bin/bash', cwd=cwd)
+    try:
+        sp.run(cmd, shell=True, check=True, executable='/bin/bash', cwd=cwd)
+    except sp.CalledProcessError as e:
+        import signal
+        sig_name = ''
+        if e.returncode < 0:
+            try:
+                sig_name = f' ({signal.Signals(-e.returncode).name})'
+            except (ValueError, AttributeError):
+                pass
+        cwd_msg = f'\n  cwd : {cwd}' if cwd else ''
+        print(f'\n  {clr.RED}{"─" * 70}', file=sys.stderr)
+        print(f'  run_cmd failed with exit code {e.returncode}{sig_name}', file=sys.stderr)
+        print(f'  cmd : {cmd}{cwd_msg}', file=sys.stderr)
+        print(f'  {"─" * 70}{clr.END}', file=sys.stderr)
+        raise
 
 # -------------------------------------------------------------------
 # timing
