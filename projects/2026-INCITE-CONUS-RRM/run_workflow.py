@@ -9,7 +9,11 @@ for interactive workflow at NERSC:
     salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
     python run_workflow.py
     
+    salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=m2637
     salloc --nodes 4 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
+
+    source activate ux_env
+    python run_workflow.py
     
 """
 import os, pathlib
@@ -37,14 +41,25 @@ use_batch = True  # set False to run steps directly on the current node
 # do_domain = True
 do_topo   = True
 
+
+topo_args = ''
+# topo_args += ' --stage grid'
+# topo_args += ' --stage remap'
+# topo_args += ' --stage smooth'
+# topo_args += ' --stage sgh'
+# topo_args += ' --stage remap,smooth,sgh'
+# topo_args += ' --stage smooth,sgh'
+topo_args += ' --stage all'
+# topo_args += ' --force-new-3km-data'
+
 #-------------------------------------------------------------------------------
 # select which grids to process - use None to process all grids in project.yaml,
 # or list specific grid names to process a subset
 
 # active_grids = None
 # active_grids = ['2026-incite-conus-128x2'] # smaller grid for testing
-active_grids = ['2026-incite-conus-1024x2']
-# active_grids = ['2026-incite-conus-1024x3']
+# active_grids = ['2026-incite-conus-1024x2']
+active_grids = ['2026-incite-conus-1024x3']
 # active_grids = ['2026-incite-conus-1024x4']
 # active_grids = ['2026-incite-conus-128x2']
 
@@ -60,7 +75,8 @@ MAPS_SLURM = {
 
 TOPO_SLURM = {
     '2026-incite-conus-128x2':  '--nodes=4  --cpus-per-task=32 --time=12:00:00',
-    '2026-incite-conus-1024x2': '--nodes=16 --cpus-per-task=32 --time=48:00:00',
+    '2026-incite-conus-1024x2': '--nodes=1 --time=12:00:00',
+    # '2026-incite-conus-1024x2': '--nodes=16 --cpus-per-task=32 --time=48:00:00',
     '2026-incite-conus-1024x3': '--nodes=32 --cpus-per-task=32 --time=48:00:00',
     '2026-incite-conus-1024x4': '--nodes=64 --cpus-per-task=32 --time=48:00:00',
 }
@@ -122,13 +138,6 @@ for grid_cfg in cfg.iter_grids():
     # topography
 
     if locals().get('do_topo', False):
-        topo_args = ''
-        # topo_args += ' --stage grid'
-        # topo_args += ' --stage remap'
-        topo_args += ' --stage smooth'
-        topo_args += ' --stage sgh'
-        # topo_args += ' --stage all'
-        topo_args += ' --force-new-3km-data'
 
         cmd = f'python -m taos.topo {yaml_path} --grid-name {grid_name} {topo_args}'
         if use_batch:

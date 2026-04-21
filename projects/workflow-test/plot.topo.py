@@ -63,19 +63,19 @@ topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/fil
 # add_file(f'{topo_root}/USGS-topo_ne30-py-np4_smoothedx6t_20260403.nc',name='ne30-py')#,scrip_file=grid_file)
 
 topo_root  = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_topo'
-scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid/RRM-test-32x1-hmnp4_scrip.nc'
+# scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid/RRM-test-32x1-hmnp4_scrip.nc'
+scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid/RRM-test-32x1-hmpg2_scrip.nc'
 
 # add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4.nc',name='RRM-test-32x1-hm')
 # add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4.nc',name='RRM-test-32x1-py')
 # add_var('PHIS')
 
-add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t.nc',name='RRM-test-32x1-hm')
-add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4_smoothedx6t.nc',name='RRM-test-32x1-py')
-add_var('PHIS_d')
-
-# add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
-# add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-py-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
+# add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t.nc',name='RRM-test-32x1-hm')
+# add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4_smoothedx6t.nc',name='RRM-test-32x1-py')
 # add_var('PHIS_d')
+
+add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
+add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-py-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
 
 # scrip_file = f'compare_np4/ne30_np4_scrip_homme.nc'
 # scrip_file = f'compare_np4/ne30_np4_scrip_python.nc'
@@ -92,7 +92,7 @@ add_var('PHIS_d')
 # add_var('PHIS')
 # add_var('PHIS_d')
 # add_var('SGH')
-# add_var('SGH30')
+add_var('SGH30')
 
 # add_var('grid_area')
 
@@ -145,13 +145,17 @@ for v in range(num_var):
    data_list = []
    glb_avg_list = []
    lat_list,lon_list = [],[]
+   grid_ds_list = []
    if 'lev_list' in locals(): lev = lev_list[v]
    for f in range(num_file):
       print(' '*4+'file: '+hapy.tclr.GREEN+file_list[f]+hapy.tclr.END)
       #-------------------------------------------------------------------------
       # scrip_file = scrip_file_list[f]
       #-------------------------------------------------------------------------
-      ds = ux.open_dataset(scrip_file, file_list[f])
+      # ds = ux.open_dataset(scrip_file, file_list[f])
+
+      grid_ds = xr.open_dataset(scrip_file)
+      ds      = xr.open_dataset(file_list[f])
       #-------------------------------------------------------------------------
       # compare datasets
       if False:
@@ -203,7 +207,15 @@ for v in range(num_var):
       #-------------------------------------------------------------------------
       if print_stats: hapy.print_stat(data,name=var[v],stat='naxsh',indent='    ',compact=True,fmt='e')
       #-------------------------------------------------------------------------
+      if 'ncol_d' in data.dims: data = data.rename({'ncol_d':'ncol'})
+      # print()
+      # print(data)
+      # print()
+      # print(grid_ds)
+      # print()
+      # exit()
       data_list.append( data )
+      grid_ds_list.append(grid_ds)
       #-------------------------------------------------------------------------
       # # save baseline for diff map
       # if plot_diff and f==0: data_baseline = data.copy()
@@ -263,12 +275,13 @@ for v in range(num_var):
          clev = None
          ax.set_title('diff',      fontsize=title_fontsize, loc='left')
          ax.set_title(var_str[v],  fontsize=title_fontsize, loc='right')
-         raster = diff.to_raster(ax=ax)
+         # raster = diff.to_raster(ax=ax)
+         raster = hapy.to_raster(diff, grid_ds_list[f-1], ax)
       else:
          ax.set_title(name_list[f],fontsize=title_fontsize, loc='left')
          ax.set_title(var_str[v],  fontsize=title_fontsize, loc='right')
-         raster = data_list[f].to_raster(ax=ax)
-         # raster = hapy.to_raster(data_list[f], grid_ds_list[c], ax)
+         # raster = data_list[f].to_raster(ax=ax)
+         raster = hapy.to_raster(data_list[f], grid_ds_list[f], ax)
 
       if clev is not None: img_kwargs['norm'] = mcolors.BoundaryNorm(clev, ncolors=256)
       img = ax.imshow(raster, extent=ax.get_xlim() + ax.get_ylim(), **img_kwargs)
