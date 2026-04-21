@@ -46,10 +46,32 @@ grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
 # add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc', n='L128 v3.1 alpha=1 pm=900')#, c='black')
 # add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_990.nc', n='L128 v3.1 alpha=1 pm=990')#, c='black')
 
-add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_300.nc',   n='L128 v3.1 alpha=1.0 pm=300', c='black')
-add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc', n='L128 v3.1 alpha=1.5 pm=300', c='red')
-add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc',   n='L128 v3.1 alpha=2.0 pm=300', c='green')
-add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc', n='L128 v3.1 alpha=2.5 pm=300', c='blue')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_300.nc',   n='L128 v3.1 alpha=1.0 pm=300', c='black')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc', n='L128 v3.1 alpha=1.5 pm=300', c='red')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc',   n='L128 v3.1 alpha=2.0 pm=300', c='green')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc', n='L128 v3.1 alpha=2.5 pm=300', c='blue')
+
+
+add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc', n='L128 v3.1 alpha=1.0 pm=100', c='black')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_200.nc', n='L128 v3.1 alpha=1.0 pm=200', c='black')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_300.nc', n='L128 v3.1 alpha=1.0 pm=300', c='black')
+add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc', n='L128 v3.1 alpha=1.5 pm=100', c='red')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_200.nc', n='L128 v3.1 alpha=1.5 pm=200', c='red')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc', n='L128 v3.1 alpha=1.5 pm=300', c='red')
+add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc', n='L128 v3.1 alpha=2.0 pm=100', c='green')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_200.nc', n='L128 v3.1 alpha=2.0 pm=200', c='green')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_300.nc', n='L128 v3.1 alpha=2.0 pm=300', c='green')
+add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc', n='L128 v3.1 alpha=2.5 pm=100', c='blue')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_200.nc', n='L128 v3.1 alpha=2.5 pm=200', c='blue')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc', n='L128 v3.1 alpha=2.5 pm=300', c='blue')
+add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc', n='L128 v3.1 alpha=3.0 pm=100', c='purple')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_200.nc', n='L128 v3.1 alpha=3.0 pm=200', c='purple')
+# add_grid(f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_300.nc', n='L128 v3.1 alpha=3.0 pm=300', c='purple')
+
+
+
+
+
 
 #-------------------------------------------------------------------------------
 # Settings

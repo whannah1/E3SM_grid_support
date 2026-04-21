@@ -12,35 +12,37 @@ print_table = False
 
 hy_alpha_list,hy_pm_list = [],[]
 
-# hy_alpha_list.append(1); hy_pm_list.append(200)
-# hy_alpha_list.append(1); hy_pm_list.append(300)
-# hy_alpha_list.append(1); hy_pm_list.append(400)
-# hy_alpha_list.append(1); hy_pm_list.append(500)
-# hy_alpha_list.append(1); hy_pm_list.append(600)
-# hy_alpha_list.append(1); hy_pm_list.append(700)
-# hy_alpha_list.append(1); hy_pm_list.append(800)
-# hy_alpha_list.append(1); hy_pm_list.append(900)
-# hy_alpha_list.append(1); hy_pm_list.append(990)
 
-hy_alpha_list.append(1.5); hy_pm_list.append(200)
-hy_alpha_list.append(1.5); hy_pm_list.append(300)
-hy_alpha_list.append(1.5); hy_pm_list.append(400)
-hy_alpha_list.append(1.5); hy_pm_list.append(500)
-hy_alpha_list.append(1.5); hy_pm_list.append(600)
-hy_alpha_list.append(1.5); hy_pm_list.append(700)
-hy_alpha_list.append(1.5); hy_pm_list.append(800)
-hy_alpha_list.append(1.5); hy_pm_list.append(900)
-hy_alpha_list.append(1.5); hy_pm_list.append(990)
 
-# hy_alpha_list.append(2); hy_pm_list.append(200)
-# hy_alpha_list.append(2); hy_pm_list.append(300)
-# hy_alpha_list.append(2); hy_pm_list.append(400)
-# hy_alpha_list.append(2); hy_pm_list.append(500)
-# hy_alpha_list.append(2); hy_pm_list.append(600)
-# hy_alpha_list.append(2); hy_pm_list.append(700)
-# hy_alpha_list.append(2); hy_pm_list.append(800)
-# hy_alpha_list.append(2); hy_pm_list.append(900)
-# hy_alpha_list.append(2); hy_pm_list.append(990)
+# hy_alpha_list.append(1.0); hy_pm_list.append(200)
+# hy_alpha_list.append(1.0); hy_pm_list.append(300)
+# hy_alpha_list.append(1.0); hy_pm_list.append(400)
+# hy_alpha_list.append(1.0); hy_pm_list.append(500)
+# hy_alpha_list.append(1.0); hy_pm_list.append(600)
+# hy_alpha_list.append(1.0); hy_pm_list.append(700)
+# hy_alpha_list.append(1.0); hy_pm_list.append(800)
+# hy_alpha_list.append(1.0); hy_pm_list.append(900)
+# hy_alpha_list.append(1.0); hy_pm_list.append(990)
+
+# hy_alpha_list.append(1.5); hy_pm_list.append(200)
+# hy_alpha_list.append(1.5); hy_pm_list.append(300)
+# hy_alpha_list.append(1.5); hy_pm_list.append(400)
+# hy_alpha_list.append(1.5); hy_pm_list.append(500)
+# hy_alpha_list.append(1.5); hy_pm_list.append(600)
+# hy_alpha_list.append(1.5); hy_pm_list.append(700)
+# hy_alpha_list.append(1.5); hy_pm_list.append(800)
+# hy_alpha_list.append(1.5); hy_pm_list.append(900)
+# hy_alpha_list.append(1.5); hy_pm_list.append(990)
+
+# hy_alpha_list.append(2.0); hy_pm_list.append(200)
+# hy_alpha_list.append(2.0); hy_pm_list.append(300)
+# hy_alpha_list.append(2.0); hy_pm_list.append(400)
+# hy_alpha_list.append(2.0); hy_pm_list.append(500)
+# hy_alpha_list.append(2.0); hy_pm_list.append(600)
+# hy_alpha_list.append(2.0); hy_pm_list.append(700)
+# hy_alpha_list.append(2.0); hy_pm_list.append(800)
+# hy_alpha_list.append(2.0); hy_pm_list.append(900)
+# hy_alpha_list.append(2.0); hy_pm_list.append(990)
 
 # hy_alpha_list.append(2.5); hy_pm_list.append(200)
 # hy_alpha_list.append(2.5); hy_pm_list.append(300)
@@ -52,15 +54,22 @@ hy_alpha_list.append(1.5); hy_pm_list.append(990)
 # hy_alpha_list.append(2.5); hy_pm_list.append(900)
 # hy_alpha_list.append(2.5); hy_pm_list.append(990)
 
-# hy_alpha_list.append(3); hy_pm_list.append(200)
-# hy_alpha_list.append(3); hy_pm_list.append(300)
-# hy_alpha_list.append(3); hy_pm_list.append(400)
-# hy_alpha_list.append(3); hy_pm_list.append(500)
-# hy_alpha_list.append(3); hy_pm_list.append(600)
-# hy_alpha_list.append(3); hy_pm_list.append(700)
-# hy_alpha_list.append(3); hy_pm_list.append(800)
-# hy_alpha_list.append(3); hy_pm_list.append(900)
-# hy_alpha_list.append(3); hy_pm_list.append(990)
+# hy_alpha_list.append(3.0); hy_pm_list.append(200)
+# hy_alpha_list.append(3.0); hy_pm_list.append(300)
+# hy_alpha_list.append(3.0); hy_pm_list.append(400)
+# hy_alpha_list.append(3.0); hy_pm_list.append(500)
+# hy_alpha_list.append(3.0); hy_pm_list.append(600)
+# hy_alpha_list.append(3.0); hy_pm_list.append(700)
+# hy_alpha_list.append(3.0); hy_pm_list.append(800)
+# hy_alpha_list.append(3.0); hy_pm_list.append(900)
+# hy_alpha_list.append(3.0); hy_pm_list.append(990)
+
+for al in [1.0,1.5,2.0,2.5,3.0]:
+    for pm in [100,200,300]:
+        hy_alpha_list.append(al); hy_pm_list.append(pm)
+
+# for i in range(len(hy_alpha_list)): print(f'  {hy_alpha_list[i]}  {hy_pm_list[i]}')
+# exit()
 
 # Set up terminal colors
 class tcolor: ENDC,RED,GREEN,CYAN = '\033[0m','\033[31m','\033[32m','\033[36m'
@@ -79,7 +88,7 @@ def main(hy_alpha=None,hy_pm=None):
     # ofile = f'{output_root}/SCREAM_L128_v3.1_c20251112_alpha2.nc'
     # ofile = f'{output_root}/SCREAM_L128_v3.1_c20251112_alpha3.nc'
 
-    ofile = f'{output_root}/SCREAM_L128_v3.1_c20251112_alpha_{hy_alpha}_pm_{hy_pm}.nc'
+    ofile = f'{output_root}/SCREAM_L128_v3.1_c20251112_alpha_{hy_alpha:1.1f}_pm_{hy_pm}.nc'
 
     dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2, 90,  6,  6,   6,   1,   1,]
     dz_list = [20,10,30,40,50,60,70,80,90,100,250,500,750,1000,1250,1500,]
