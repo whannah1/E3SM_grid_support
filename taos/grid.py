@@ -69,7 +69,7 @@ def _compute_np4_scrip_fields(coords, connect):
     corner_lon : ndarray, shape (ncol, 8)   CV corner longitudes, degrees
     corner_lat : ndarray, shape (ncol, 8)   CV corner latitudes, degrees
     """
-    g_det, _                             = sem.element_metric(coords, connect)
+    g_det, _, _, _                       = sem.element_metric(coords, connect)
     unique_xyz, inverse_idx, _           = sem.unique_gll_nodes(coords, connect)
     ncol                                 = len(unique_xyz)
 

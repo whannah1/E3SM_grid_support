@@ -137,7 +137,7 @@ class TestGLLDeriv(unittest.TestCase):
 class TestElementMetric(unittest.TestCase):
 
     def setUp(self):
-        self.g_det, self.g_contra = element_metric(_NE1_COORDS, _NE1_CONNECT)
+        self.g_det, self.metdet, self.g_contra = element_metric(_NE1_COORDS, _NE1_CONNECT)[:3]
 
     def test_g_det_shape(self):
         self.assertEqual(self.g_det.shape, (6, 4, 4))
@@ -174,6 +174,16 @@ class TestElementMetric(unittest.TestCase):
         WW = np.outer(GLL_WEIGHTS, GLL_WEIGHTS)
         total = np.sum(self.g_det * WW[np.newaxis, ...])
         np.testing.assert_allclose(total, 4 * np.pi, rtol=0.05)
+
+    def test_metdet_shape(self):
+        self.assertEqual(self.metdet.shape, (6, 4, 4))
+
+    def test_metdet_positive(self):
+        self.assertTrue(np.all(self.metdet > 0))
+
+    def test_metdet_equals_gdet(self):
+        # With corrected D (east, z/cos(lat)), metdet = g_det exactly.
+        np.testing.assert_allclose(self.metdet, self.g_det, rtol=1e-12)
 
 #-------------------------------------------------------------------------------
 # gll_positions
@@ -277,7 +287,7 @@ class TestUniqueGllNodes(unittest.TestCase):
 class TestGllNodeAreas(unittest.TestCase):
 
     def setUp(self):
-        g_det, _         = element_metric(_NE1_COORDS, _NE1_CONNECT)
+        g_det, _, _, _   = element_metric(_NE1_COORDS, _NE1_CONNECT)
         _, inverse_idx, _ = unique_gll_nodes(_NE1_COORDS, _NE1_CONNECT)
         self.area = gll_node_areas(g_det, inverse_idx, ncol=56)
 
@@ -397,15 +407,16 @@ class TestCvCornersAssembled(unittest.TestCase):
 class TestSmoothPhis(unittest.TestCase):
 
     def setUp(self):
-        self.g_det, _          = element_metric(_NE1_COORDS, _NE1_CONNECT)
+        g_det, self.metdet, _, self.D_mat = element_metric(_NE1_COORDS, _NE1_CONNECT)
         _, self.inverse_idx, _ = unique_gll_nodes(_NE1_COORDS, _NE1_CONNECT)
         self.ncol = 56
-        self.M_asm = gll_node_areas(self.g_det, self.inverse_idx, self.ncol)
+        self.M_asm = gll_node_areas(self.metdet, self.inverse_idx, self.ncol)
 
     def test_constant_field_invariant(self):
         # Smoothing a constant field must return the same constant.
         phi_const = np.full(self.ncol, 42.0)
-        phi_out   = smooth_phis(phi_const, self.g_det, self.inverse_idx, self.ncol)
+        phi_out   = smooth_phis(phi_const, self.metdet, self.inverse_idx, self.ncol,
+                                self.D_mat)
         np.testing.assert_allclose(phi_out, phi_const, atol=1e-10,
                                    err_msg='constant field must be invariant under smoothing')
 
@@ -413,7 +424,8 @@ class TestSmoothPhis(unittest.TestCase):
         # Smoothing must preserve the weighted integral ∫ φ dA = Σ φ_i * M_asm_i.
         rng      = np.random.default_rng(0)
         phi_in   = rng.standard_normal(self.ncol)
-        phi_out  = smooth_phis(phi_in, self.g_det, self.inverse_idx, self.ncol)
+        phi_out  = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                               self.D_mat)
         integral_in  = np.sum(phi_in  * self.M_asm)
         integral_out = np.sum(phi_out * self.M_asm)
         np.testing.assert_allclose(integral_out, integral_in, rtol=1e-10,
@@ -423,7 +435,8 @@ class TestSmoothPhis(unittest.TestCase):
         # Smoothing must reduce (or preserve) the area-weighted variance.
         rng     = np.random.default_rng(1)
         phi_in  = rng.standard_normal(self.ncol)
-        phi_out = smooth_phis(phi_in, self.g_det, self.inverse_idx, self.ncol)
+        phi_out = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                              self.D_mat)
         mean_in  = np.sum(phi_in  * self.M_asm) / np.sum(self.M_asm)
         mean_out = np.sum(phi_out * self.M_asm) / np.sum(self.M_asm)
         var_in   = np.sum((phi_in  - mean_in)  ** 2 * self.M_asm)
@@ -434,9 +447,31 @@ class TestSmoothPhis(unittest.TestCase):
     def test_zero_cycles_returns_copy(self):
         # numcycle=0 must return the input unchanged.
         phi_in  = np.arange(self.ncol, dtype=float)
-        phi_out = smooth_phis(phi_in, self.g_det, self.inverse_idx, self.ncol, numcycle=0)
+        phi_out = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                              self.D_mat, numcycle=0)
         np.testing.assert_array_equal(phi_out, phi_in)
         self.assertIsNot(phi_out, phi_in, 'smooth_phis must return a copy, not the input')
+
+    def test_minf_floor_enforced(self):
+        # All output values must be >= minf when a floor is specified.
+        rng    = np.random.default_rng(7)
+        phi_in = rng.standard_normal(self.ncol) * 100.0
+        minf   = -5.0
+        phi_out = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                              self.D_mat, minf=minf)
+        self.assertTrue(np.all(phi_out >= minf - 1e-10),
+                        f'min value {phi_out.min():.4f} violates floor {minf}')
+
+    def test_minf_none_matches_default(self):
+        # minf=None must produce the same result as the unclipped smoother.
+        rng    = np.random.default_rng(3)
+        phi_in = rng.standard_normal(self.ncol)
+        phi_a  = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                             self.D_mat)
+        phi_b  = smooth_phis(phi_in, self.metdet, self.inverse_idx, self.ncol,
+                             self.D_mat, minf=None)
+        np.testing.assert_array_equal(phi_a, phi_b,
+                                      err_msg='minf=None must be identical to default')
 
 
 #-------------------------------------------------------------------------------

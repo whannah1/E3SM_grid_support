@@ -18,6 +18,7 @@ Usage
     python -m taos.topo path/to/project.yaml --stage remap
     python -m taos.topo path/to/project.yaml --stage smooth
     python -m taos.topo path/to/project.yaml --stage sgh
+    python -m taos.topo path/to/project.yaml --stage smooth,sgh
     python -m taos.topo path/to/project.yaml --stage all
 """
 import os
@@ -242,16 +243,18 @@ def _smooth_topo_python(cfg):
         print(f'\n  {clr.CYAN}Loading Exodus mesh for SEM geometry{clr.END}')
         with timer.time('smooth: load Exodus geometry'):
             coords, connect = sem.read_exodus(p['grid_file_exodus'])
-            g_det, _        = sem.element_metric(coords, connect)
+            _, metdet, _, D_mat = sem.element_metric(coords, connect)
             _, inverse_idx, _ = sem.unique_gll_nodes(coords, connect)
             ncol = int(np.max(inverse_idx)) + 1
+            del coords, connect
 
         def _smooth_file(input_path, output_path, label):
             with timer.time(label):
-                ds_in  = xr.open_dataset(input_path)
-                phis   = ds_in['PHIS'].values.flatten()
-                ds_in.close()
-                phis_smooth = sem.smooth_phis(phis, g_det, inverse_idx, ncol)
+                with xr.open_dataset(input_path) as ds_in:
+                    phis = ds_in['PHIS'].values.flatten()
+                phis_smooth = sem.smooth_phis(phis, metdet, inverse_idx, ncol,
+                                              D_mat)
+                del phis
                 ds_out = xr.Dataset({
                     'PHIS':   xr.DataArray(phis_smooth, dims=['ncol'],
                                            attrs={'units': 'm2 s-2'}),
@@ -259,6 +262,7 @@ def _smooth_topo_python(cfg):
                                            attrs={'units': 'm2 s-2'}),
                 })
                 ds_out.to_netcdf(output_path)
+                ds_out.close()
             print(f'\n  {clr.GREEN}Smoothing SUCCESSFUL:{clr.END} {output_path}')
 
         # -------------------------------------------------------------------
@@ -365,73 +369,79 @@ def calc_topo_sgh(cfg):
         ds_3km_2  = xr.open_dataset(p['topo_file_3km_2'])
         ds_1_np4  = xr.open_dataset(p['topo_file_1_np4'])
 
+        try:
+            # ---------------------------------------------------------------
+            # SGH30, SGH, SGH_dycore computation
+            with timer.time('sgh: compute SGH30 + SGH + SGH_dycore'):
+                phis_smoothed = ds_2['PHIS']
+                phis          = ds_1_pg2['PHIS']
+                phis_squared  = ds_1_pg2['PHIS_squared']
+                var2          = phis_squared - phis * phis
+                var30         = ds_3km['VAR30']
+                var_min       = xr.where(var30 < var2, var30, var2)
+                var_min       = xr.where(var_min > 0, var_min, 0)
+                sgh30         = np.sqrt(var_min) / _GRAVITY
+
+                ds_out = xr.Dataset({'SGH30': sgh30})
+                ds_out['SGH30'].attrs['units']     = 'm'
+                ds_out['SGH30'].attrs['long_name'] = 'standard deviation of source elevation from 3km cube'
+                del var2, var30, var_min
+
+                # -----------------------------------------------------------
+                # SGH
+                print(f'\n  {clr.CYAN}Computing SGH{clr.END}')
+
+                phis_3km         = ds_3km['PHIS']
+                phis_3km_squared = ds_3km['PHIS_squared']
+                var_3km          = phis_3km_squared - phis_3km * phis_3km
+                var_3km          = xr.where(var_3km > 0, var_3km, 0)
+                sgh              = np.sqrt(var_3km) / _GRAVITY
+
+                ds_out['SGH'] = sgh
+                ds_out['SGH'].attrs['units']     = 'm'
+                ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
+                del var_3km
+
+                # SGH_dycore (debug: use homme_tool smoothed phi)
+                phis_3km_np4         = ds_3km_1['PHIS']
+                phis_3km_np4_squared = ds_3km_1['PHIS_squared']
+                phis_3km_smooth      = ds_3km_2['PHIS']
+                var_3km_d            = _compute_variance(phis_3km_np4, phis_3km_smooth, phis_3km_np4_squared)
+                var_3km_d        = xr.where(var_3km_d > 0, var_3km_d, 0)
+                sgh_dycore       = (np.sqrt(var_3km_d) / _GRAVITY).rename({'ncol': 'ncol_d'})
+
+                ds_out['SGH_dycore'] = sgh_dycore
+                ds_out['SGH_dycore'].attrs['units']     = 'm'
+                ds_out['SGH_dycore'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
+                del var_3km_d
+
+            # ---------------------------------------------------------------
+            # add coordinate and smoothed PHIS fields
+            print(f'\n  {clr.CYAN}Adding coordinate and smoothed PHIS fields{clr.END}')
+
+            if 'lon' in ds_1_pg2 and 'lat' in ds_1_pg2:
+                ds_out['lon'] = ds_1_pg2['lon']
+                ds_out['lat'] = ds_1_pg2['lat']
+
+            for coord in ('lon', 'lat'):
+                if coord in ds_1_np4:
+                    var = ds_1_np4[coord].reset_coords(drop=True) if coord in ds_1_np4.coords else ds_1_np4[coord]
+                    if 'ncol' in var.dims:
+                        var = var.rename({'ncol': 'ncol_d'})
+                    ds_out[f'{coord}_d'] = var
+
+            if 'PHIS' in ds_2:
+                ds_out['PHIS'] = ds_2['PHIS'].rename({'ncol': 'ncol_d'})
+            if 'PHIS_d' in ds_2:
+                ds_out['PHIS_d'] = ds_2['PHIS_d'].rename({'ncol': 'ncol_d'})
+
+        finally:
+            # always close inputs, even if computation fails
+            for ds in (ds_3km, ds_1_pg2, ds_2, ds_3km_1, ds_3km_2, ds_1_np4):
+                ds.close()
+
         # -------------------------------------------------------------------
-        # SGH30, SGH, SGH_dycore computation
-        with timer.time('sgh: compute SGH30 + SGH + SGH_dycore'):
-            phis_smoothed = ds_2['PHIS']
-            phis          = ds_1_pg2['PHIS']
-            phis_squared  = ds_1_pg2['PHIS_squared']
-            var2          = phis_squared - phis * phis
-            var30         = ds_3km['VAR30']
-            var_min       = xr.where(var30 < var2, var30, var2)
-            var_min       = xr.where(var_min > 0, var_min, 0)
-            sgh30         = np.sqrt(var_min) / _GRAVITY
-
-            ds_out = xr.Dataset({'SGH30': sgh30})
-            ds_out['SGH30'].attrs['units']     = 'm'
-            ds_out['SGH30'].attrs['long_name'] = 'standard deviation of source elevation from 3km cube'
-
-            # -------------------------------------------------------------------
-            # SGH
-            print(f'\n  {clr.CYAN}Computing SGH{clr.END}')
-
-            phis_3km         = ds_3km['PHIS']
-            phis_3km_squared = ds_3km['PHIS_squared']
-            var_3km          = phis_3km_squared - phis_3km * phis_3km
-            var_3km          = xr.where(var_3km > 0, var_3km, 0)
-            sgh              = np.sqrt(var_3km) / _GRAVITY
-
-            ds_out['SGH'] = sgh
-            ds_out['SGH'].attrs['units']     = 'm'
-            ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
-
-            # SGH_dycore (debug: use homme_tool smoothed phi)
-            phis_3km_np4         = ds_3km_1['PHIS']
-            phis_3km_np4_squared = ds_3km_1['PHIS_squared']
-            phis_3km_smooth      = ds_3km_2['PHIS']
-            var_3km_d            = _compute_variance(phis_3km_np4, phis_3km_smooth, phis_3km_np4_squared)
-            var_3km_d        = xr.where(var_3km_d > 0, var_3km_d, 0)
-            sgh_dycore       = (np.sqrt(var_3km_d) / _GRAVITY).rename({'ncol': 'ncol_d'})
-
-            ds_out['SGH_dycore'] = sgh_dycore
-            ds_out['SGH_dycore'].attrs['units']     = 'm'
-            ds_out['SGH_dycore'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
-
-        # -------------------------------------------------------------------
-        # add coordinate and smoothed PHIS fields
-        print(f'\n  {clr.CYAN}Adding coordinate and smoothed PHIS fields{clr.END}')
-
-        if 'lon' in ds_1_pg2 and 'lat' in ds_1_pg2:
-            ds_out['lon'] = ds_1_pg2['lon']
-            ds_out['lat'] = ds_1_pg2['lat']
-
-        for coord in ('lon', 'lat'):
-            if coord in ds_1_np4:
-                var = ds_1_np4[coord].reset_coords(drop=True) if coord in ds_1_np4.coords else ds_1_np4[coord]
-                if 'ncol' in var.dims:
-                    var = var.rename({'ncol': 'ncol_d'})
-                ds_out[f'{coord}_d'] = var
-
-        if 'PHIS' in ds_2:
-            ds_out['PHIS'] = ds_2['PHIS'].rename({'ncol': 'ncol_d'})
-        if 'PHIS_d' in ds_2:
-            ds_out['PHIS_d'] = ds_2['PHIS_d'].rename({'ncol': 'ncol_d'})
-
-        # -------------------------------------------------------------------
-        # close inputs and write output
-        for ds in (ds_3km, ds_1_pg2, ds_2, ds_3km_2, ds_1_np4):
-            ds.close()
-
+        # write output
         print(f'\n  {clr.CYAN}Writing output: {p["topo_file_final"]}{clr.END}')
         with timer.time('sgh: write output file'):
             encoding = {var: {'zlib': True, 'complevel': 1} for var in ds_out.data_vars}
@@ -451,10 +461,22 @@ def calc_topo_sgh(cfg):
 
 if __name__ == '__main__':
     import argparse
+
+    _VALID_STAGES = ('grid', 'remap', 'smooth', 'sgh', 'all')
+
+    def _parse_stages(value):
+        stages = [s.strip() for s in value.split(',')]
+        for s in stages:
+            if s not in _VALID_STAGES:
+                raise argparse.ArgumentTypeError(
+                    f"invalid stage: {s!r} (choose from {', '.join(_VALID_STAGES)})")
+        return stages
+
     parser = argparse.ArgumentParser(description='Run a TAOS topography stage.')
     parser.add_argument('project_yaml', help='Path to project.yaml')
-    parser.add_argument('--stage', choices=['grid', 'remap', 'smooth', 'sgh', 'all'],
-                        default='all', help='Which stage to run (default: all)')
+    parser.add_argument('--stage', type=_parse_stages, default=['all'],
+                        help='Comma-separated stages to run: '
+                             'grid,remap,smooth,sgh,all (default: all)')
     parser.add_argument('--force-new-3km-data', action='store_true',
                         help='Force recreation of the 3km topo file')
     parser.add_argument('--grid-name', default=None,
@@ -466,13 +488,14 @@ if __name__ == '__main__':
         cfg = cfg.for_grid(args.grid_name)
     cfg.validate()
 
+    run_all = 'all' in args.stage
     timer.start_total()
-    if args.stage in ('grid', 'all'):
+    if run_all or 'grid' in args.stage:
         create_grid(cfg)
-    if args.stage in ('remap', 'all'):
+    if run_all or 'remap' in args.stage:
         remap_topo(cfg, force_new_3km_data=args.force_new_3km_data)
-    if args.stage in ('smooth', 'all'):
+    if run_all or 'smooth' in args.stage:
         smooth_topo(cfg)
-    if args.stage in ('sgh', 'all'):
+    if run_all or 'sgh' in args.stage:
         calc_topo_sgh(cfg)
     timer.summary()

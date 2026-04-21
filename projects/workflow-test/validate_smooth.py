@@ -38,10 +38,10 @@ print()
 
 print('Loading Exodus geometry...')
 coords, connect   = sem.read_exodus(exodus_path)
-g_det, _          = sem.element_metric(coords, connect)
+_, metdet, _, D_mat = sem.element_metric(coords, connect)
 _, inverse_idx, _ = sem.unique_gll_nodes(coords, connect)
 ncol = int(np.max(inverse_idx)) + 1
-print(f'  nelems={g_det.shape[0]}  ncol={ncol}')
+print(f'  nelems={metdet.shape[0]}  ncol={ncol}')
 
 #-------------------------------------------------------------------------------
 # load input and reference
@@ -60,7 +60,8 @@ print(f'Ref    PHIS: min={phis_ref.min():.4g}  max={phis_ref.max():.4g}')
 # run Python smoother
 
 print('\nRunning smooth_phis (numcycle=6, nudt=4e-16)...')
-phis_py = sem.smooth_phis(phis_in, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16)
+phis_py = sem.smooth_phis(phis_in, metdet, inverse_idx, ncol, D_mat,
+                         numcycle=6, nudt=4e-16)
 print(f'Python PHIS: min={phis_py.min():.4g}  max={phis_py.max():.4g}')
 
 #-------------------------------------------------------------------------------

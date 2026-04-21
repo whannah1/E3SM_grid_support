@@ -153,8 +153,21 @@ def element_metric(coords, connect):
     Compute SEM metric quantities at all np=4 GLL points for all elements.
 
     The element corners are bilinearly mapped to the sphere.  At each GLL point
-    the covariant metric tensor is derived from the 3D tangent vectors of the
-    sphere-projected mapping.
+    the Jacobian matrix D is computed using HOMME's ``dmap_elementlocal``
+    formulas, which map reference coordinates (ξ, η) to a local 2-D coordinate
+    system (east, z/cos(lat)).  The z-component of the tangent projection is
+    divided by cos(lat) to match HOMME's convention, where the second
+    coordinate corresponds to the northward direction rather than the raw
+    z-projection.  From D we derive:
+
+    * **metdet** = |det(D)| = physical area element (steradians), identical to
+      g_det for this coordinate system.
+    * **g_det**  = physical area element √(det g_ab), computed independently
+      from the 3-D tangent vectors (no coordinate singularity at poles).
+    * **g_contra** = metdet · (D^T D)^{-1}, the contravariant metric tensor
+      scaled by metdet, consistent with HOMME's tensor hyperviscosity.
+    * **D** = the 2×2 Jacobian matrix from ``dmap_elementlocal`` mapping
+      reference (ξ, η) to (east, z/cos(lat)) coordinates.
 
     Parameters
     ----------
@@ -166,10 +179,16 @@ def element_metric(coords, connect):
     Returns
     -------
     g_det : ndarray, shape (nelems, 4, 4)
-        Area element √(det g_ab) at each GLL point.
+        Physical area element √(det g_ab) at each GLL point (steradians).
+    metdet : ndarray, shape (nelems, 4, 4)
+        HOMME-style Jacobian determinant |det(D)| at each GLL point, where
+        D is the 2×2 Jacobian from ``dmap_elementlocal``.
     g_contra : ndarray, shape (nelems, 4, 4, 2, 2)
-        Contravariant metric g^{ab} scaled by g_det — the tensor G = g·J⁻¹(J⁻¹)ᵀ
-        used in the SEM weak Laplacian for tensor hyperviscosity.
+        Contravariant metric metdet · (D^T D)^{-1} used in the SEM weak
+        Laplacian for tensor hyperviscosity.
+    D : ndarray, shape (nelems, 4, 4, 2, 2)
+        HOMME ``dmap_elementlocal`` Jacobian at each GLL point.  Needed by
+        ``smooth_phis`` to build the DSS'd tensor viscosity operator.
     """
     X, dX_dxi, dX_deta = _bilinear_map(coords[connect])
 
@@ -183,7 +202,8 @@ def element_metric(coords, connect):
     T1 = _tangent(dX_dxi)
     T2 = _tangent(dX_deta)
 
-    # Covariant metric components
+    #---------------------------------------------------------------------------
+    # physical area element from covariant metric (robust, no pole singularity)
     g11 = np.sum(T1 * T1, axis=-1)
     g12 = np.sum(T1 * T2, axis=-1)
     g22 = np.sum(T2 * T2, axis=-1)
@@ -191,15 +211,47 @@ def element_metric(coords, connect):
     det   = g11 * g22 - g12 ** 2
     g_det = np.sqrt(np.maximum(det, 0.0))
 
-    # G^{ab} = g_det · g^{−1}_{ab} = [[g22, −g12], [−g12, g11]] / g_det
-    inv_gdet = np.where(g_det > 0, 1.0 / np.where(g_det > 0, g_det, 1.0), 0.0)
-    g_contra = np.empty(g11.shape + (2, 2))
-    g_contra[..., 0, 0] =  g22 * inv_gdet
-    g_contra[..., 0, 1] = -g12 * inv_gdet
-    g_contra[..., 1, 0] = -g12 * inv_gdet
-    g_contra[..., 1, 1] =  g11 * inv_gdet
+    #---------------------------------------------------------------------------
+    # HOMME D matrix via dmap_elementlocal:
+    #   D1 = [[-sin(lon), cos(lon), 0],    -- east unit vector
+    #         [        0,        0, 1]]     -- z-axis
+    #   D2 = tangent-plane projector with z-row divided by cos(lat) so that
+    #        the second coordinate is northward rather than raw z-projection.
+    #   D = D1 @ D2 @ [dX/dξ, dX/dη] / r
+    lon = np.arctan2(X_hat[..., 1], X_hat[..., 0])
+    e_east = np.stack([-np.sin(lon), np.cos(lon),
+                        np.zeros_like(lon)], axis=-1)
+    coslat = np.sqrt(X_hat[..., 0]**2 + X_hat[..., 1]**2)
+    safe_coslat = np.where(coslat > 1e-15, coslat, 1e-15)
 
-    return g_det, g_contra
+    D = np.empty(g11.shape + (2, 2))
+    D[..., 0, 0] = np.sum(e_east * T1, axis=-1)   # east · T1
+    D[..., 0, 1] = np.sum(e_east * T2, axis=-1)   # east · T2
+    D[..., 1, 0] = T1[..., 2] / safe_coslat        # (0,0,1) · T1 / cos(lat)
+    D[..., 1, 1] = T2[..., 2] / safe_coslat        # (0,0,1) · T2 / cos(lat)
+
+    det_D  = D[..., 0, 0] * D[..., 1, 1] - D[..., 0, 1] * D[..., 1, 0]
+    metdet = np.abs(det_D)
+
+    #---------------------------------------------------------------------------
+    # g_contra = metdet · (D^T D)^{-1}
+    # met = D^T D  →  met_inv = adj(met) / det(met)^2... but we want
+    # metdet · met_inv = adj(met) · metdet / det(met)^2.
+    # Since det(met) = det(D)^2, metdet = |det(D)|, we have
+    # metdet / det(met) = 1 / metdet, giving g_contra = adj(met) / metdet.
+    met11 = D[..., 0, 0] ** 2 + D[..., 1, 0] ** 2
+    met12 = D[..., 0, 0] * D[..., 0, 1] + D[..., 1, 0] * D[..., 1, 1]
+    met22 = D[..., 0, 1] ** 2 + D[..., 1, 1] ** 2
+
+    inv_metdet = np.where(metdet > 0,
+                          1.0 / np.where(metdet > 0, metdet, 1.0), 0.0)
+    g_contra = np.empty(g11.shape + (2, 2))
+    g_contra[..., 0, 0] =  met22 * inv_metdet
+    g_contra[..., 0, 1] = -met12 * inv_metdet
+    g_contra[..., 1, 0] = -met12 * inv_metdet
+    g_contra[..., 1, 1] =  met11 * inv_metdet
+
+    return g_det, metdet, g_contra, D
 
 
 def gll_positions(coords, connect):
@@ -625,21 +677,130 @@ else:
 #-------------------------------------------------------------------------------
 # Tensor hyperviscosity topography smoother (replaces homme_tool topo_pgn_to_smoothed)
 #
-# For hypervis_scaling=2 the tensor viscosity tensorVisc = rearth^4 * D * D^T,
-# where D is the gnomonic metric Jacobian.  This cancels the contravariant metric
-# in the weak Laplacian and the operator reduces to pure reference-space
-# derivatives.  The physical-sphere nudt is rescaled to the unit sphere by
-# multiplying by rearth^2.
+# For hypervis_scaling=2, HOMME uses tensor viscosity K = rearth^4 * D * D^T
+# where D is the ``dmap_elementlocal`` Jacobian mapping reference (ξ,η) to a
+# local (east, z-projected) coordinate system.
+#
+# HOMME DSS's the tensorVisc (mass-weighted average at shared nodes) and then
+# bilinear-reconstructs from element corner values before using it in the
+# Laplacian.  At cube edges and corners, the DSS'd tensor differs from the
+# element-local D*D^T, so we must use the full tensor operator rather than
+# the simplified reference-space form.
+#
+# The effective reference-space metric tensor is:
+#
+#   G = (1/metdet) * adj(D) @ DDT_smooth @ adj(D)^T
+#
+# where DDT_smooth is the DSS'd + bilinear tensorVisc (without rearth^4).
+# At interior nodes G = metdet * I (recovering the simplified operator).
+# At shared nodes (cube edges/corners) G ≠ metdet * I.
+#
+# The weak Laplacian becomes:
+#   flux_xi  = G[0,0]*dxi + G[0,1]*deta
+#   flux_eta = G[1,0]*dxi + G[1,1]*deta
+#   pstens   = -(D_ref^T @ (WW * flux_xi) + (WW * flux_eta) @ D_ref)
 #
 # Reference: HOMME source
-#   components/homme/src/share/viscosity_base.F90  (smooth_phis, laplace_sphere_wk)
-#   components/homme/src/share/cube_mod.F90         (tensorVisc for hypervis_scaling=2)
-#   components/homme/src/share/physical_constants.F90  (rearth0 = 6.376e6)
+#   components/homme/src/share/viscosity_base.F90     (smooth_phis)
+#   components/homme/src/share/derivative_mod.F90     (laplace_sphere_wk)
+#   components/homme/src/share/global_norms_mod.F90   (tensorVisc DSS + bilinear)
+#   components/homme/src/share/cube_mod.F90           (dmap_elementlocal, tensorVisc)
+#   components/homme/src/share/physical_constants.F90 (rearth0 = 6.376e6)
 
 _REARTH = 6.376e6  # Earth radius (m), matches HOMME physical_constants.F90
 
 
-def smooth_phis(phis, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16):
+def _compute_laplacian_G(D_mat, metdet, inverse_idx, ncol):
+    """
+    Compute the effective reference-space metric tensor for the Laplacian.
+
+    Follows HOMME's tensorVisc initialization: compute D*D^T at each GLL
+    point, DSS it (mass-weighted average at shared nodes), bilinear-
+    reconstruct from element corner values, then transform to
+    reference-space coordinates.
+
+    Parameters
+    ----------
+    D_mat : ndarray, shape (nelems, 4, 4, 2, 2)
+        HOMME ``dmap_elementlocal`` Jacobian (from element_metric).
+    metdet : ndarray, shape (nelems, 4, 4)
+        |det(D)| at each GLL point.
+    inverse_idx : ndarray, shape (nelems*16,)
+        Unique node mapping.
+    ncol : int
+        Number of unique nodes.
+
+    Returns
+    -------
+    G : ndarray, shape (nelems, 4, 4, 2, 2)
+        Effective metric tensor for the weak Laplacian.  At interior
+        nodes this equals metdet * I.  At shared nodes it reflects the
+        DSS'd tensor viscosity.
+    """
+    nelems = metdet.shape[0]
+    WW = GLL_WEIGHTS[:, np.newaxis] * GLL_WEIGHTS[np.newaxis, :]
+    M_loc = WW[np.newaxis, :, :] * metdet
+    M_asm = gll_node_areas(metdet, inverse_idx, ncol)
+
+    #---------------------------------------------------------------------------
+    # D*D^T at each GLL point (element-local)
+    DDT = np.empty(D_mat.shape)
+    DDT[..., 0, 0] = D_mat[..., 0, 0] ** 2 + D_mat[..., 0, 1] ** 2
+    DDT[..., 0, 1] = ( D_mat[..., 0, 0] * D_mat[..., 1, 0]
+                      +D_mat[..., 0, 1] * D_mat[..., 1, 1] )
+    DDT[..., 1, 0] = DDT[..., 0, 1]
+    DDT[..., 1, 1] = D_mat[..., 1, 0] ** 2 + D_mat[..., 1, 1] ** 2
+
+    #---------------------------------------------------------------------------
+    # DSS the DDT tensor: mass-weight, scatter-add, divide by assembled mass
+    DDT_dss = np.empty_like(DDT)
+    for a in range(2):
+        for b in range(2):
+            comp_weighted = (DDT[..., a, b] * M_loc).reshape(-1)
+            comp_asm = np.zeros(ncol)
+            np.add.at(comp_asm, inverse_idx, comp_weighted)
+            comp_asm /= M_asm
+            DDT_dss[..., a, b] = comp_asm[inverse_idx].reshape(nelems, 4, 4)
+
+    #---------------------------------------------------------------------------
+    # bilinear reconstruction from corner values (matches HOMME
+    # global_norms_mod.F90 lines 453-475)
+    xi = GLL_POINTS
+    eta = GLL_POINTS
+    sw = DDT_dss[:, 0, 0, :, :]    # (ne, 2, 2) at ξ=-1, η=-1
+    se = DDT_dss[:, 3, 0, :, :]    # ξ=+1, η=-1
+    nw = DDT_dss[:, 0, 3, :, :]    # ξ=-1, η=+1
+    ne = DDT_dss[:, 3, 3, :, :]    # ξ=+1, η=+1
+
+    DDT_bilin = np.empty_like(DDT)
+    for i in range(4):
+        for j in range(4):
+            DDT_bilin[:, i, j, :, :] = 0.25 * (
+                (1.0 - xi[i]) * (1.0 - eta[j]) * sw
+                + (1.0 - xi[i]) * (eta[j] + 1.0) * nw
+                + (xi[i] + 1.0) * (1.0 - eta[j]) * se
+                + (xi[i] + 1.0) * (eta[j] + 1.0) * ne
+            )
+
+    #---------------------------------------------------------------------------
+    # G = (1/metdet) * adj(D) @ DDT_bilin @ adj(D)^T
+    adj = np.empty_like(D_mat)
+    adj[..., 0, 0] =  D_mat[..., 1, 1]
+    adj[..., 0, 1] = -D_mat[..., 0, 1]
+    adj[..., 1, 0] = -D_mat[..., 1, 0]
+    adj[..., 1, 1] =  D_mat[..., 0, 0]
+
+    # batched 2x2 matmul: temp = adj @ DDT_bilin, then G = temp @ adj^T
+    temp = np.einsum('...ik,...kl->...il', adj, DDT_bilin)
+    inv_metdet = np.where(metdet > 0,
+                          1.0 / np.where(metdet > 0, metdet, 1.0), 0.0)
+    G = np.einsum('...ik,...jk->...ij', temp, adj) * inv_metdet[..., np.newaxis, np.newaxis]
+
+    return G
+
+
+def smooth_phis(phis, metdet, inverse_idx, ncol, D_mat,
+                numcycle=6, nudt=4e-16, minf=None):
     """
     Apply SEM tensor hyperviscosity smoother to a field on the np4 GLL grid.
 
@@ -647,24 +808,32 @@ def smooth_phis(phis, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16):
         smooth_phis_numcycle = 6
         smooth_phis_nudt     = 4e-16
         hypervis_scaling     = 2
-        se_ftype             = 2
         smooth_phis_p2filt   = 0
 
     Parameters
     ----------
     phis       : ndarray, shape (ncol,)
         Field to smooth (e.g. PHIS in m^2 s^-2).
-    g_det      : ndarray, shape (nelems, 4, 4)
-        Jacobian determinant at each GLL point (from element_metric).
+    metdet     : ndarray, shape (nelems, 4, 4)
+        HOMME-style Jacobian determinant |det(D)| at each GLL point (from
+        element_metric).  With the corrected ``dmap_elementlocal`` D matrix
+        (east, z/cos(lat) coordinates), metdet equals g_det.
     inverse_idx : ndarray, shape (nelems*16,)
         Maps flat GLL index e*16 + i*4 + j to the unique node id (from
         unique_gll_nodes).
     ncol       : int
         Number of unique GLL nodes.
+    D_mat      : ndarray, shape (nelems, 4, 4, 2, 2)
+        HOMME ``dmap_elementlocal`` Jacobian at each GLL point (from
+        element_metric).  Used to build the DSS'd tensor viscosity
+        operator that matches HOMME's treatment at cube edges/corners.
     numcycle   : int
         Number of smoothing iterations (HOMME default: 6).
     nudt       : float
         Physical-sphere viscosity parameter (HOMME default: 4e-16).
+    minf       : float or None
+        Minimum floor value applied each iteration before DSS, matching HOMME
+        smooth_phis behaviour.  None (default) disables the floor.
 
     Returns
     -------
@@ -673,10 +842,14 @@ def smooth_phis(phis, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16):
     """
     nudt_u = nudt * _REARTH ** 2  # rescale to unit sphere
 
-    nelems = g_det.shape[0]
+    nelems = metdet.shape[0]
     WW    = GLL_WEIGHTS[:, np.newaxis] * GLL_WEIGHTS[np.newaxis, :]  # (4, 4)
-    M_loc = WW[np.newaxis, :, :] * g_det                             # (nelems, 4, 4)
-    M_asm = gll_node_areas(g_det, inverse_idx, ncol)                 # (ncol,)
+    M_loc = WW[np.newaxis, :, :] * metdet                            # (nelems, 4, 4)
+    M_asm = gll_node_areas(metdet, inverse_idx, ncol)                # (ncol,)
+
+    #---------------------------------------------------------------------------
+    # precompute effective metric tensor for the tensor Laplacian
+    G = _compute_laplacian_G(D_mat, metdet, inverse_idx, ncol)
 
     phi = phis.copy()
 
@@ -688,16 +861,24 @@ def smooth_phis(phis, g_det, inverse_idx, ncol, numcycle=6, nudt=4e-16):
         deta  = phi_e @ GLL_DERIV.T      # (nelems, 4, 4): ∂φ/∂η
 
         # -------------------------------------------------------------------
-        # element-local weak Laplacian (negative divergence of gradient)
-        pstens = -(GLL_DERIV.T @ (M_loc * dxi) + (M_loc * deta) @ GLL_DERIV)
+        # tensor weak Laplacian: apply G then weak divergence
+        flux_xi  = G[..., 0, 0] * dxi + G[..., 0, 1] * deta
+        flux_eta = G[..., 1, 0] * dxi + G[..., 1, 1] * deta
+        pstens = -(GLL_DERIV.T @ (WW * flux_xi)
+                   + (WW * flux_eta) @ GLL_DERIV)
 
         # -------------------------------------------------------------------
-        # DSS: scatter-add at shared nodes, then apply update
-        # (pstens < 0 at local maxima, so += gives diffusion, matching HOMME)
-        pstens_asm = np.zeros(ncol)
-        np.add.at(pstens_asm, inverse_idx, pstens.reshape(-1))
+        # per-element update + optional floor (applied before DSS, as in HOMME)
+        phi_e = phi_e + nudt_u * pstens / M_loc
+        if minf is not None:
+            np.maximum(phi_e, minf, out=phi_e)
 
-        phi += nudt_u * pstens_asm / M_asm
+        # -------------------------------------------------------------------
+        # DSS: mass-weight, scatter-add, divide by assembled mass
+        phi_e_weighted = (phi_e * M_loc).reshape(-1)
+        phi[:] = 0.0
+        np.add.at(phi, inverse_idx, phi_e_weighted)
+        phi /= M_asm
 
     return phi
 
