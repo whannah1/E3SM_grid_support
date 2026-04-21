@@ -450,8 +450,8 @@ def calc_topo_sgh(cfg):
                     ds_out[f'{coord}_d'] = var
 
             if 'PHIS' in ds_2 or 'PHIS_d' in ds_2:
-                phis_np4_2           = _get_np4_phis(ds_2, np4_ncol).rename({'ncol': 'ncol_d'})
-                ds_out['PHIS']   = phis_np4_2
+                phis_np4_2       = _get_np4_phis(ds_2, np4_ncol).rename({'ncol': 'ncol_d'})
+                ds_out['PHIS']   = ds_1_pg2['PHIS']
                 ds_out['PHIS_d'] = phis_np4_2
 
         finally:
