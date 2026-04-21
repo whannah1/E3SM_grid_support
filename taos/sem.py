@@ -158,12 +158,11 @@ def element_metric(coords, connect):
     projector whose third row is the northward unit vector (not cos(lat) times
     it).  This maps reference coordinates (ξ, η) to (east, north) physical
     coordinates without any division by cos(lat) and without pole singularity.
-    From D we derive:
 
-    * **metdet** = |det(D)| = physical area element (steradians), identical to
-      g_det for this coordinate system.
-    * **g_det**  = physical area element √(det g_ab), computed independently
-      from the 3-D tangent vectors (no coordinate singularity at poles).
+    All metric quantities are derived analytically from D, matching HOMME's
+    ``metric_atomic`` subroutine:
+
+    * **metdet** = |det(D)|, the Jacobian determinant (physical area element).
     * **g_contra** = metdet · (D^T D)^{-1}, the contravariant metric tensor
       scaled by metdet, consistent with HOMME's tensor hyperviscosity.
     * **D** = the 2×2 Jacobian matrix from ``dmap_elementlocal`` mapping
@@ -178,11 +177,13 @@ def element_metric(coords, connect):
 
     Returns
     -------
-    g_det : ndarray, shape (nelems, 4, 4)
-        Physical area element √(det g_ab) at each GLL point (steradians).
     metdet : ndarray, shape (nelems, 4, 4)
         HOMME-style Jacobian determinant |det(D)| at each GLL point, where
-        D is the 2×2 Jacobian from ``dmap_elementlocal``.
+        D is the 2×2 Jacobian from ``dmap_elementlocal``.  Also returned as
+        the first element for backward compatibility (replaces former g_det).
+    metdet : ndarray, shape (nelems, 4, 4)
+        Same as above (second copy for callers that unpack four values with
+        separate names for the area element and the mass-matrix weight).
     g_contra : ndarray, shape (nelems, 4, 4, 2, 2)
         Contravariant metric metdet · (D^T D)^{-1} used in the SEM weak
         Laplacian for tensor hyperviscosity.
@@ -194,22 +195,6 @@ def element_metric(coords, connect):
 
     r     = np.linalg.norm(X, axis=-1, keepdims=True)   # (nelems, 4, 4, 1)
     X_hat = X / r
-
-    # Tangent vectors of the sphere-projected mapping via chain rule through x/|x|
-    def _tangent(dX):
-        return (dX - X_hat * np.sum(X_hat * dX, axis=-1, keepdims=True)) / r
-
-    T1 = _tangent(dX_dxi)
-    T2 = _tangent(dX_deta)
-
-    #---------------------------------------------------------------------------
-    # physical area element from covariant metric (robust, no pole singularity)
-    g11 = np.sum(T1 * T1, axis=-1)
-    g12 = np.sum(T1 * T2, axis=-1)
-    g22 = np.sum(T2 * T2, axis=-1)
-
-    det   = g11 * g22 - g12 ** 2
-    g_det = np.sqrt(np.maximum(det, 0.0))
 
     #---------------------------------------------------------------------------
     # HOMME D matrix via dmap_elementlocal: D = D1 @ D2 @ D3 / r
@@ -236,7 +221,8 @@ def element_metric(coords, connect):
     coslat = np.sqrt(x**2 + y**2)
 
     # D2 matrix (3×3) — HOMME's exact formulation
-    D2 = np.empty(g11.shape + (3, 3))
+    shp = sinlon.shape   # (nelems, 4, 4)
+    D2 = np.empty(shp + (3, 3))
     D2[..., 0, 0] = sinlon**2 * coslat**2 + sinlat**2
     D2[..., 0, 1] = -sinlon * coslon * coslat**2
     D2[..., 0, 2] = -coslon * sinlat * coslat
@@ -247,11 +233,7 @@ def element_metric(coords, connect):
     D2[..., 2, 1] = -sinlon * sinlat
     D2[..., 2, 2] = coslat
 
-    # D3 = bilinear map derivatives dX/dξ and dX/dη (already computed as T1,T2
-    # but without the projection — we need the raw derivatives pre-projection)
-    # D4 = D2 @ D3, then D = D1 @ D4 / r
-    # Since T_a = (I - x̂x̂^T) @ dX_da / r, we have dX_da / r = T_a + x̂·(...)
-    # Instead, use D3 = [dX_dxi, dX_deta] directly (pre-projection derivatives)
+    # D3 = [dX/dξ, dX/dη] — raw bilinear map derivatives (pre-projection)
     D3_0 = dX_dxi   # (nelems, 4, 4, 3)
     D3_1 = dX_deta
 
@@ -261,7 +243,7 @@ def element_metric(coords, connect):
 
     # D1 @ D4: row 0 = [-sinlon, coslon, 0] · D4, row 1 = [0, 0, 1] · D4
     r_scalar = r[..., 0]  # (nelems, 4, 4)
-    D = np.empty(g11.shape + (2, 2))
+    D = np.empty(shp + (2, 2))
     D[..., 0, 0] = (-sinlon * D4_0[..., 0] + coslon * D4_0[..., 1]) / r_scalar
     D[..., 0, 1] = (-sinlon * D4_1[..., 0] + coslon * D4_1[..., 1]) / r_scalar
     D[..., 1, 0] = D4_0[..., 2] / r_scalar
@@ -271,24 +253,22 @@ def element_metric(coords, connect):
     metdet = np.abs(det_D)
 
     #---------------------------------------------------------------------------
-    # g_contra = metdet · (D^T D)^{-1}
-    # met = D^T D  →  met_inv = adj(met) / det(met)^2... but we want
-    # metdet · met_inv = adj(met) · metdet / det(met)^2.
-    # Since det(met) = det(D)^2, metdet = |det(D)|, we have
-    # metdet / det(met) = 1 / metdet, giving g_contra = adj(met) / metdet.
+    # Covariant metric met = D^T D and contravariant g_contra = adj(met)/metdet
+    # (HOMME: metinv = adj(met)/detD^2, we scale by metdet so
+    #  g_contra = metdet * metinv = adj(met) / metdet.)
     met11 = D[..., 0, 0] ** 2 + D[..., 1, 0] ** 2
     met12 = D[..., 0, 0] * D[..., 0, 1] + D[..., 1, 0] * D[..., 1, 1]
     met22 = D[..., 0, 1] ** 2 + D[..., 1, 1] ** 2
 
     inv_metdet = np.where(metdet > 0,
                           1.0 / np.where(metdet > 0, metdet, 1.0), 0.0)
-    g_contra = np.empty(g11.shape + (2, 2))
+    g_contra = np.empty(shp + (2, 2))
     g_contra[..., 0, 0] =  met22 * inv_metdet
     g_contra[..., 0, 1] = -met12 * inv_metdet
     g_contra[..., 1, 0] = -met12 * inv_metdet
     g_contra[..., 1, 1] =  met11 * inv_metdet
 
-    return g_det, metdet, g_contra, D
+    return metdet, metdet, g_contra, D
 
 
 def gll_positions(coords, connect):
@@ -384,7 +364,7 @@ def unique_gll_nodes(coords, connect):
     first_jidx = first_jidx_sorted[fo_order]   # j-major flat idx of each unique node
 
     # Build inverse_idx in i-major convention (flat_idx = e*16 + i*4 + j) so
-    # that gll_node_areas, which reshapes g_det in i-major C order, can use it
+    # that gll_node_areas, which reshapes metdet in i-major C order, can use it
     # directly.  Convert each i-major index to its j-major equivalent before
     # looking up the unique node id.
     f_i = np.arange(nelems * 16)
@@ -407,16 +387,17 @@ def unique_gll_nodes(coords, connect):
     return unique_xyz, inverse_idx, primary_eij
 
 
-def gll_node_areas(g_det, inverse_idx, ncol):
+def gll_node_areas(metdet, inverse_idx, ncol):
     """
     Compute the mass-matrix diagonal: area of each unique GLL node's CV.
 
-    Each element's contribution at GLL point (i, j) is w_i * w_j * g_det[e,i,j].
+    Each element's contribution at GLL point (i, j) is w_i * w_j * metdet[e,i,j].
     Shared nodes accumulate contributions from all elements that contain them.
 
     Parameters
     ----------
-    g_det : ndarray, shape (nelems, 4, 4)
+    metdet : ndarray, shape (nelems, 4, 4)
+        Jacobian determinant |det(D)| at each GLL point (from element_metric).
     inverse_idx : ndarray, shape (nelems*16,)
         From unique_gll_nodes.
     ncol : int
@@ -428,7 +409,7 @@ def gll_node_areas(g_det, inverse_idx, ncol):
         Control volume areas in steradians.
     """
     WW = GLL_WEIGHTS[:, np.newaxis] * GLL_WEIGHTS[np.newaxis, :]  # (4, 4)
-    contrib = (g_det * WW[np.newaxis, :, :]).reshape(-1)
+    contrib = (metdet * WW[np.newaxis, :, :]).reshape(-1)
     area = np.zeros(ncol)
     np.add.at(area, inverse_idx, contrib)
     return area
@@ -853,8 +834,8 @@ def smooth_phis(phis, metdet, inverse_idx, ncol, D_mat,
         Field to smooth (e.g. PHIS in m^2 s^-2).
     metdet     : ndarray, shape (nelems, 4, 4)
         HOMME-style Jacobian determinant |det(D)| at each GLL point (from
-        element_metric).  With the corrected ``dmap_elementlocal`` D matrix
-        (east, z/cos(lat) coordinates), metdet equals g_det.
+        element_metric).  All metric quantities are derived analytically
+        from the ``dmap_elementlocal`` D matrix.
     inverse_idx : ndarray, shape (nelems*16,)
         Maps flat GLL index e*16 + i*4 + j to the unique node id (from
         unique_gll_nodes).

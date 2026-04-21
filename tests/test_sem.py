@@ -137,16 +137,19 @@ class TestGLLDeriv(unittest.TestCase):
 class TestElementMetric(unittest.TestCase):
 
     def setUp(self):
-        self.g_det, self.metdet, self.g_contra = element_metric(_NE1_COORDS, _NE1_CONNECT)[:3]
+        self.metdet, _, self.g_contra, self.D = element_metric(_NE1_COORDS, _NE1_CONNECT)
 
-    def test_g_det_shape(self):
-        self.assertEqual(self.g_det.shape, (6, 4, 4))
+    def test_metdet_shape(self):
+        self.assertEqual(self.metdet.shape, (6, 4, 4))
 
     def test_g_contra_shape(self):
         self.assertEqual(self.g_contra.shape, (6, 4, 4, 2, 2))
 
-    def test_g_det_positive(self):
-        self.assertTrue(np.all(self.g_det > 0))
+    def test_D_shape(self):
+        self.assertEqual(self.D.shape, (6, 4, 4, 2, 2))
+
+    def test_metdet_positive(self):
+        self.assertTrue(np.all(self.metdet > 0))
 
     def test_g_contra_symmetric(self):
         np.testing.assert_allclose(
@@ -155,35 +158,25 @@ class TestElementMetric(unittest.TestCase):
             atol=1e-14,
         )
 
-    def test_g_det_matches_analytical_formula(self):
+    def test_metdet_matches_analytical_formula(self):
         # For all 6 faces of the ne=1 cube-sphere, the bilinear map reduces to
         # the gnomonic projection X = (a, b, ±1)/r with r = √(a²+b²+1), for
-        # which g_det = 1/r³ = 1/(ξ²+η²+1)^{3/2} analytically.  This holds by
-        # symmetry for all 6 faces with appropriate permutation of coordinates.
+        # which metdet = 1/r³ = 1/(ξ²+η²+1)^{3/2} analytically.  This holds
+        # by symmetry for all 6 faces with appropriate permutation of coords.
         XI, ETA = np.meshgrid(GLL_POINTS, GLL_POINTS, indexing='ij')
         expected = 1.0 / (XI ** 2 + ETA ** 2 + 1) ** 1.5
         for e in range(6):
-            np.testing.assert_allclose(self.g_det[e], expected, rtol=1e-12,
-                                       err_msg=f'g_det mismatch on face {e}')
+            np.testing.assert_allclose(self.metdet[e], expected, rtol=1e-12,
+                                       err_msg=f'metdet mismatch on face {e}')
 
     def test_total_area_sanity(self):
-        # The GLL 4-point quadrature approximates ∫∫ g_det dξdη, which converges
+        # The GLL 4-point quadrature approximates ∫∫ metdet dξdη, which converges
         # to 4π as the mesh is refined.  For the very coarse ne=1 mesh the
         # non-polynomial integrand causes ~3% quadrature error, so we only check
         # that the result is in the right ballpark.
         WW = np.outer(GLL_WEIGHTS, GLL_WEIGHTS)
-        total = np.sum(self.g_det * WW[np.newaxis, ...])
+        total = np.sum(self.metdet * WW[np.newaxis, ...])
         np.testing.assert_allclose(total, 4 * np.pi, rtol=0.05)
-
-    def test_metdet_shape(self):
-        self.assertEqual(self.metdet.shape, (6, 4, 4))
-
-    def test_metdet_positive(self):
-        self.assertTrue(np.all(self.metdet > 0))
-
-    def test_metdet_equals_gdet(self):
-        # With corrected D (east, z/cos(lat)), metdet = g_det exactly.
-        np.testing.assert_allclose(self.metdet, self.g_det, rtol=1e-12)
 
 #-------------------------------------------------------------------------------
 # gll_positions
@@ -287,9 +280,9 @@ class TestUniqueGllNodes(unittest.TestCase):
 class TestGllNodeAreas(unittest.TestCase):
 
     def setUp(self):
-        g_det, _, _, _   = element_metric(_NE1_COORDS, _NE1_CONNECT)
+        metdet, _, _, _   = element_metric(_NE1_COORDS, _NE1_CONNECT)
         _, inverse_idx, _ = unique_gll_nodes(_NE1_COORDS, _NE1_CONNECT)
-        self.area = gll_node_areas(g_det, inverse_idx, ncol=56)
+        self.area = gll_node_areas(metdet, inverse_idx, ncol=56)
 
     def test_shape(self):
         self.assertEqual(self.area.shape, (56,))
@@ -407,7 +400,7 @@ class TestCvCornersAssembled(unittest.TestCase):
 class TestSmoothPhis(unittest.TestCase):
 
     def setUp(self):
-        g_det, self.metdet, _, self.D_mat = element_metric(_NE1_COORDS, _NE1_CONNECT)
+        self.metdet, _, _, self.D_mat = element_metric(_NE1_COORDS, _NE1_CONNECT)
         _, self.inverse_idx, _ = unique_gll_nodes(_NE1_COORDS, _NE1_CONNECT)
         self.ncol = 56
         self.M_asm = gll_node_areas(self.metdet, self.inverse_idx, self.ncol)

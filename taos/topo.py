@@ -342,6 +342,24 @@ def _compute_variance(phis, phis_smoothed, phis_squared):
     return phis_squared + (phis_smoothed ** 2) - (2 * phis_smoothed * phis)
 
 
+def _get_np4_phis(ds, np4_ncol):
+    """Return the np4-sized PHIS from ds, normalized to dim 'ncol'.
+
+    Handles legacy files where np4 data lives on 'ncol_d' and pg2 data occupies
+    'ncol', as well as current files where np4 data is on 'ncol'.  Tries PHIS
+    first, then PHIS_d (same values; written by older smooth-stage code).
+    """
+    for varname in ('PHIS', 'PHIS_d'):
+        if varname not in ds:
+            continue
+        da = ds[varname]
+        if da.sizes.get('ncol') == np4_ncol:
+            return da
+        if da.sizes.get('ncol_d') == np4_ncol:
+            return da.rename({'ncol_d': 'ncol'})
+    raise ValueError(f'No np4 PHIS (ncol={np4_ncol}) found; dims={dict(ds.dims)}')
+
+
 def calc_topo_sgh(cfg):
     """
     Compute SGH30 and SGH subgrid-scale orography variance and write
@@ -405,7 +423,8 @@ def calc_topo_sgh(cfg):
                 # SGH_dycore (debug: use homme_tool smoothed phi)
                 phis_3km_np4         = ds_3km_1['PHIS']
                 phis_3km_np4_squared = ds_3km_1['PHIS_squared']
-                phis_3km_smooth      = ds_3km_2['PHIS']
+                np4_ncol             = ds_3km_1.dims['ncol']
+                phis_3km_smooth      = _get_np4_phis(ds_3km_2, np4_ncol)
                 var_3km_d            = _compute_variance(phis_3km_np4, phis_3km_smooth, phis_3km_np4_squared)
                 var_3km_d        = xr.where(var_3km_d > 0, var_3km_d, 0)
                 sgh_dycore       = (np.sqrt(var_3km_d) / _GRAVITY).rename({'ncol': 'ncol_d'})
@@ -430,10 +449,10 @@ def calc_topo_sgh(cfg):
                         var = var.rename({'ncol': 'ncol_d'})
                     ds_out[f'{coord}_d'] = var
 
-            if 'PHIS' in ds_2:
-                ds_out['PHIS'] = ds_2['PHIS'].rename({'ncol': 'ncol_d'})
-            if 'PHIS_d' in ds_2:
-                ds_out['PHIS_d'] = ds_2['PHIS_d'].rename({'ncol': 'ncol_d'})
+            if 'PHIS' in ds_2 or 'PHIS_d' in ds_2:
+                phis_np4_2           = _get_np4_phis(ds_2, np4_ncol).rename({'ncol': 'ncol_d'})
+                ds_out['PHIS']   = phis_np4_2
+                ds_out['PHIS_d'] = phis_np4_2
 
         finally:
             # always close inputs, even if computation fails
