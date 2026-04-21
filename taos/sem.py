@@ -153,12 +153,12 @@ def element_metric(coords, connect):
     Compute SEM metric quantities at all np=4 GLL points for all elements.
 
     The element corners are bilinearly mapped to the sphere.  At each GLL point
-    the Jacobian matrix D is computed using HOMME's ``dmap_elementlocal``
-    formulas, which map reference coordinates (ξ, η) to a local 2-D coordinate
-    system (east, z/cos(lat)).  The z-component of the tangent projection is
-    divided by cos(lat) to match HOMME's convention, where the second
-    coordinate corresponds to the northward direction rather than the raw
-    z-projection.  From D we derive:
+    the Jacobian matrix D is computed following HOMME's ``dmap_elementlocal``
+    exactly: D = D1 @ D2 @ D3 / r, where D2 is a modified tangent-plane
+    projector whose third row is the northward unit vector (not cos(lat) times
+    it).  This maps reference coordinates (ξ, η) to (east, north) physical
+    coordinates without any division by cos(lat) and without pole singularity.
+    From D we derive:
 
     * **metdet** = |det(D)| = physical area element (steradians), identical to
       g_det for this coordinate system.
@@ -167,7 +167,7 @@ def element_metric(coords, connect):
     * **g_contra** = metdet · (D^T D)^{-1}, the contravariant metric tensor
       scaled by metdet, consistent with HOMME's tensor hyperviscosity.
     * **D** = the 2×2 Jacobian matrix from ``dmap_elementlocal`` mapping
-      reference (ξ, η) to (east, z/cos(lat)) coordinates.
+      reference (ξ, η) to (east, north) coordinates.
 
     Parameters
     ----------
@@ -212,23 +212,60 @@ def element_metric(coords, connect):
     g_det = np.sqrt(np.maximum(det, 0.0))
 
     #---------------------------------------------------------------------------
-    # HOMME D matrix via dmap_elementlocal:
-    #   D1 = [[-sin(lon), cos(lon), 0],    -- east unit vector
-    #         [        0,        0, 1]]     -- z-axis
-    #   D2 = tangent-plane projector with z-row divided by cos(lat) so that
-    #        the second coordinate is northward rather than raw z-projection.
-    #   D = D1 @ D2 @ [dX/dξ, dX/dη] / r
-    lon = np.arctan2(X_hat[..., 1], X_hat[..., 0])
-    e_east = np.stack([-np.sin(lon), np.cos(lon),
-                        np.zeros_like(lon)], axis=-1)
-    coslat = np.sqrt(X_hat[..., 0]**2 + X_hat[..., 1]**2)
-    safe_coslat = np.where(coslat > 1e-15, coslat, 1e-15)
+    # HOMME D matrix via dmap_elementlocal: D = D1 @ D2 @ D3 / r
+    #
+    # D1(2×3) selects east and z components:
+    #   [[-sin(lon), cos(lon), 0],
+    #    [        0,        0, 1]]
+    #
+    # D2(3×3) is NOT the simple tangent projector (I - x̂x̂^T).  Rows 0-1
+    # match the projector, but row 2 is the north unit vector e_north rather
+    # than cos(lat)·e_north.  This avoids any division by cos(lat) and has
+    # no singularity at the poles.
+    #
+    # D3(3×2) = [dX/dξ, dX/dη] (bilinear map derivatives)
+    #
+    # The product D1@D2 yields a 2×3 matrix whose rows are e_east and
+    # e_north — the local east and north unit vectors.  So D maps
+    # reference coords to (east, north) physical coords on the unit sphere.
+    x, y, z = X_hat[..., 0], X_hat[..., 1], X_hat[..., 2]
+    lon = np.arctan2(y, x)
+    sinlon = np.sin(lon)
+    coslon = np.cos(lon)
+    sinlat = z
+    coslat = np.sqrt(x**2 + y**2)
 
+    # D2 matrix (3×3) — HOMME's exact formulation
+    D2 = np.empty(g11.shape + (3, 3))
+    D2[..., 0, 0] = sinlon**2 * coslat**2 + sinlat**2
+    D2[..., 0, 1] = -sinlon * coslon * coslat**2
+    D2[..., 0, 2] = -coslon * sinlat * coslat
+    D2[..., 1, 0] = -sinlon * coslon * coslat**2
+    D2[..., 1, 1] = coslon**2 * coslat**2 + sinlat**2
+    D2[..., 1, 2] = -sinlon * sinlat * coslat
+    D2[..., 2, 0] = -coslon * sinlat
+    D2[..., 2, 1] = -sinlon * sinlat
+    D2[..., 2, 2] = coslat
+
+    # D3 = bilinear map derivatives dX/dξ and dX/dη (already computed as T1,T2
+    # but without the projection — we need the raw derivatives pre-projection)
+    # D4 = D2 @ D3, then D = D1 @ D4 / r
+    # Since T_a = (I - x̂x̂^T) @ dX_da / r, we have dX_da / r = T_a + x̂·(...)
+    # Instead, use D3 = [dX_dxi, dX_deta] directly (pre-projection derivatives)
+    D3_0 = dX_dxi   # (nelems, 4, 4, 3)
+    D3_1 = dX_deta
+
+    # D4 = D2 @ D3  (3×3 @ 3 → 3, for each of the two columns)
+    D4_0 = np.einsum('...ij,...j->...i', D2, D3_0)  # (nelems, 4, 4, 3)
+    D4_1 = np.einsum('...ij,...j->...i', D2, D3_1)
+
+    # D1 @ D4: row 0 = [-sinlon, coslon, 0] · D4, row 1 = [0, 0, 1] · D4
+    r_scalar = r[..., 0]  # (nelems, 4, 4)
     D = np.empty(g11.shape + (2, 2))
-    D[..., 0, 0] = np.sum(e_east * T1, axis=-1)   # east · T1
-    D[..., 0, 1] = np.sum(e_east * T2, axis=-1)   # east · T2
-    D[..., 1, 0] = T1[..., 2] / safe_coslat        # (0,0,1) · T1 / cos(lat)
-    D[..., 1, 1] = T2[..., 2] / safe_coslat        # (0,0,1) · T2 / cos(lat)
+    D[..., 0, 0] = (-sinlon * D4_0[..., 0] + coslon * D4_0[..., 1]) / r_scalar
+    D[..., 0, 1] = (-sinlon * D4_1[..., 0] + coslon * D4_1[..., 1]) / r_scalar
+    D[..., 1, 0] = D4_0[..., 2] / r_scalar
+    D[..., 1, 1] = D4_1[..., 2] / r_scalar
 
     det_D  = D[..., 0, 0] * D[..., 1, 1] - D[..., 0, 1] * D[..., 1, 0]
     metdet = np.abs(det_D)
@@ -864,8 +901,7 @@ def smooth_phis(phis, metdet, inverse_idx, ncol, D_mat,
         # tensor weak Laplacian: apply G then weak divergence
         flux_xi  = G[..., 0, 0] * dxi + G[..., 0, 1] * deta
         flux_eta = G[..., 1, 0] * dxi + G[..., 1, 1] * deta
-        pstens = -(GLL_DERIV.T @ (WW * flux_xi)
-                   + (WW * flux_eta) @ GLL_DERIV)
+        pstens = -(GLL_DERIV.T @ (WW * flux_xi) + (WW * flux_eta) @ GLL_DERIV)
 
         # -------------------------------------------------------------------
         # per-element update + optional floor (applied before DSS, as in HOMME)
