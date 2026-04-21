@@ -30,10 +30,10 @@ fig_file = 'figs/topo.png'
 # topo_root2 = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/E3SM_grid_support/2026-ne30-test/files_topo'
 
 # grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_grid'
-grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid'
+grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid'
 topo_root1 = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
 # topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-ne30-test/files_topo/'
-topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_topo'
+topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_topo'
 
 # scrip_file = f'{grid_root}/ne30np4_scrip.nc'
 
@@ -57,15 +57,25 @@ topo_root2 = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-tes
 
 # add_file(f'{topo_root2}/USGS-topo_ne30-np4_smoothedx6t_20260204-nc.nc',name='bash+NCO topo')
 
-# topo_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_topo'
-# scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/ne30np4_scrip.nc'
+# topo_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_topo'
+# scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid/ne30np4_scrip.nc'
 # add_file(f'{topo_root}/USGS-topo_ne30-hm-np4_smoothedx6t_20260403.nc',name='ne30-hm')#,scrip_file=grid_file)
 # add_file(f'{topo_root}/USGS-topo_ne30-py-np4_smoothedx6t_20260403.nc',name='ne30-py')#,scrip_file=grid_file)
 
-topo_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_topo'
-scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid/RRM-test-32x1-hmnp4_scrip.nc'
-add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t.nc',name='RRM-test-32x1-hm')#,scrip_file=grid_file)
-add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4_smoothedx6t.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
+topo_root  = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_topo'
+scrip_file = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid/RRM-test-32x1-hmnp4_scrip.nc'
+
+# add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4.nc',name='RRM-test-32x1-hm')
+# add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4.nc',name='RRM-test-32x1-py')
+# add_var('PHIS')
+
+add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t.nc',name='RRM-test-32x1-hm')
+add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4_smoothedx6t.nc',name='RRM-test-32x1-py')
+add_var('PHIS_d')
+
+# add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-hm-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
+# add_file(f'{topo_root}/USGS-topo_RRM-test-32x1-py-np4_smoothedx6t_20260403.nc',name='RRM-test-32x1-py')#,scrip_file=grid_file)
+# add_var('PHIS_d')
 
 # scrip_file = f'compare_np4/ne30_np4_scrip_homme.nc'
 # scrip_file = f'compare_np4/ne30_np4_scrip_python.nc'
@@ -79,7 +89,8 @@ add_file(f'{topo_root}/tmp_USGS-topo_RRM-test-32x1-py-np4_smoothedx6t.nc',name='
 
 #-------------------------------------------------------------------------------
 
-add_var('PHIS_d')
+# add_var('PHIS')
+# add_var('PHIS_d')
 # add_var('SGH')
 # add_var('SGH30')
 
@@ -268,7 +279,8 @@ for v in range(num_var):
 #---------------------------------------------------------------------------------------------------
 # Finalize plot
 # fig.savefig(fig_file, dpi=100, bbox_inches='tight')
-fig.savefig(fig_file, dpi=200, bbox_inches='tight')
+# fig.savefig(fig_file, dpi=200, bbox_inches='tight')
+fig.savefig(fig_file, dpi=1000, bbox_inches='tight')
 plt.close(fig)
 
 print(f'\n{fig_file}\n')

@@ -11,7 +11,7 @@ for interactive workflow at NERSC:
     salloc --nodes 1 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
     salloc --nodes 4 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
     source activate ux_env
-    pip install -e ~/E3SM_grid_support/
+    # pip install -e ~/E3SM_grid_support/
     python run_workflow.py
 """
 import os, pathlib
@@ -40,9 +40,10 @@ do_topo   = True
 
 topo_args = ''
 # topo_args += ' --stage grid'
-topo_args += ' --stage remap'
+# topo_args += ' --stage remap'
 # topo_args += ' --stage smooth'
 # topo_args += ' --stage sgh'
+topo_args += ' --stage smooth,sgh'
 # topo_args += ' --stage all'
 # topo_args += ' --force-new-3km-data'
 

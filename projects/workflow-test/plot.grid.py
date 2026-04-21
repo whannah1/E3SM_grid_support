@@ -54,14 +54,15 @@ topo_root = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
 # add_grid(f'{grid_root}/ne30pg2_scrip.nc',  'ne30',  clat=38, clon=-120)#, topo_file=f'{topo_root}/USGS-topo_ne30np4_smoothedx6t_20250513.nc')
 # add_grid(f'{grid_root}/scrip_ne120pg2.nc', 'ne120', clat=38, clon=-120)#, topo_file=f'{topo_root}/USGS-gtopo30_ne120np4pg2_x6t_20230404.nc')
 
-grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/2026-workflow-test/files_grid'
+grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/files_grid'
 # add_grid(f'{grid_root}/ne16pg2_scrip.nc', 'ne16')#, clat=40, clon=260)
 # add_grid(f'{grid_root}/RRM-test-16x2-pg2_scrip.nc', 'RRM-test-16x2')#, clat=40, clon=260)
 
-add_grid(f'{grid_root}/RRM-test-32x1-pg2_scrip.nc', 'RRM-test-32x1')#, clat=40, clon=260)
-add_grid(f'{grid_root}/RRM-test-32x1-hmpg2_scrip.nc', 'RRM-test-32x1-hm')#, clat=40, clon=260)
-# add_grid(f'{grid_root}/RRM-test-32x1-pypg2_scrip.nc', 'RRM-test-32x1-py')#, clat=40, clon=260)
-# add_grid(f'{grid_root}/RRM-test-32x2-pg2_scrip.nc', 'RRM-test-32x2')#, clat=40, clon=260)
+# add_grid(f'{grid_root}/RRM-test-32x1-pg2_scrip.nc', 'RRM-test-32x1')#, clat=40, clon=260)
+# add_grid(f'{grid_root}/RRM-test-32x1-hmpg2_scrip.nc', 'RRM-test-32x1-hm')#, clat=40, clon=260)
+
+add_grid(f'{grid_root}/ne4-pynp4_scrip.nc', 'ne4-py np4')#, clat=40, clon=260)
+add_grid(f'{grid_root}/ne4-hmnp4_scrip.nc', 'ne4-hm np4')#, clat=40, clon=260)
 
 # ------------------------------------------------------------------------------
 # Shade mode: 'area', 'topo', or 'lines'
