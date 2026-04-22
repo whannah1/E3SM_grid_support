@@ -62,12 +62,17 @@ paths:
   mbda_path:       ""
   topo_file_src:   ""
 
-# --- Topo options (optional) -------------------------------------------------
+# --- Topo options ------------------------------------------------------------
 
 topo:
   # Set to false to use the original homme_tool topo_pgn_to_smoothed instead of
   # the Python SEM smoother. Requires paths.homme_tool_root to be set.
-  use_python_smooth: true
+  use_python_smooth: false
+  # Set to true to force the pure-Python disk-averaged remap even when
+  # paths.mbda_path is set. Useful for quick login-node tests. The Python
+  # fallback is automatically used when paths.mbda_path is empty. Note: the
+  # 3km intermediate file still requires the compiled MBDA binary.
+  use_python_mbda: false
 
 # --- SLURM overrides (optional) ----------------------------------------------
 
