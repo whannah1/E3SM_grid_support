@@ -23,7 +23,6 @@ import numpy as np
 from taos.grid import (
     _compute_np4_scrip_fields,
     _create_np4_scrip,
-    _e3sm_env_prefix,
     _grid_paths,
     _write_mbda,
     _write_scrip,
@@ -236,17 +235,6 @@ class MockConfigPython:
 
     def get(self, key, default=None):
         return self._data.get(key, default)
-
-
-# ---------------------------------------------------------------------------
-# _e3sm_env_prefix
-
-class TestE3smEnvPrefix(unittest.TestCase):
-
-    def test_returns_eval_command(self):
-        cfg = MockConfig()
-        result = _e3sm_env_prefix(cfg)
-        self.assertEqual(result, 'eval $(/e3sm/cime/CIME/Tools/get_case_env)')
 
 
 # ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 import subprocess as sp
 
 
-from taos.util import get_env_var, print_line, run_cmd
+from taos.util import e3sm_env_prefix, get_env_var, print_line, run_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -47,12 +47,32 @@ class TestRunCmd(unittest.TestCase):
             shell=True,
             check=True,
             executable='/bin/bash',
+            cwd=None,
         )
 
     @patch('taos.util.sp.run', side_effect=sp.CalledProcessError(1, 'bad_cmd'))
     def test_propagates_called_process_error(self, _mock_run):
         with self.assertRaises(sp.CalledProcessError):
             run_cmd('bad_cmd')
+
+
+# ---------------------------------------------------------------------------
+# e3sm_env_prefix
+
+class TestE3smEnvPrefix(unittest.TestCase):
+
+    def test_returns_eval_command(self):
+        cfg = {'paths.e3sm_src_root': '/e3sm'}
+
+        class MockCfg:
+            def __getitem__(self, key):
+                return cfg[key]
+
+        result = e3sm_env_prefix(MockCfg())
+        self.assertEqual(
+            result,
+            'eval $(/e3sm/cime/CIME/Tools/get_case_env) 2>/dev/null',
+        )
 
 
 # ---------------------------------------------------------------------------
