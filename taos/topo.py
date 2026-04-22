@@ -91,11 +91,46 @@ def remap_topo(cfg, force_new_3km_data=False):
     with timer.time('remap_topo'):
         # -------------------------------------------------------------------
         # resolve paths
-        mbda_path    = cfg['paths.mbda_path']
+        # mbda_path may be empty — in that case fall back to the pure-Python
+        # disk-averaged remap in taos.mbda (see plans/python_mbda_replacement.md).
+        mbda_path    = cfg.get('paths.mbda_path', '')
         unified_bin  = cfg['paths.unified_bin']
         topo_file_src = cfg['paths.topo_file_src']
         env_prefix   = e3sm_env_prefix(cfg)
         p            = _topo_paths(cfg)
+
+        use_python_mbda = not mbda_path
+        if use_python_mbda:
+            # lazy import so that taos.topo can still be imported on machines
+            # where scipy isn't installed but the compiled MBDA is.
+            from taos import mbda as _py_mbda
+
+        def _run_remap(source, target, output, fields, square_fields=(),
+                       dof_var=None, label='remap'):
+            """Dispatch a single remap call to compiled MBDA or the Python fallback."""
+            if use_python_mbda:
+                with timer.time(label + ' [python]'):
+                    _py_mbda.remap_files(
+                        source_path=source,
+                        target_path=target,
+                        output_path=output,
+                        fields=list(fields),
+                        square_fields=list(square_fields),
+                        dof_var=dof_var,
+                    )
+                return
+            sq_flag = f' --square-fields {",".join(square_fields)}' if square_fields else ''
+            dof_flag = f' --dof-var {dof_var}' if dof_var else ''
+            cmd = (f'{env_prefix} &&'
+                   f' {mbda_path}'
+                   f' --target {target}'
+                   f' --source {source}'
+                   f' --output {output}'
+                   f'{dof_flag}'
+                   f' --fields {",".join(fields)}'
+                   f'{sq_flag}')
+            with timer.time(label):
+                run_cmd(cmd)
 
         if force_new_3km_data and os.path.exists(p['topo_file_3km']):
             run_cmd(f'rm {p["topo_file_3km"]}')
@@ -106,14 +141,11 @@ def remap_topo(cfg, force_new_3km_data=False):
         # remap source → np4
         print_line()
         print(f'\n  {clr.CYAN}Remapping source topo to np4 grid{clr.END}')
-        cmd = (f'{env_prefix} &&'
-               f' {mbda_path}'
-               f' --target {p["grid_file_np4_mbda"]}'
-               f' --source {topo_file_src}'
-               f' --output {p["topo_file_1_np4"]}'
-               f' --fields htopo')
-        with timer.time('remap: MBDA source → np4'):
-            run_cmd(cmd)
+        _run_remap(source=topo_file_src,
+                   target=p['grid_file_np4_mbda'],
+                   output=p['topo_file_1_np4'],
+                   fields=['htopo'],
+                   label='remap: MBDA source → np4')
         if not os.path.exists(p['topo_file_1_np4']):
             raise RuntimeError(f'Remapped np4 topo creation FAILED: {p["topo_file_1_np4"]}')
 
@@ -126,14 +158,11 @@ def remap_topo(cfg, force_new_3km_data=False):
         # remap source → pg2 (with squared field for variance)
         print_line()
         print(f'\n  {clr.CYAN}Remapping source topo to pg2 grid{clr.END}')
-        cmd = (f'{env_prefix} &&'
-               f' {mbda_path}'
-               f' --target {p["grid_file_pg2_mbda"]}'
-               f' --source {topo_file_src}'
-               f' --output {p["topo_file_1_pg2"]}'
-               f' --fields htopo --square-fields htopo')
-        with timer.time('remap: MBDA source → pg2'):
-            run_cmd(cmd)
+        _run_remap(source=topo_file_src,
+                   target=p['grid_file_pg2_mbda'],
+                   output=p['topo_file_1_pg2'],
+                   fields=['htopo'], square_fields=['htopo'],
+                   label='remap: MBDA source → pg2')
         if not os.path.exists(p['topo_file_1_pg2']):
             raise RuntimeError(f'Remapped pg2 topo creation FAILED: {p["topo_file_1_pg2"]}')
 
@@ -147,18 +176,25 @@ def remap_topo(cfg, force_new_3km_data=False):
 
         # -------------------------------------------------------------------
         # remap source → 3km grid (skipped if file already exists)
+        # Call 3 is out of scope for the Python fallback (9M target cells vs
+        # a multi-hundred-million-point source) — see plans/python_mbda_replacement.md.
         if create_new_3km:
+            if use_python_mbda:
+                raise RuntimeError(
+                    "Creating the 3km intermediate topo file requires the compiled "
+                    "MBDA binary: the 9M-target × high-res-source remap is out of "
+                    "scope for the pure-Python fallback. Either set paths.mbda_path "
+                    "in your project.yaml, reuse an existing "
+                    f"{p['topo_file_3km']} file, or provide a pre-computed substitute."
+                )
             print_line()
             print(f'\n  {clr.CYAN}Creating 3km topo file with MBDA{clr.END}')
-            cmd = (f'{env_prefix} &&'
-                   f' {mbda_path}'
-                   f' --target {p["grid_file_3km_mbda"]}'
-                   f' --source {topo_file_src}'
-                   f' --output {p["topo_file_3km"]}'
-                   f' --dof-var grid_size'
-                   f' --fields htopo --square-fields htopo')
-            with timer.time('remap: MBDA source → 3km'):
-                run_cmd(cmd)
+            _run_remap(source=topo_file_src,
+                       target=p['grid_file_3km_mbda'],
+                       output=p['topo_file_3km'],
+                       fields=['htopo'], square_fields=['htopo'],
+                       dof_var='grid_size',
+                       label='remap: MBDA source → 3km')
             if not os.path.exists(p['topo_file_3km']):
                 raise RuntimeError(f'3km topo file creation FAILED: {p["topo_file_3km"]}')
 
@@ -173,27 +209,21 @@ def remap_topo(cfg, force_new_3km_data=False):
         # remap 3km → np4 and pg2 (needed for SGH calc)
         print_line()
         print(f'\n  {clr.CYAN}Mapping 3km topo to np4 with MBDA{clr.END}')
-        cmd = (f'{env_prefix} &&'
-               f' {mbda_path}'
-               f' --target {p["grid_file_np4_mbda"]}'
-               f' --source {p["topo_file_3km"]}'
-               f' --output {p["topo_file_3km_1"]}'
-               f' --fields PHIS --square-fields PHIS')
-        with timer.time('remap: MBDA 3km → np4'):
-            run_cmd(cmd)
+        _run_remap(source=p['topo_file_3km'],
+                   target=p['grid_file_np4_mbda'],
+                   output=p['topo_file_3km_1'],
+                   fields=['PHIS'], square_fields=['PHIS'],
+                   label='remap: MBDA 3km → np4')
         if not os.path.exists(p['topo_file_3km_1']):
             raise RuntimeError(f'3km→np4 remapped topo creation FAILED: {p["topo_file_3km_1"]}')
 
         print_line()
         print(f'\n  {clr.CYAN}Mapping 3km topo to pg2 with MBDA{clr.END}')
-        cmd = (f'{env_prefix} &&'
-               f' {mbda_path}'
-               f' --target {p["grid_file_pg2_mbda"]}'
-               f' --source {p["topo_file_3km"]}'
-               f' --output {p["topo_file_3km_pg2"]}'
-               f' --fields PHIS,VAR30 --square-fields PHIS')
-        with timer.time('remap: MBDA 3km → pg2'):
-            run_cmd(cmd)
+        _run_remap(source=p['topo_file_3km'],
+                   target=p['grid_file_pg2_mbda'],
+                   output=p['topo_file_3km_pg2'],
+                   fields=['PHIS', 'VAR30'], square_fields=['PHIS'],
+                   label='remap: MBDA 3km → pg2')
         if not os.path.exists(p['topo_file_3km_pg2']):
             raise RuntimeError(f'3km→pg2 remapped topo creation FAILED: {p["topo_file_3km_pg2"]}')
 
