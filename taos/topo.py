@@ -397,7 +397,7 @@ def _get_np4_phis(ds, np4_ncol):
     raise ValueError(f'No np4 PHIS (ncol={np4_ncol}) found; dims={dict(ds.dims)}')
 
 
-def calc_topo_sgh(cfg,calc_sgh_dycore=False):
+def calc_topo_sgh(cfg):
     """
     Compute SGH30 and SGH subgrid-scale orography variance and write
     the final topography output file.
@@ -426,8 +426,8 @@ def calc_topo_sgh(cfg,calc_sgh_dycore=False):
 
         try:
             # ---------------------------------------------------------------
-            # SGH30, SGH, SGH_dycore computation
-            with timer.time('sgh: compute SGH30 + SGH + SGH_dycore'):
+            # SGH30 & SGH computation
+            with timer.time('sgh: compute SGH30 + SGH'):
                 phis_smoothed = ds_2['PHIS']
                 phis          = ds_1_pg2['PHIS']
                 phis_squared  = ds_1_pg2['PHIS_squared']
@@ -456,22 +456,6 @@ def calc_topo_sgh(cfg,calc_sgh_dycore=False):
                 ds_out['SGH'].attrs['units']     = 'm'
                 ds_out['SGH'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
                 del var_3km
-
-                # -----------------------------------------------------------
-                # SGH_dycore (debug: use homme_tool smoothed phi)
-                if calc_sgh_dycore:
-                    phis_3km_np4         = ds_3km_1['PHIS']
-                    phis_3km_np4_squared = ds_3km_1['PHIS_squared']
-                    np4_ncol             = ds_3km_1.dims['ncol']
-                    phis_3km_smooth      = _get_np4_phis(ds_3km_2, np4_ncol)
-                    var_3km_d            = _compute_variance(phis_3km_np4, phis_3km_smooth, phis_3km_np4_squared)
-                    var_3km_d        = xr.where(var_3km_d > 0, var_3km_d, 0)
-                    sgh_dycore       = (np.sqrt(var_3km_d) / _GRAVITY).rename({'ncol': 'ncol_d'})
-
-                    ds_out['SGH_dycore'] = sgh_dycore
-                    ds_out['SGH_dycore'].attrs['units']     = 'm'
-                    ds_out['SGH_dycore'].attrs['long_name'] = 'standard deviation of 3km cubed-sphere elevation'
-                    del var_3km_d
 
             # ---------------------------------------------------------------
             # add coordinate and smoothed PHIS fields

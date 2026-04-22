@@ -245,10 +245,6 @@ These criteria provide more sensible values of SGH fields for sufficiently fine 
 More details can be found on the E3SM confluence site here:
 https://e3sm.atlassian.net/wiki/spaces/DOC/pages/5251104838/Topography+tool+chain+-+description+and+upgrades+for+high-res
 
-## Legacy SGH Calculation
-
-An additional, optional field `SGH_dycore` can be calculated that is consistent with legacy behavior. Unlike `SGH` and `SGH30`, which live on the pg2 physics grid and measure the variance of 3km-remapped topography about each pg2 cell's mean elevation, `SGH_dycore` lives on the np4 GLL grid (dimension ncol_d) and measures the variance of the 3km topography (also remapped to np4) about the smoothed np4 PHIS field that the dynamical core integrates. It coincides with `SGH` under the old convention where the target-grid PHIS was defined as the smoothed field, and is retained as an optional np4-grid output for backward comparison with workflows built on that convention.
-
 --------------------------------------------------------------------------------
 
 # E3SM Source Code Changes Needed to Define a New Atmosphere Grid
