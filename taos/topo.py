@@ -93,13 +93,20 @@ def remap_topo(cfg, force_new_3km_data=False):
         # resolve paths
         # mbda_path may be empty — in that case fall back to the pure-Python
         # disk-averaged remap in taos.mbda (see plans/python_mbda_replacement.md).
+        # topo.use_python_mbda (or per-grid grid.use_python_mbda) forces the
+        # Python path even when mbda_path is set — useful for quick login-node
+        # tests since the compiled MBDA currently has issues on login nodes.
         mbda_path    = cfg.get('paths.mbda_path', '')
         unified_bin  = cfg['paths.unified_bin']
         topo_file_src = cfg['paths.topo_file_src']
         env_prefix   = e3sm_env_prefix(cfg)
         p            = _topo_paths(cfg)
 
-        use_python_mbda = not mbda_path
+        force_python = cfg.get('grid.use_python_mbda',
+                               cfg.get('topo.use_python_mbda', False))
+        if isinstance(force_python, str):
+            force_python = force_python.lower() not in ('false', '0', 'no', '')
+        use_python_mbda = force_python or not mbda_path
         if use_python_mbda:
             # lazy import so that taos.topo can still be imported on machines
             # where scipy isn't installed but the compiled MBDA is.

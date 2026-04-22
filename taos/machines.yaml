@@ -27,7 +27,6 @@ _required_keys:
     - unified_bin
     - unified_src
     - homme_tool_root
-    - mbda_path
     - topo_file_src
   slurm:
     - account
