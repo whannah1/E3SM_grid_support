@@ -105,7 +105,38 @@ There are several things to consider when starting a new project.
 
 MBDA is a relatively new mapping tool that has not been integrated into E3SM unified. Currently it is manually built by the developer (Vijay Mahadevan). Ensure that the machine you are running has a version of MBDA and that the path is correctly specified in the `project.yaml` associated with your project.
 
-## Build `homme_tool`
+### Python MBDA fallback
+
+On machines where the compiled `mbda` binary is not available (e.g. laptops, CI, ALCF), leave `paths.mbda_path` empty in `project.yaml` (or the machine defaults in `taos/machines.yaml`).  TAOS will automatically use a pure-Python disk-averaged remap (`taos.mbda`) built on `scipy.spatial.cKDTree` for the source→np4, source→pg2, 3km→np4, and 3km→pg2 calls.
+
+The Python fallback handles sources up to ~100 M points and targets up to ~1 M cells comfortably.  The one exception is the source → ne3000pg1 (3km) call, which still requires the compiled MBDA; TAOS raises a clear error in that case advising you to reuse an existing 3km file or set `mbda_path`. See `plans/python_mbda_replacement.md` for details.
+
+You can also invoke the Python remap directly for debugging:
+
+```shell
+python -m taos.mbda --source src.nc --target tgt_mbda.nc --output out.nc \
+                    --fields htopo --square-fields htopo
+```
+
+## Build `homme_tool` (optional)
+
+`homme_tool` provides direct access to methods from E3SM's atmospheric dynamical code (HOMME).
+
+**Pure-Python alternatives are now built into TAOS for every stage that historically
+required `homme_tool`, so building it is no longer necessary for typical workflows:**
+
+- **Topography smoothing** — `taos.sem` implements SEM tensor hyperviscosity
+  smoothing natively.  This is the default path (`topo.use_python_smooth: true`).
+- **MBDA disk-averaged remap** — `taos.mbda` provides a `scipy.spatial.cKDTree`-based
+  pure-Python remap; see the MBDA section above.  Activated by leaving `paths.mbda_path`
+  empty.
+- **Grid file generation** — `taos.grid` writes SCRIP and MBDA grid files directly from
+  the Exodus mesh using `taos.sem`, with no external tool required for np4.
+
+Leave `paths.homme_tool_root` empty in `project.yaml` (or in the machine defaults)
+to let TAOS pick up its built-in Python equivalents.  You only need to build
+`homme_tool` if you explicitly want the reference HOMME path (e.g. for
+validation, or by setting `topo.use_python_smooth: false`):
 
 ```shell
 e3sm_src_root=/pscratch/sd/w/whannah/tmp_e3sm_src
@@ -194,6 +225,29 @@ users:
 The merge priority is: machine defaults → project `paths:` → `users.<username>` overrides. The `users:` section also accepts a `slurm:` sub-key for overriding SLURM settings per user (e.g., `account`, `mail_user`).
 
 A user with no entry in `users:` simply gets the project and machine defaults — no action required on their part.
+
+--------------------------------------------------------------------------------
+
+# Understanding SGH Fields
+
+The SGH fields found in topography files represent the standard deviation (std) of sub-grid topographic height variations that may be used for turbulence and surface flux parameterizations. Traditionally, there are two SGH quantities that are calculated: `SGH` and `SGH30`. Both quantities are tradiationally defined relative to a 3km topography dataset (unstructured grid).
+
+- `SGH` => std between 3km and target grid
+- `SGH30` => std between source grid and 3km
+
+The traditional definition of these quantities has become problematic as grids finer than 3km become more widely used. Therefore our appraoch to these quantities have been updated to accomodate finer grids, including the case of regional refinement where the grid includes scales larger and smaller than 3km. Specifically, the new approach is meant to meet the following criteria:
+
+- `SGH` => should go to zero when the target resolution is finer than 3km
+- `SGH30` => should be the minimum of the traditional definition and the std between the source and target grids
+
+These criteria provide more sensible values of SGH fields for sufficiently fine grids.
+
+More details can be found on the E3SM confluence site here:
+https://e3sm.atlassian.net/wiki/spaces/DOC/pages/5251104838/Topography+tool+chain+-+description+and+upgrades+for+high-res
+
+## Legacy SGH Calculation
+
+An additional, optional field `SGH_dycore` can be calculated that is consistent with legacy behavior. Unlike `SGH` and `SGH30`, which live on the pg2 physics grid and measure the variance of 3km-remapped topography about each pg2 cell's mean elevation, `SGH_dycore` lives on the np4 GLL grid (dimension ncol_d) and measures the variance of the 3km topography (also remapped to np4) about the smoothed np4 PHIS field that the dynamical core integrates. It coincides with `SGH` under the old convention where the target-grid PHIS was defined as the smoothed field, and is retained as an optional np4-grid output for backward comparison with workflows built on that convention.
 
 --------------------------------------------------------------------------------
 
