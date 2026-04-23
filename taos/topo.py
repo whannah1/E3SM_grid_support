@@ -346,7 +346,7 @@ def _smooth_topo_homme(cfg):
             Path(p['nl_file_smooth']).write_text(nl_content)
 
             cmd = (f'cd {homme_tool_root} && {env_prefix} &&'
-                   f' srun -n 8 {homme_tool_root}/src/tool/homme_tool < {p["nl_file_smooth"]}')
+                   f' srun -c 32 -N $SLURM_NNODES {homme_tool_root}/src/tool/homme_tool < {p["nl_file_smooth"]}')
             with timer.time(label):
                 run_cmd(cmd)
 
@@ -423,6 +423,10 @@ def calc_topo_sgh(cfg):
         ds_3km_1  = xr.open_dataset(p['topo_file_3km_1'])
         ds_3km_2  = xr.open_dataset(p['topo_file_3km_2'])
         ds_1_np4  = xr.open_dataset(p['topo_file_1_np4'])
+
+        # ds_1_np4 is a pure np4 file, so its column dim size is the
+        # canonical np4 ncol used to disambiguate np4 vs pg2 in ds_2.
+        np4_ncol = ds_1_np4.sizes.get('ncol', ds_1_np4.sizes.get('ncol_d'))
 
         try:
             # ---------------------------------------------------------------
