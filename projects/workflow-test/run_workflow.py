@@ -11,7 +11,7 @@ for interactive workflow at NERSC:
     salloc --nodes 1 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
     salloc --nodes 4 --qos interactive --time 4:00:00 --cpus-per-task=32 --constraint cpu --account=m2637
     source activate ux_env
-    pip install -e ~/E3SM_grid_support/
+    # pip install -e ~/E3SM_grid_support/
     python run_workflow.py
 """
 import os, pathlib
@@ -55,10 +55,10 @@ active_grids = None
 # active_grids = ['ne4']
 # active_grids = ['ne4-hm']
 # active_grids = ['ne4-py']
-# active_grids = ['ne30']
+active_grids = ['ne30']
 # active_grids = ['ne30-hm']
 # active_grids = ['ne30-py']
-active_grids = ['RRM-test-32x1-hm']
+# active_grids = ['RRM-test-32x1-hm']
 # active_grids = ['RRM-test-32x1-py']
 
 #-------------------------------------------------------------------------------

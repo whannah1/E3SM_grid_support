@@ -101,21 +101,60 @@ ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_
       <grid name="wav">null</grid>
       <mask>RRSwISC6to18E3r5</mask>
     </model_grid>
+    <model_grid alias="conus1024x3v1pg2_RRSwISC6to18E3r5">
+      <grid name="atm">ne0np4_conus1024x3v1.pg2</grid>
+      <grid name="lnd">ne0np4_conus1024x2v1.pg2</grid>
+      <grid name="ocnice">RRSwISC6to18E3r5</grid>
+      <grid name="rof">r0125</grid>
+      <grid name="glc">null</grid>
+      <grid name="wav">null</grid>
+      <mask>RRSwISC6to18E3r5</mask>
+    </model_grid>
+    <model_grid alias="conus1024x4v1pg2_RRSwISC6to18E3r5">
+      <grid name="atm">ne0np4_conus1024x4v1.pg2</grid>
+      <grid name="lnd">ne0np4_conus1024x2v1.pg2</grid>
+      <grid name="ocnice">RRSwISC6to18E3r5</grid>
+      <grid name="rof">r0125</grid>
+      <grid name="glc">null</grid>
+      <grid name="wav">null</grid>
+      <mask>RRSwISC6to18E3r5</mask>
+    </model_grid>
     <!--=====================================================================-->
 ```
 
 ### XML domain spec
 
 ```xml
-
     <!--=====================================================================-->
-    <domain name="ne32np4.pg2">
-      <nx>24576</nx>
+    <!-- INCITE 2026 CONUS-RRM -->
+    <domain name="ne0np4_conus1024x2v1.pg2">
+      <nx>31633192</nx>
       <ny>1</ny>
-      <file grid="atm|lnd" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/domain.lnd.ne32pg2_RRSwISC6to18E3r5.20251006.nc</file>
-      <file grid="ice|ocn" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/domain.ocn.ne32pg2_RRSwISC6to18E3r5.20251006.nc</file>
-      <desc>ne32pg2</desc>
+      <!-- <file grid="atm|lnd" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <!-- <file grid="ice|ocn" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <file grid="atm|lnd" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.lnd.2026-incite-conus-1024x2-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <file grid="ice|ocn" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.ocn.2026-incite-conus-1024x2-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <desc>conus1024x2v1</desc>
     </domain>
+    <domain name="ne0np4_conus1024x3v1.pg2">
+      <nx>52070092</nx>
+      <ny>1</ny>
+      <!-- <file grid="atm|lnd" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <!-- <file grid="ice|ocn" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <file grid="atm|lnd" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.lnd.2026-incite-conus-1024x3-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <file grid="ice|ocn" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.ocn.2026-incite-conus-1024x3-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <desc>conus1024x3v1</desc>
+    </domain>
+    <domain name="ne0np4_conus1024x4v1.pg2">
+      <nx>133332960</nx>
+      <ny>1</ny>
+      <!-- <file grid="atm|lnd" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <!-- <file grid="ice|ocn" mask="RRSwISC6to18E3r5">$DIN_LOC_ROOT/share/domains/</file> -->
+      <file grid="atm|lnd" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.lnd.2026-incite-conus-1024x3-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <file grid="ice|ocn" mask="RRSwISC6to18E3r5">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain/domain.ocn.2026-incite-conus-1024x3-pg2_RRSwISC6to18E3r5.20251121.nc</file>
+      <desc>conus1024x4v1</desc>
+    </domain>
+    <!--=====================================================================-->
 ```
 
 ### XML map spec
@@ -123,32 +162,66 @@ ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_
 ```xml
     <!--=====================================================================-->
     <!-- INCITE 2026 CONUS-RRM  -->
+    <!-- 1024x2 - land is on x2 grid, so we only need ocn/rof maps -->
+    <gridmap atm_grid="ne0np4_conus1024x2v1.pg2" ocn_grid="RRSwISC6to18E3r5">
+      <map name="ATM2OCN_FMAPNAME"          >cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_traave.20251121.nc</map>
+      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_traave.20251121.nc</map>
+      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_traave.20251121.nc</map>
+      <map name="ATM2ICE_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+      <map name="ATM2OCN_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+    </gridmap>
+    <gridmap atm_grid="ne0np4_conus1024x2v1.pg2" rof_grid="r0125">
+      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20251121.nc</map>
+      <map name="ATM2ROF_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_trfv2.20251121.nc</map>
+      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_trbilin.20251121.nc</map>
+    </gridmap>
+    <!-- 1024x3 -->
+    <gridmap atm_grid="ne0np4_conus1024x3v1.pg2" ocn_grid="RRSwISC6to18E3r5">
+      <map name="ATM2OCN_FMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_traave.20251121.nc</map>
+      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_traave.20251121.nc</map>
+      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_traave.20251121.nc</map>
+      <map name="ATM2ICE_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+      <map name="ATM2OCN_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+    </gridmap>
+    <gridmap atm_grid="ne0np4_conus1024x3v1.pg2" lnd_grid="ne0np4_conus1024x2v1.pg2">
+      <map name="ATM2LND_FMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_conus1024x2v1pg2_traave.20251121.nc</map>
+      <map name="ATM2LND_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_conus1024x2v1pg2_trfv2.20251121.nc</map>
+      <map name="ATM2LND_SMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_conus1024x2v1pg2_trbilin.20251121.nc</map>
+      <map name="LND2ATM_FMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x2v1pg2_to_conus1024x3v1pg2_traave.20251121.nc</map>
+      <map name="LND2ATM_SMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x2v1pg2_to_conus1024x3v1pg2_traave.20251121.nc</map>
+    </gridmap>
+    <gridmap atm_grid="ne0np4_conus1024x3v1.pg2" rof_grid="r0125">
+      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_r0125_traave.20251121.nc</map>
+      <map name="ATM2ROF_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_r0125_trfv2.20251121.nc</map>
+      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_r0125_trbilin.20251121.nc</map>
+    </gridmap>
+    <!-- 1024x4 -->
+    <gridmap atm_grid="ne0np4_conus1024x4v1.pg2" ocn_grid="RRSwISC6to18E3r5">
+      <map name="ATM2OCN_FMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_RRSwISC6to18E3r5_traave.20251121.nc</map>
+      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc</map>
+      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x4v1pg2_traave.20251121.nc</map>
+      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x4v1pg2_traave.20251121.nc</map>
+      <map name="ATM2ICE_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+      <map name="ATM2OCN_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc</map>
+    </gridmap>
+    <gridmap atm_grid="ne0np4_conus1024x4v1.pg2" lnd_grid="ne0np4_conus1024x2v1.pg2">
+      <map name="ATM2LND_FMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_conus1024x2v1pg2_traave.20251121.nc</map>
+      <map name="ATM2LND_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_conus1024x2v1pg2_trfv2.20251121.nc</map>
+      <map name="ATM2LND_SMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_conus1024x2v1pg2_trbilin.20251121.nc</map>
+      <map name="LND2ATM_FMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x2v1pg2_to_conus1024x4v1pg2_traave.20251121.nc</map>
+      <map name="LND2ATM_SMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x2v1pg2_to_conus1024x4v1pg2_traave.20251121.nc</map>
+    </gridmap>
+    <gridmap atm_grid="ne0np4_conus1024x4v1.pg2" rof_grid="r0125">
+      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_r0125_traave.20251121.nc</map>
+      <map name="ATM2ROF_FMAPNAME_NONLINEAR">cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_r0125_trfv2.20251121.nc</map>
+      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/conus1024x4v1pg2/map_conus1024x4v1pg2_to_r0125_trbilin.20251121.nc</map>
+    </gridmap>
     <!--=====================================================================-->
-    <!-- ne32 -->
-    <gridmap atm_grid="ne32np4.pg2" ocn_grid="RRSwISC6to18E3r5">
-      <map name="ATM2OCN_FMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_RRSwISC6to18E3r5_traave.20251006.nc</map>
-      <map name="ATM2OCN_VMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
-      <map name="ATM2OCN_SMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_RRSwISC6to18E3r5_trbilin.20251006.nc</map>
-      <map name="OCN2ATM_FMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_ne32pg2_traave.20251006.nc</map>
-      <map name="OCN2ATM_SMAPNAME"          >cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_ne32pg2_traave.20251006.nc</map>
-      <map name="ATM2ICE_FMAPNAME_NONLINEAR">cpl/gridmaps/ne32pg2/map_ne32pg2_to_RRSwISC6to18E3r5_trfv2.20251006.nc</map>
-      <map name="ATM2OCN_FMAPNAME_NONLINEAR">cpl/gridmaps/ne32pg2/map_ne32pg2_to_RRSwISC6to18E3r5_trfv2.20251006.nc</map>
-    </gridmap>
-    <gridmap atm_grid="ne32np4.pg2" lnd_grid="r025">
-      <map name="ATM2LND_FMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_traave.20251006.nc</map>
-      <map name="ATM2LND_FMAPNAME_NONLINEAR">cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_trfv2.20251006.nc</map>
-      <map name="ATM2LND_SMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_trbilin.20251006.nc</map>
-      <map name="LND2ATM_FMAPNAME"          >cpl/gridmaps/ne32pg2/map_r025_to_ne32pg2_traave.20251006.nc</map>
-      <map name="LND2ATM_SMAPNAME"          >cpl/gridmaps/ne32pg2/map_r025_to_ne32pg2_traave.20251006.nc</map>
-    </gridmap>
-    <gridmap atm_grid="ne32np4.pg2" rof_grid="r025">
-      <map name="ATM2ROF_FMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_traave.20251006.nc</map>
-      <map name="ATM2ROF_FMAPNAME_NONLINEAR">cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_trfv2.20251006.nc</map>
-      <map name="ATM2ROF_SMAPNAME"          >cpl/gridmaps/ne32pg2/map_ne32pg2_to_r025_trbilin.20251006.nc</map>
-    </gridmap>
-
-    <!--=====================================================================-->
-
 ```
 
 ----------------------------------------------------------------------------------------------------
@@ -156,10 +229,37 @@ ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_
 ## components/eam/bld/config_files/horiz_grid.xml
 
 ```xml
-<!--=====================================================================-->
-<!-- 2025 SciDAC grids for multi-fidelity study  -->
-<horiz_grid dyn="se" hgrid="ne0np4_CONUS2026-1024x2" ncol="152714" csne="0" csnp="4" npg="0" />
-<!--=====================================================================-->
+<horiz_grid dyn="se" hgrid="ne0np4_conus1024x2v1.pg2"         ncol="31633192"  csne="0" csnp="4" npg="2" />
+<horiz_grid dyn="se" hgrid="ne0np4_conus1024x3v1.pg2"         ncol="52070092"  csne="0" csnp="4" npg="2" />
+<horiz_grid dyn="se" hgrid="ne0np4_conus1024x4v1.pg2"         ncol="133332960" csne="0" csnp="4" npg="2" />
 ```
 
+# Commands for Moving Data
+
+```shell
+# these commands were used to copy the map files to the input data directory on NERSC 
+
+# 1024x2
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x2-pg2_to_RRSwISC6to18E3r5_traave.20251121.nc     /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x2-pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc    /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x2-pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc      /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x2-pg2_to_RRSwISC6to18E3r5_trintbilin.20251121.nc /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_RRSwISC6to18E3r5_trintbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_ne30pg2_to_2026-incite-conus-1024x2-pg2_traave.20251121.nc              /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2/map_ne30pg2_to_conus1024x2v1pg2_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x2-pg2_traave.20251121.nc     /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x2-pg2_trbilin.20251121.nc    /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_trbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x2-pg2_trfv2.20251121.nc      /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_trfv2.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x2-pg2_trintbilin.20251121.nc /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x2v1pg2_trintbilin.20251121.nc
+# 1024x3
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x3-pg2_to_RRSwISC6to18E3r5_traave.20251121.nc     /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x3-pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc    /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x3-pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc      /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trfv2.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_2026-incite-conus-1024x3-pg2_to_RRSwISC6to18E3r5_trintbilin.20251121.nc /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x3v1pg2/map_conus1024x3v1pg2_to_RRSwISC6to18E3r5_trintbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_ne30pg2_to_2026-incite-conus-1024x3-pg2_traave.20251121.nc              /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/conus1024x3v1pg2/map_ne30pg2_to_conus1024x3v1pg2_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x3-pg2_traave.20251121.nc     /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_traave.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x3-pg2_trbilin.20251121.nc    /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_trbilin.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x3-pg2_trfv2.20251121.nc      /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_trfv2.20251121.nc
+cp /global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map/map_RRSwISC6to18E3r5_to_2026-incite-conus-1024x3-pg2_trintbilin.20251121.nc /global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/RRSwISC6to18E3r5/map_RRSwISC6to18E3r5_to_conus1024x3v1pg2_trintbilin.20251121.nc
+
+
+```
 --------------------------------------------------------------------------------

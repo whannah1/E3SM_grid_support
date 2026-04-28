@@ -105,7 +105,7 @@ topo:
   # paths.mbda_path is set. Useful for quick login-node tests. The Python
   # fallback is automatically used when paths.mbda_path is empty. Note: the
   # 3km intermediate file still requires the compiled MBDA binary.
-  use_python_mbda: true
+  use_python_mbda: false
 
 # --- SLURM overrides (optional) ----------------------------------------------
 

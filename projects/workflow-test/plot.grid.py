@@ -61,8 +61,11 @@ grid_root = '/global/cfs/cdirs/e3sm/whannah/E3SM_grid_support/workflow-test/file
 # add_grid(f'{grid_root}/RRM-test-32x1-pg2_scrip.nc', 'RRM-test-32x1')#, clat=40, clon=260)
 # add_grid(f'{grid_root}/RRM-test-32x1-hmpg2_scrip.nc', 'RRM-test-32x1-hm')#, clat=40, clon=260)
 
-add_grid(f'{grid_root}/ne4-pynp4_scrip.nc', 'ne4-py np4')#, clat=40, clon=260)
-add_grid(f'{grid_root}/ne4-hmnp4_scrip.nc', 'ne4-hm np4')#, clat=40, clon=260)
+add_grid(f'{grid_root}/RRM-test-2x7-pg2_scrip.nc', 'RRM-test-2x7')#, clat=40, clon=260)
+add_grid(f'{grid_root}/RRM-test-4x6-pg2_scrip.nc', 'RRM-test-4x6')#, clat=40, clon=260)
+
+# add_grid(f'{grid_root}/ne4-pynp4_scrip.nc', 'ne4-py np4')#, clat=40, clon=260)
+# add_grid(f'{grid_root}/ne4-hmnp4_scrip.nc', 'ne4-hm np4')#, clat=40, clon=260)
 
 # ------------------------------------------------------------------------------
 # Shade mode: 'area', 'topo', or 'lines'

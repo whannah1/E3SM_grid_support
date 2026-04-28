@@ -59,8 +59,8 @@ topo_args += ' --stage all'
 # active_grids = None
 # active_grids = ['2026-incite-conus-128x2'] # smaller grid for testing
 # active_grids = ['2026-incite-conus-1024x2']
-active_grids = ['2026-incite-conus-1024x3']
-# active_grids = ['2026-incite-conus-1024x4']
+# active_grids = ['2026-incite-conus-1024x3']
+active_grids = ['2026-incite-conus-1024x4']
 # active_grids = ['2026-incite-conus-128x2']
 
 #-------------------------------------------------------------------------------
@@ -68,17 +68,17 @@ active_grids = ['2026-incite-conus-1024x3']
 
 MAPS_SLURM = {
     '2026-incite-conus-128x2':  '--nodes=1 --cpus-per-task=32 --time=12:00:00',
-    '2026-incite-conus-1024x2': '--nodes=1 --cpus-per-task=32 --time=48:00:00',
-    '2026-incite-conus-1024x3': '--nodes=1 --cpus-per-task=32 --time=48:00:00',
-    '2026-incite-conus-1024x4': '--nodes=1 --cpus-per-task=32 --time=48:00:00',
+    '2026-incite-conus-1024x2': '--nodes=1 --cpus-per-task=32 --time=12:00:00',
+    '2026-incite-conus-1024x3': '--nodes=1 --cpus-per-task=32 --time=12:00:00',
+    '2026-incite-conus-1024x4': '--nodes=1 --cpus-per-task=32 --time=12:00:00',
 }
 
 TOPO_SLURM = {
     '2026-incite-conus-128x2':  '--nodes=4  --cpus-per-task=32 --time=12:00:00',
     '2026-incite-conus-1024x2': '--nodes=1 --time=12:00:00',
     # '2026-incite-conus-1024x2': '--nodes=16 --cpus-per-task=32 --time=48:00:00',
-    '2026-incite-conus-1024x3': '--nodes=32 --cpus-per-task=32 --time=48:00:00',
-    '2026-incite-conus-1024x4': '--nodes=64 --cpus-per-task=32 --time=48:00:00',
+    '2026-incite-conus-1024x3': '--nodes=32 --cpus-per-task=32 --time=12:00:00',
+    '2026-incite-conus-1024x4': '--nodes=64 --cpus-per-task=32 --time=12:00:00',
 }
 
 #-------------------------------------------------------------------------------
