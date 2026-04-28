@@ -13,7 +13,7 @@ def add_grid(file_path, **kwargs):
         case_opts[k] = val
     opt_list.append(case_opts)
 #-------------------------------------------------------------------------------
-# add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',       n='L80 EAMv3 default')
+add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',       n='L80 EAMv3 default',d=0,c='gray')
 # add_grid(f'{home}/E3SM/vert_grid_files/E3SMv3_L80-truncated_55km.nc', n='L78 top~55km')
 # add_grid(f'{home}/E3SM/vert_grid_files/E3SMv3_L80-truncated_50km.nc', n='L76 top~50km')
 # add_grid(f'{home}/E3SM/vert_grid_files/E3SMv3_L80-truncated_45km.nc', n='L74 top~45km')
@@ -23,22 +23,28 @@ def add_grid(file_path, **kwargs):
 # add_grid(f'{home}/E3SM/vert_grid_files/E3SMv3_L80-truncated_25km.nc', n='L63 top~25km')
 # add_grid(f'{home}/E3SM/vert_grid_files/E3SMv3_L80-truncated_20km.nc', n='L55 top~20km')
 
-add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128v1.0',d=0,c='black'  )
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc', n='L128 v3.0',c='red')
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='blue')
+add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128 default',d=0,c='black'  )
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc', n='L128 v3.0',c='red')
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='green')
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc', n='L128 v3.2',c='blue')
+add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.3_c20251112.nc', n='L128 v3.3',c='magenta')
 
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc',        n='L128 v3.1',       c='red')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_p-bias.nc', n='L128 v3.1 p-bias',c='green',ls='dashed')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_t-bias.nc', n='L128 v3.1 t-bias',c='blue' ,ls='dotted')
 
 
+print()
+for opts in opt_list: print(opts['file'])
+print()
+
 #-------------------------------------------------------------------------------
 # Settings
 #-------------------------------------------------------------------------------
 fig_file        = os.path.join('figs_vert_grid/vertical_grid_spacing.png')
 print_table     = False
-use_height      = False   # use height (km) for Y-axis; else use pressure (hPa)
-add_zoomed_plot = False
+use_height      = True   # use height (km) for Y-axis; else use pressure (hPa)
+add_zoomed_plot = True
 zoom_top_idx    = -30    # index cutoff for zoomed panel
 
 #-------------------------------------------------------------------------------
@@ -122,7 +128,8 @@ for ax in axes:
     ax.tick_params(direction='in', which='both')
 
 # ---- Axis limits ----
-dlev_min  = min(np.nanmin(d)              for d in dlev_list)
+# dlev_min  = min(np.nanmin(d)              for d in dlev_list)
+dlev_min  = 0.
 dlev_max  = max(np.nanmax(d)              for d in dlev_list)
 mlev_min  = min(np.nanmin(m)              for m in mlev_list)
 mlev_max  = max(np.nanmax(m)              for m in mlev_list)
@@ -140,8 +147,12 @@ else:
     ax1.set_ylim(mlev_min * 0.5, mlev_max + (mlev_max - mlev_min) * 0.05)
 
 if ax2 is not None:
-    ax2.set_xlim(0, 100)
-    ax2.set_ylim(0, 1)
+    x_pad2 = (dlev_max2 - dlev_min) * 0.05
+    y_pad2 = (mlev_max2 - mlev_min2) * 0.05
+    # ax2.set_xlim(dlev_min, dlev_max2 + x_pad2)
+    # ax2.set_ylim(mlev_min2, mlev_max2)# + y_pad2)
+    ax2.set_xlim(0, 200)
+    ax2.set_ylim(0, 3)# + y_pad2)
 
 # Pressure axis: invert and log scale
 if not use_height:

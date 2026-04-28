@@ -8,7 +8,7 @@ print_int_debug = False
 print_mid_debug = False
 print_L72_comparison = False
 
-nsmooth = 40
+nsmooth = 20
 
 # Set up terminal colors
 class tcolor: ENDC,RED,GREEN,CYAN = '\033[0m','\033[31m','\033[32m','\033[36m'
@@ -50,18 +50,38 @@ def main():
     # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc'
     # dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2, 96,  2,  2,   2,   2,   2,   2,   2,]
     # dz_list = [20,10,30,40,50,60,70,80,90,100,250,500,750,1000,1250,1500,1750,2000,]
+    
     # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc'
     # dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2, 90,  6,  6,   6,   1,   1,]
     # dz_list = [20,10,30,40,50,60,70,80,90,100,250,500,750,1000,1250,1500,]
-    ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L218_v3.1_c20251112.nc'
-    dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2,180,  6,  6,   6,   1,   1,]
-    dz_list = [20,10,30,40,50,60,70,80,90,100,125,500,750,1000,1250,1500,]
-    nsmooth = 20
+    # fix_lowest_spacing = True
+
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L218_v3.1_c20251112.nc'
+    # dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2,180,  6,  6,   6,   1,   1,]
+    # dz_list = [20,10,30,40,50,60,70,80,90,100,125,500,750,1000,1250,1500,]
+    # nsmooth = 20
+    # fix_lowest_spacing = True
+
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc'
+    # dk_list = [ 1, 1, 2, 2, 2, 2, 2, 2, 2,  2, 75,  4,  4,  4,  4,   4,   4,   4,   4,   2,   1,]
+    # dz_list = [20,10,30,40,50,60,70,80,90,100,250,400,500,600,800,1000,1200,1400,1600,1800,2000,]
+    # fix_lowest_spacing = True
+
+    ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.3_c20251112.nc'
+    dk_list = [10,38,  8, 12, 12, 12, 12,  8,   8,   4,   4,]
+    dz_list = [20,50,100,280,320,360,400,500,1000,2000,2500,]
+    nsmooth = 40
     fix_lowest_spacing = True
     
 
-    # if np.sum(dk_list)!=128:
-    #     print(f'ERROR: number of levels ({np.sum(dk_list)}) does not equal 128 ');exit()
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc'
+    # dk_list = [ 5, 4, 4, 4,  8, 80,  6,  6,   6,   1,   1,]
+    # dz_list = [20,40,60,80,100,250,500,750,1000,1250,1500,]
+    # fix_lowest_spacing = True
+    
+
+    if np.sum(dk_list)!=128:
+        print(f'ERROR: number of levels ({np.sum(dk_list)}) does not equal 128 ');exit()
     #---------------------------------------------------------------------------
     #---------------------------------------------------------------------------
     dz = []
