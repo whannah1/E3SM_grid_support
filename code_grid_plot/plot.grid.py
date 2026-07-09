@@ -55,10 +55,14 @@ topo_root = '/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo'
 
 grid_root = '/global/cfs/cdirs/m5277/whannah/files_grid'
 # add_grid(f'{grid_root}/STRONG-CA-32x5-v1-pg2_scrip.nc', 'CA-32x5 v1', clat=38, clon=-120)
-add_grid(f'{grid_root}/STRONG-CA-32x5-v2-pg2_scrip.nc', 'CA-32x5 v2', clat=38, clon=-120)
+# add_grid(f'{grid_root}/STRONG-CA-32x5-v2-pg2_scrip.nc', 'CA-32x5 v2', clat=38, clon=-120)
 
 # add_grid(f'{grid_root}/STRONG-CA-128x3-v1-pg2_scrip.nc', 'CA-128x3 v1', clat=38, clon=-120)
 # add_grid(f'{grid_root}/STRONG-CA-128x3-v2-pg2_scrip.nc', 'CA-128x3 v2', clat=38, clon=-120)
+
+grid_root = '/global/homes/w/whannah/E3SM_grid_support/projects'
+# add_grid(f'{grid_root}/caribbean-128x3-pg2_scrip.nc', 'caribbean-128x3', clat=38, clon=-85)
+add_grid(f'{grid_root}/caribbean-32x3-pg2_scrip.nc', 'caribbean-32x3', clat=38, clon=-85)
 
 # ------------------------------------------------------------------------------
 # Shade mode: 'area', 'topo', or 'lines'

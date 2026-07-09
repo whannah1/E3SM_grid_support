@@ -25,8 +25,8 @@ add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',       n='L80 EAMv3 defau
 
 add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128 default',d=0,c='black'  )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc', n='L128 v3.0',c='red')
-# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='green')
-# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc', n='L128 v3.2',c='blue')
+add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='green')
+add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc', n='L128 v3.2',c='blue')
 add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.3_c20251112.nc', n='L128 v3.3',c='magenta')
 
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc',        n='L128 v3.1',       c='red')
