@@ -34,12 +34,12 @@ slurm_qos        = cfg.get('slurm.qos', 'regular')
 #-------------------------------------------------------------------------------
 # step flags — set to False (or comment out) to skip a step
 
-use_batch = True  # set False to run steps directly on the current node
+use_batch = False  # set False to run steps directly on the current node
 
 # do_grid   = True
 # do_maps   = True
-# do_domain = True
-do_topo   = True
+do_domain = True
+# do_topo   = True
 
 
 topo_args = ''
@@ -58,9 +58,9 @@ topo_args += ' --stage all'
 
 # active_grids = None
 # active_grids = ['2026-incite-conus-128x2'] # smaller grid for testing
-# active_grids = ['2026-incite-conus-1024x2']
+active_grids = ['2026-incite-conus-1024x2']
 # active_grids = ['2026-incite-conus-1024x3']
-active_grids = ['2026-incite-conus-1024x4']
+# active_grids = ['2026-incite-conus-1024x4']
 # active_grids = ['2026-incite-conus-128x2']
 
 #-------------------------------------------------------------------------------

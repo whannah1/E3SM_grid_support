@@ -17,7 +17,8 @@
 
 project:
   name:      "2026-INCITE-CONUS-RRM"
-  timestamp: "20251121"
+  # timestamp: "20251121"
+  timestamp: "20260610"
 
 # --- Grid configuration ------------------------------------------------------
 
@@ -27,8 +28,10 @@ grid:
   # Component grids — shared across all grids unless overridden in grids: list
   ocn_name: "RRSwISC6to18E3r5"
   ocn_file: "${DIN_LOC_ROOT}/share/meshes/mpas/ocean/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc"
-  lnd_name: "RRSwISC6to18E3r5"
-  lnd_file: "${DIN_LOC_ROOT}/share/meshes/mpas/ocean/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc"
+  # lnd_name: "RRSwISC6to18E3r5"
+  # lnd_file: "${DIN_LOC_ROOT}/share/meshes/mpas/ocean/ocean.RRSwISC6to18E3r5.mask.scrip.20240327.nc"
+  lnd_name: "2026-incite-conus-1024x2-pg2"
+  lnd_file: "/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid/2026-incite-conus-1024x2-pg2_scrip.nc"
 
   # SPA grid — optional, only needed for EAMxx SPA maps (defaults to <name>pg2)
   spa_name: ""
@@ -92,8 +95,8 @@ topo:
 slurm:
   mail_user:  ""
   mail_type:  ""
-  # account:    "e3sm"
+  account:    "e3sm"
   # account:    "m4842" # SOHIP
-  account:    "m2637" # HyperFACETS
+  # account:    "m2637" # HyperFACETS
   constraint: ""
   qos:        ""
