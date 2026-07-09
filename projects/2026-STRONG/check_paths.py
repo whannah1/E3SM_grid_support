@@ -1,1 +1,1 @@
-../../swag/check_paths.py
+../../taos/check_paths.py

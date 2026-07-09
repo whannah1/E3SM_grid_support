@@ -21,18 +21,18 @@ The details of the SQuadGen commands and some variations are described next.
 
 ```shell
 
-DATA_ROOT=/global/cfs/cdirs/m5277/whannah
+DATA_ROOT=/global/cfs/cdirs/m5277/whannah/2026-STRONG-CA
 GRID_ROOT=${DATA_ROOT}/files_grid
 REF_IMAGE_ROOT=/global/homes/w/whannah/E3SM_grid_support/projects/2026-STRONG
 
-REF_IMAGE_V1=${REF_IMAGE_ROOT}/2026-STRONG-CA-RRM_refinement_image_v1.png
-REF_IMAGE_V2=${REF_IMAGE_ROOT}/2026-STRONG-CA-RRM_refinement_image_v2.png
+REF_IMAGE_V1=${REF_IMAGE_ROOT}/2026-STRONG-CA-RRM_refinement_image_v1.png # w/  halo region
+REF_IMAGE_V2=${REF_IMAGE_ROOT}/2026-STRONG-CA-RRM_refinement_image_v2.png # w/o halo region
 
-BASE_RES=32;REFINE_LVL=5; REF_IMAGE=$REF_IMAGE_V1; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v1 # ne32 => ne1024
+# BASE_RES=32;REFINE_LVL=5; REF_IMAGE=$REF_IMAGE_V1; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v1 # ne32 => ne1024
 # BASE_RES=128;REFINE_LVL=3; REF_IMAGE=$REF_IMAGE_V1; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v1 # ne128 => ne1024
 
 # BASE_RES=32;REFINE_LVL=5; REF_IMAGE=$REF_IMAGE_V2; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v2 # ne32 => ne1024
-# BASE_RES=128;REFINE_LVL=3; REF_IMAGE=$REF_IMAGE_V2; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v2 # ne128 => ne1024
+BASE_RES=128;REFINE_LVL=3; REF_IMAGE=$REF_IMAGE_V2; GRID_NAME=STRONG-CA-${BASE_RES}x${REFINE_LVL}-v2 # ne128 => ne1024
 
 SQuadGen --refine_file ${REF_IMAGE} --resolution ${BASE_RES} --refine_level ${REFINE_LVL} \
 --refine_type LOWCONN --smooth_type SPRING --smooth_dist 10 --smooth_iter 20 \
@@ -47,6 +47,10 @@ GenerateCSMesh --alt --res ${NE} --file ${GRID_ROOT}/ne${NE}.g
 GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2.g --np 2 --uniform
 ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
 ```
+
+--------------------------------------------------------------------------------
+
+<!-- # Prerequisite Steps -->
 
 --------------------------------------------------------------------------------
 
